@@ -31,7 +31,7 @@ const roleConfig = {
     nav: [
       { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/client" },
       { icon: Package, label: "My Orders", href: "/dashboard/client/orders" },
-      { icon: ShoppingCart, label: "Returns", href: "/dashboard/client/returns" },
+      { icon: RotateCcw, label: "Returns", href: "/dashboard/client/returns" },
       { icon: Settings, label: "Settings", href: "/dashboard/client/settings" }
     ]
   },
@@ -40,8 +40,9 @@ const roleConfig = {
     nav: [
       { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/vendor" },
       { icon: Package, label: "Orders", href: "/dashboard/vendor/orders" },
+      { icon: RotateCcw, label: "Returns", href: "/dashboard/vendor/returns" },
       { icon: BarChart3, label: "Performance", href: "/dashboard/vendor/performance" },
-      { icon: Upload, label: "Reports", href: "/dashboard/vendor/reports" },
+      { icon: Upload, label: "File Uploads", href: "/dashboard/vendor/uploads" },
       { icon: Settings, label: "Settings", href: "/dashboard/vendor/settings" }
     ]
   },
@@ -50,9 +51,8 @@ const roleConfig = {
     nav: [
       { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/admin" },
       { icon: Users, label: "Vendors", href: "/dashboard/admin/vendors" },
-      { icon: Package, label: "Orders", href: "/dashboard/admin/orders" },
+      { icon: DollarSign, label: "Settlements", href: "/dashboard/admin/settlements" },
       { icon: BarChart3, label: "Analytics", href: "/dashboard/admin/analytics" },
-      { icon: Upload, label: "Reports", href: "/dashboard/admin/reports" },
       { icon: Settings, label: "Settings", href: "/dashboard/admin/settings" }
     ]
   },
@@ -60,9 +60,8 @@ const roleConfig = {
     title: "BDM Dashboard",
     nav: [
       { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/bdm" },
-      { icon: Users, label: "Vendors", href: "/dashboard/bdm/vendors" },
-      { icon: RotateCcw, label: "Onboarding", href: "/dashboard/bdm/onboarding" },
-      { icon: BarChart3, label: "Performance", href: "/dashboard/bdm/performance" },
+      { icon: Users, label: "Vendor Pipeline", href: "/dashboard/bdm/vendors" },
+      { icon: TrendingUp, label: "Performance", href: "/dashboard/bdm/performance" },
       { icon: Settings, label: "Settings", href: "/dashboard/bdm/settings" }
     ]
   }
@@ -150,9 +149,6 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
           <div className="flex items-center gap-4">
             <NotificationCenter />
             <ThemeSwitch />
-            <Button variant="ghost" size="icon">
-              <LogOut className="w-5 h-5" />
-            </Button>
           </div>
         </header>
 
