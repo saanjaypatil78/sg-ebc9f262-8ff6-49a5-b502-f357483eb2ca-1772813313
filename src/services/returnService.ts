@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
-type Return = Database["public"]["Tables"]["returns"]["Row"];
+type ReturnStatus = Database["public"]["Enums"]["return_status"];
 type ReturnInsert = Database["public"]["Tables"]["returns"]["Insert"];
 type ReturnUpdate = Database["public"]["Tables"]["returns"]["Update"];
 
@@ -84,7 +84,7 @@ export const returnService = {
   // Update return status
   async updateReturnStatus(
     returnId: string, 
-    status: Database["public"]["Enums"]["return_status"],
+    status: ReturnStatus,
     adminNotes?: string
   ) {
     const updates: ReturnUpdate = { status };

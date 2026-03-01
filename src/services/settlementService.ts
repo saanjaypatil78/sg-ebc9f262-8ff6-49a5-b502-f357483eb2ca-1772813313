@@ -1,8 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
-type Settlement = Database["public"]["Tables"]["settlements"]["Row"];
-type SettlementInsert = Database["public"]["Tables"]["settlements"]["Insert"];
+type PaymentStatus = Database["public"]["Enums"]["payment_status"];
 
 export const settlementService = {
   // Get settlements for vendor
@@ -95,7 +94,7 @@ export const settlementService = {
   },
 
   // Create settlement
-  async createSettlement(settlement: SettlementInsert) {
+  async createSettlement(settlement: any) {
     const { data, error } = await supabase
       .from("settlements")
       .insert(settlement)
@@ -112,7 +111,7 @@ export const settlementService = {
   // Update settlement status
   async updateSettlementStatus(
     settlementId: string, 
-    status: Database["public"]["Enums"]["payment_status"]
+    status: PaymentStatus
   ) {
     const updates: any = { payment_status: status };
     if (status === "completed") updates.payment_date = new Date().toISOString();
@@ -145,13 +144,14 @@ export const settlementService = {
 
     if (vendorsError) throw vendorsError;
 
-    const settlements: SettlementInsert[] = [];
+    const settlements: any[] = [];
 
     for (const vendor of vendors || []) {
       const calc = await this.calculateSettlement(vendor.id, periodStart, periodEnd);
       
       settlements.push({
         vendor_id: vendor.id,
+        settlement_number: "TEMP", // Will be overridden by trigger
         period_start: periodStart,
         period_end: periodEnd,
         total_orders: calc.totalOrders,
@@ -167,7 +167,7 @@ export const settlementService = {
     if (settlements.length > 0) {
       const { data, error } = await supabase
         .from("settlements")
-        .insert(settlements as any)
+        .insert(settlements)
         .select();
 
       if (error) throw error;
