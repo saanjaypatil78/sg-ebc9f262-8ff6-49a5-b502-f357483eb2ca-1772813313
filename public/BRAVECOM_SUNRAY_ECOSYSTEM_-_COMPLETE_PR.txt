@@ -1,0 +1,3033 @@
+# 📚 SUNRAY ECOSYSTEM - COMPLETE PRD & MD DOCUMENTATION
+## With RBAC Access Control + Registration Module Integration
+
+---
+
+# 📄 DOCUMENT 1: MASTER PRD (Product Requirements Document)
+
+```markdown
+# 🌟 SUNRAY ECOSYSTEM - MASTER PRODUCT REQUIREMENTS DOCUMENT
+## Version: 2.0 | Status: Production Ready | Last Updated: January 2025
+
+---
+
+## 📋 TABLE OF CONTENTS
+
+1. [Executive Summary](#1-executive-summary)
+2. [System Overview](#2-system-overview)
+3. [Role-Based Access Control (RBAC)](#3-role-based-access-control-rbac)
+4. [Investment Plan Module](#4-investment-plan-module)
+5. [Vendor Plan Module](#5-vendor-plan-module)
+6. [Commission & Royalty Engine](#6-commission--royalty-engine)
+7. [Autonomous Webhook System](#7-autonomous-webhook-system)
+8. [Registration & KYC Module](#8-registration--kyc-module)
+9. [Product Listing Strategy](#9-product-listing-strategy)
+10. [Security & Compliance](#10-security--compliance)
+11. [Technical Architecture](#11-technical-architecture)
+12. [Implementation Roadmap](#12-implementation-roadmap)
+
+---
+
+## 1. EXECUTIVE SUMMARY
+
+### 1.1 Project Vision
+Build a complete investment and vendor ecosystem with autonomous webhook-driven operations, progressive commission structures, bi-directional rank management, and strategic product listing - all optimized for 98% cost reduction.
+
+### 1.2 Key Metrics
+| Metric | Target | Current |
+| :--- | :--- | :--- |
+| **Investor Return** | 15% monthly | ✅ Configured |
+| **Vendor Return** | 25% monthly (active) | ✅ Configured |
+| **Operational Cost** | <₹6,000/month | ✅ 98% reduction |
+| **API Calls** | <200/day | ✅ Webhook-driven |
+| **Success Rate** | >85% | ✅ Strategic timing |
+| **Compliance** | KYC/AML 100% | ✅ Integrated |
+
+### 1.3 Stakeholders
+| Role | Responsibility | Access Level |
+| :--- | :--- | :--- |
+| **Investors** | Capital investment | Level 1-3 |
+| **Vendors** | Product listing + investment | Level 1-4 |
+| **Admins** | System management | Level 5-7 |
+| **Super Admin** | Full system control | Level 8-10 |
+| **Compliance** | KYC/AML verification | Level 6-7 |
+| **Finance** | Payout processing | Level 5-6 |
+
+---
+
+## 2. SYSTEM OVERVIEW
+
+### 2.1 Core Components
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    SUNRAY ECOSYSTEM ARCHITECTURE                │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+│  │  Investment  │  │    Vendor    │  │   Product Listing    │  │
+│  │    Plan      │  │    Plan      │  │      Strategy        │  │
+│  │   (15%)      │  │   (25%)      │  │   (24h Analysis)     │  │
+│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
+│                            │                                     │
+│  ┌─────────────────────────┴─────────────────────────────────┐  │
+│  │              COMMISSION & ROYALTY ENGINE                   │  │
+│  │         6-Level Progressive (20%-1% + Royalty)            │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                            │                                     │
+│  ┌─────────────────────────┴─────────────────────────────────┐  │
+│  │           AUTONOMOUS WEBHOOK SYSTEM (1-Hour Batch)         │  │
+│  │              98% Cost Reduction | Zero API Polling         │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                            │                                     │
+│  ┌─────────────────────────┴─────────────────────────────────┐  │
+│  │              RBAC ACCESS CONTROL (10 Levels)               │  │
+│  │         Registration + KYC + Payout Management             │  │
+│  └───────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 2.2 Financial Distribution (₹1,111 Crore Corpus)
+
+| Category | Percentage | Amount (₹) | Webhook Trigger |
+| :--- | :--- | :--- | :--- |
+| **Investor Profit (15%)** | 15% | 166.67 Cr | `INVESTOR_PROFIT_DUE` |
+| **Vendor Return (25%)** | 25% | 277.78 Cr | `VENDOR_RETURN_DUE` |
+| **Referral Commission (45%)** | 45% | 500.00 Cr | `COMMISSION_ACCUMULATED` |
+| **Admin Charges (10% of Comm)** | 4.5% | 50.00 Cr | `ADMIN_FEE_CALCULATED` |
+| **Affiliate Royalty** | 3% | 33.33 Cr | `ROYALTY_QUALIFIED` |
+| **Yearly Gifts** | 3% | 33.33 Cr | `YEARLY_GIFT_DUE` |
+| **Office Expense** | 3% | 33.33 Cr | `OFFICE_EXPENSE_ALLOCATED` |
+| **Marketing Expense** | 10% | 111.11 Cr | `MARKETING_BUDGET_RELEASED` |
+| **Company Expansion** | 10% | 111.11 Cr | `EXPANSION_FUND_ALLOCATED` |
+| **Milind Patil** | 10% | 111.11 Cr | `OWNER_DISTRIBUTION` |
+| **Roshan Karnekar** | 10% | 111.11 Cr | `OWNER_DISTRIBUTION` |
+| **TOTAL** | **100%** | **1,111.11 Cr** | |
+
+---
+
+## 3. ROLE-BASED ACCESS CONTROL (RBAC)
+
+### 3.1 Access Level Matrix
+
+| Level | Role | Registration | Investment | Vendor | Commission | Payout | Admin | System |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **1** | Guest | ✅ Read | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **2** | Registered | ✅ Full | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **3** | Investor | ✅ Full | ✅ Full | ❌ | ✅ View | ✅ View | ❌ | ❌ |
+| **4** | Vendor | ✅ Full | ✅ Full | ✅ Full | ✅ View | ✅ View | ❌ | ❌ |
+| **5** | Finance | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ✅ Process | ✅ View | ❌ |
+| **6** | Compliance | ✅ Full | ✅ Full | ✅ Full | ✅ View | ✅ View | ✅ KYC | ❌ |
+| **7** | Admin | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ❌ |
+| **8** | Super Admin | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ✅ Config |
+| **9** | System | ✅ Auto | ✅ Auto | ✅ Auto | ✅ Auto | ✅ Auto | ✅ Auto | ✅ Auto |
+| **10** | Root | ✅ All | ✅ All | ✅ All | ✅ All | ✅ All | ✅ All | ✅ All |
+
+### 3.2 Permission Codes
+
+```typescript
+// src/lib/rbac/permission-codes.ts
+
+export const PERMISSIONS = {
+  // Registration Module
+  REGISTRATION_CREATE: 'reg:create',
+  REGISTRATION_READ: 'reg:read',
+  REGISTRATION_UPDATE: 'reg:update',
+  REGISTRATION_DELETE: 'reg:delete',
+  KYC_VERIFY: 'kyc:verify',
+  KYC_REJECT: 'kyc:reject',
+  
+  // Investment Module
+  INVESTMENT_CREATE: 'inv:create',
+  INVESTMENT_READ: 'inv:read',
+  INVESTMENT_CALCULATE: 'inv:calculate',
+  INVESTMENT_WITHDRAW: 'inv:withdraw',
+  
+  // Vendor Module
+  VENDOR_CREATE: 'ven:create',
+  VENDOR_READ: 'ven:read',
+  VENDOR_PRODUCT_LIST: 'ven:product:list',
+  VENDOR_PRODUCT_APPROVE: 'ven:product:approve',
+  VENDOR_REVENUE_VIEW: 'ven:revenue:view',
+  
+  // Commission Module
+  COMMISSION_VIEW: 'comm:view',
+  COMMISSION_CALCULATE: 'comm:calculate',
+  COMMISSION_PROCESS: 'comm:process',
+  COMMISSION_OVERRIDE: 'comm:override',
+  
+  // Payout Module
+  PAYOUT_VIEW: 'pay:view',
+  PAYOUT_PROCESS: 'pay:process',
+  PAYOUT_APPROVE: 'pay:approve',
+  PAYOUT_REJECT: 'pay:reject',
+  
+  // Admin Module
+  ADMIN_USER_MANAGE: 'admin:user:manage',
+  ADMIN_SYSTEM_CONFIG: 'admin:system:config',
+  ADMIN_AUDIT_VIEW: 'admin:audit:view',
+  ADMIN_WEBHOOK_MANAGE: 'admin:webhook:manage',
+  
+  // System Module
+  SYSTEM_DATABASE_ACCESS: 'sys:db:access',
+  SYSTEM_WEBHOOK_EXECUTE: 'sys:webhook:execute',
+  SYSTEM_FULL_ACCESS: 'sys:full:access',
+} as const;
+
+export const ROLE_PERMISSIONS: Record<string, string[]> = {
+  GUEST: [
+    'reg:read',
+  ],
+  REGISTERED: [
+    'reg:create',
+    'reg:read',
+    'reg:update',
+  ],
+  INVESTOR: [
+    'reg:create',
+    'reg:read',
+    'reg:update',
+    'inv:create',
+    'inv:read',
+    'inv:calculate',
+    'comm:view',
+    'pay:view',
+  ],
+  VENDOR: [
+    'reg:create',
+    'reg:read',
+    'reg:update',
+    'inv:create',
+    'inv:read',
+    'inv:calculate',
+    'ven:create',
+    'ven:read',
+    'ven:product:list',
+    'ven:revenue:view',
+    'comm:view',
+    'pay:view',
+  ],
+  FINANCE: [
+    'reg:create',
+    'reg:read',
+    'reg:update',
+    'inv:create',
+    'inv:read',
+    'inv:calculate',
+    'ven:create',
+    'ven:read',
+    'ven:revenue:view',
+    'comm:view',
+    'comm:calculate',
+    'comm:process',
+    'pay:view',
+    'pay:process',
+    'admin:audit:view',
+  ],
+  COMPLIANCE: [
+    'reg:create',
+    'reg:read',
+    'reg:update',
+    'kyc:verify',
+    'kyc:reject',
+    'inv:read',
+    'ven:read',
+    'comm:view',
+    'pay:view',
+    'admin:audit:view',
+  ],
+  ADMIN: [
+    'reg:create',
+    'reg:read',
+    'reg:update',
+    'reg:delete',
+    'kyc:verify',
+    'kyc:reject',
+    'inv:create',
+    'inv:read',
+    'inv:calculate',
+    'inv:withdraw',
+    'ven:create',
+    'ven:read',
+    'ven:product:list',
+    'ven:product:approve',
+    'ven:revenue:view',
+    'comm:view',
+    'comm:calculate',
+    'comm:process',
+    'pay:view',
+    'pay:process',
+    'pay:approve',
+    'pay:reject',
+    'admin:user:manage',
+    'admin:audit:view',
+    'admin:webhook:manage',
+  ],
+  SUPER_ADMIN: [
+    'reg:*',
+    'kyc:*',
+    'inv:*',
+    'ven:*',
+    'comm:*',
+    'pay:*',
+    'admin:*',
+    'sys:db:access',
+    'sys:webhook:execute',
+  ],
+  SYSTEM: [
+    'sys:*',
+  ],
+  ROOT: [
+    '*:*:*',
+  ],
+};
+```
+
+### 3.3 RBAC Middleware Implementation
+
+```typescript
+// src/middleware/rbac-middleware.ts
+
+import { NextRequest, NextResponse } from 'next/server';
+import { verifyToken } from '@/lib/auth/jwt';
+import { ROLE_PERMISSIONS, PERMISSIONS } from '@/lib/rbac/permission-codes';
+
+export interface RBACConfig {
+  requiredPermissions: string[];
+  minLevel?: number;
+  maxLevel?: number;
+  excludeRoles?: string[];
+}
+
+export async function rbacMiddleware(
+  request: NextRequest,
+  config: RBACConfig
+): Promise<NextResponse> {
+  try {
+    // Extract token from header
+    const token = request.headers.get('authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Authentication required', code: 'AUTH_MISSING' },
+        { status: 401 }
+      );
+    }
+    
+    // Verify token and extract user info
+    const user = await verifyToken(token);
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Invalid token', code: 'AUTH_INVALID' },
+        { status: 401 }
+      );
+    }
+    
+    // Check role level
+    const userLevel = getUserLevel(user.role);
+    
+    if (config.minLevel && userLevel < config.minLevel) {
+      return NextResponse.json(
+        { error: 'Insufficient access level', code: 'RBAC_LEVEL_LOW', required: config.minLevel, current: userLevel },
+        { status: 403 }
+      );
+    }
+    
+    if (config.maxLevel && userLevel > config.maxLevel) {
+      return NextResponse.json(
+        { error: 'Access level too high', code: 'RBAC_LEVEL_HIGH', required: config.maxLevel, current: userLevel },
+        { status: 403 }
+      );
+    }
+    
+    if (config.excludeRoles?.includes(user.role)) {
+      return NextResponse.json(
+        { error: 'Role excluded from this action', code: 'RBAC_ROLE_EXCLUDED' },
+        { status: 403 }
+      );
+    }
+    
+    // Check permissions
+    const userPermissions = ROLE_PERMISSIONS[user.role] || [];
+    
+    for (const requiredPerm of config.requiredPermissions) {
+      const hasPermission = userPermissions.some(perm => {
+        if (perm === '*:*:*') return true; // Root access
+        if (perm.endsWith('*')) {
+          const prefix = perm.slice(0, -1);
+          return requiredPerm.startsWith(prefix);
+        }
+        return perm === requiredPerm;
+      });
+      
+      if (!hasPermission) {
+        return NextResponse.json(
+          { error: 'Permission denied', code: 'RBAC_PERMISSION_DENIED', required: requiredPerm, role: user.role },
+          { status: 403 }
+        );
+      }
+    }
+    
+    // Attach user info to request headers for downstream use
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-user-id', user.id);
+    requestHeaders.set('x-user-role', user.role);
+    requestHeaders.set('x-user-level', userLevel.toString());
+    
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+  } catch (error) {
+    console.error('RBAC Middleware Error:', error);
+    return NextResponse.json(
+      { error: 'Authorization failed', code: 'RBAC_ERROR' },
+      { status: 500 }
+    );
+  }
+}
+
+function getUserLevel(role: string): number {
+  const levelMap: Record<string, number> = {
+    GUEST: 1,
+    REGISTERED: 2,
+    INVESTOR: 3,
+    VENDOR: 4,
+    FINANCE: 5,
+    COMPLIANCE: 6,
+    ADMIN: 7,
+    SUPER_ADMIN: 8,
+    SYSTEM: 9,
+    ROOT: 10,
+  };
+  
+  return levelMap[role] || 0;
+}
+```
+
+---
+
+## 4. INVESTMENT PLAN MODULE
+
+### 4.1 Investment Tiers
+
+| Level | Investment | Monthly Profit (15%) | Annual Return | Payout Schedule |
+| :--- | :--- | :--- | :--- | :--- |
+| A | ₹51,111 | ₹7,667 | ₹92,004 | 45 days first, then 30 days |
+| L1 | ₹10,60,000 | ₹1,59,000 | ₹19,08,000 | 45 days first, then 30 days |
+| L2 | ₹27,00,000 | ₹4,05,000 | ₹48,60,000 | 45 days first, then 30 days |
+| L3 | ₹53,00,000 | ₹7,95,000 | ₹95,40,000 | 45 days first, then 30 days |
+| L4 | ₹1,10,00,000 | ₹16,50,000 | ₹1,98,00,000 | 45 days first, then 30 days |
+| L5 | ₹2,50,00,000 | ₹37,50,000 | ₹4,50,00,000 | 45 days first, then 30 days |
+| L6 | ₹11,00,00,000 | ₹1,65,00,000 | ₹19,80,00,000 | 45 days first, then 30 days |
+
+### 4.2 Investment Agreement Terms
+
+```typescript
+// src/lib/config/investment-terms.ts
+
+export const INVESTMENT_TERMS = {
+  PROFIT_PERCENTAGE: 0.15,
+  AGREEMENT_MONTHS: 12,
+  MIN_LOCKIN_MONTHS: 12,
+  FIRST_PAYOUT_DAYS: 45,
+  SUBSEQUENT_PAYOUT_DAYS: 30,
+  TOTAL_PAYOUTS: 12,
+  EARLY_WITHDRAWAL_ALLOWED: false,
+  EARLY_WITHDRAWAL_PENALTY: 0.50,
+  MIN_INVESTMENT: 51111,
+  MAX_INVESTMENT: 1000000000,
+  KYC_MANDATORY: true,
+  NOMINEE_MANDATORY: true,
+  BANK_VERIFICATION_MANDATORY: true,
+} as const;
+```
+
+---
+
+## 5. VENDOR PLAN MODULE
+
+### 5.1 Vendor vs Investor Comparison
+
+| Feature | Investor | Vendor |
+| :--- | :--- | :--- |
+| **Return Rate** | 15% monthly | 25% monthly (active) |
+| **Return Type** | Passive | Active (must sell) |
+| **Payout Schedule** | 45 days first, then 30 days | 30 days (monthly) |
+| **Min Investment** | ₹51,111 | ₹1,00,000 |
+| **Max Investment** | ₹100 Crore | ₹50 Crore |
+| **Revenue Share** | N/A | 85% vendor, 15% platform |
+| **Product Listing** | N/A | Required (min 5 products) |
+| **Rank Weight** | 1x | 2x for rank calculation |
+
+### 5.2 Revenue Share Calculation
+
+```typescript
+// src/lib/vendor/revenue-share.ts
+
+export const VENDOR_REVENUE_CONFIG = {
+  VENDOR_SHARE: 0.85, // 85% to vendor
+  PLATFORM_FEE: 0.15, // 15% to platform
+  MIN_PRODUCTS_TO_ACTIVATE: 5,
+  VENDOR_RETURN_RATE: 0.25, // 25% active return
+} as const;
+
+export function calculateRevenueShare(orderTotal: number): RevenueShareResult {
+  const vendorShare = orderTotal * VENDOR_REVENUE_CONFIG.VENDOR_SHARE;
+  const platformFee = orderTotal * VENDOR_REVENUE_CONFIG.PLATFORM_FEE;
+  
+  return {
+    orderTotal,
+    vendorShare,
+    platformFee,
+    vendorSharePercentage: VENDOR_REVENUE_CONFIG.VENDOR_SHARE,
+    platformFeePercentage: VENDOR_REVENUE_CONFIG.PLATFORM_FEE,
+  };
+}
+```
+
+---
+
+## 6. COMMISSION & ROYALTY ENGINE
+
+### 6.1 Base Commission Structure (6 Levels)
+
+| Level | Base % | Calculation Base |
+| :--- | :--- | :--- |
+| Level 1 | 20% | Direct Referral Investment |
+| Level 2 | 10% | Level 2 Downline Investment |
+| Level 3 | 7% | Level 3 Downline Investment |
+| Level 4 | 5% | Level 4 Downline Investment |
+| Level 5 | 2% | Level 5 Downline Investment |
+| Level 6 | 1% | Level 6 Downline Investment |
+| **TOTAL** | **45%** | **All 6 Levels** |
+
+### 6.2 Progressive Royalty Structure
+
+| Rank | Business Target | Royalty Add-On | L1 | L2 | L3 | L4 | L5 | L6 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **BASE** | ₹0 | 0% | 20% | 10% | 7% | 5% | 2% | 1% |
+| **BRONZE** | ₹1 Crore | +1% | 21% | 11% | 8% | 6% | 3% | 2% |
+| **SILVER** | ₹5 Crore | +1.75% | 21.75% | 11.75% | 8.75% | 6.75% | 3.75% | 2.75% |
+| **GOLD** | ₹10 Crore | +2.25% | 22.25% | 12.25% | 9.25% | 7.25% | 4.25% | 3.25% |
+| **PLATINUM** | ₹25 Crore | +2.60% | 22.60% | 12.60% | 9.60% | 7.60% | 4.60% | 3.60% |
+| **DIAMOND** | ₹50 Crore | +2.85% | 22.85% | 12.85% | 9.85% | 7.85% | 4.85% | 3.85% |
+| **AMBASSADOR** | ₹100 Crore | +3% | 23% | 13% | 10% | 8% | 5% | 4% |
+
+### 6.3 Admin Charges
+
+```typescript
+// src/lib/commission/admin-charges.ts
+
+export const ADMIN_CONFIG = {
+  ADMIN_CHARGE_PERCENT: 0.10, // 10% on commission only
+  ADMIN_CHARGE_BASE: 'COMMISSION', // Not on principal or profit
+  DEDUCTION_TIMING: 'PER_TRANSACTION', // Deducted per commission transaction
+} as const;
+
+export function calculateCommissionWithAdmin(
+  investmentAmount: number,
+  commissionRate: number
+): CommissionResult {
+  const grossCommission = investmentAmount * commissionRate;
+  const adminCharge = grossCommission * ADMIN_CONFIG.ADMIN_CHARGE_PERCENT;
+  const netCommission = grossCommission - adminCharge;
+  
+  return {
+    investmentAmount,
+    commissionRate,
+    grossCommission,
+    adminCharge,
+    netCommission,
+    adminChargePercentage: ADMIN_CONFIG.ADMIN_CHARGE_PERCENT,
+  };
+}
+```
+
+---
+
+## 7. AUTONOMOUS WEBHOOK SYSTEM
+
+### 7.1 Webhook Event Types
+
+```typescript
+// src/lib/webhooks/event-types.ts
+
+export const WEBHOOK_EVENT_TYPES = {
+  // User Operations
+  USER_REGISTERED: 'USER_REGISTERED',
+  USER_VERIFIED: 'USER_VERIFIED',
+  USER_INVESTED: 'USER_INVESTED',
+  
+  // Investment Operations
+  INVESTMENT_CREATED: 'INVESTMENT_CREATED',
+  INVESTMENT_ACTIVATED: 'INVESTMENT_ACTIVATED',
+  INVESTMENT_PAYOUT_DUE: 'INVESTMENT_PAYOUT_DUE',
+  
+  // Vendor Operations
+  VENDOR_REGISTERED: 'VENDOR_REGISTERED',
+  VENDOR_RETURN_CALCULATED: 'VENDOR_RETURN_CALCULATED',
+  VENDOR_REVENUE_SHARE_CALCULATED: 'VENDOR_REVENUE_SHARE_CALCULATED',
+  
+  // Commission Operations
+  COMMISSION_ACCUMULATED: 'COMMISSION_ACCUMULATED',
+  COMMISSION_CALCULATED: 'COMMISSION_CALCULATED',
+  COMMISSION_PAID: 'COMMISSION_PAID',
+  
+  // Rank Operations
+  RANK_EVALUATION_DUE: 'RANK_EVALUATION_DUE',
+  RANK_UPGRADED: 'RANK_UPGRADED',
+  RANK_DOWNGRADED: 'RANK_DOWNGRADED',
+  
+  // Product Operations
+  TREND_DATA_ACCUMULATED: 'TREND_DATA_ACCUMULATED',
+  PRODUCT_STRATEGY_ANALYSIS_DUE: 'PRODUCT_STRATEGY_ANALYSIS_DUE',
+  PRODUCT_LISTING_APPROVED: 'PRODUCT_LISTING_APPROVED',
+  
+  // Payout Operations
+  PAYOUT_DUE: 'PAYOUT_DUE',
+  PAYOUT_ACCUMULATED: 'PAYOUT_ACCUMULATED',
+  PAYOUT_PROCESSED: 'PAYOUT_PROCESSED',
+  
+  // Batch Operations
+  WEBHOOK_BATCH_PROCESS: 'WEBHOOK_BATCH_PROCESS',
+  WEBHOOK_BATCH_COMPLETE: 'WEBHOOK_BATCH_COMPLETE',
+} as const;
+```
+
+### 7.2 Batch Processing Configuration
+
+```typescript
+// src/lib/webhook/batch-config.ts
+
+export const WEBHOOK_BATCH_CONFIG = {
+  BATCH_DELAY_HOURS: 1, // 1-hour delay for accumulation
+  BATCH_LIMIT: 1000, // Max events per batch
+  BATCH_TIMEOUT_MS: 300000, // 5 minutes max per batch
+  CHECK_INTERVAL_MS: 60000, // Check every 1 minute
+  MAX_CONCURRENT_BATCHES: 3,
+  
+  // Accumulation Windows
+  USER_ID_ACCUMULATION_WINDOW_HOURS: 1,
+  PAYOUT_ACCUMULATION_WINDOW_HOURS: 24, // Daily
+  COMMISSION_ACCUMULATION_WINDOW_HOURS: 24, // Daily
+  TREND_DATA_ACCUMULATION_HOURS: 24, // 24h minimum before listing decision
+  
+  // Retry Logic
+  MAX_RETRY_COUNT: 5,
+  RETRY_DELAY_HOURS: 1,
+  EXPONENTIAL_BACKOFF: true,
+} as const;
+```
+
+---
+
+## 8. REGISTRATION & KYC MODULE
+
+### 8.1 Registration Form Fields
+
+#### Section 1: Personal Information
+| Field | Type | Validation | Required | RBAC Level |
+| :--- | :--- | :--- | :--- | :--- |
+| First Name | Text | Alphabetic, Max 50 chars | Yes | 1+ |
+| Middle Name | Text | Alphabetic, Max 50 chars | No | 1+ |
+| Last Name | Text | Alphabetic, Max 50 chars | Yes | 1+ |
+| Contact No | Numeric | 10 Digits, Valid Country Code | Yes | 1+ |
+| Email Id | Email | RFC 5322 Standard | Yes | 1+ |
+
+#### Section 2: Identity Verification (KYC)
+| Field | Type | Validation | Required | RBAC Level |
+| :--- | :--- | :--- | :--- | :--- |
+| Aadhaar No | Numeric | 12 Digits, Valid Checksum | Yes | 2+ |
+| PAN No | Alphanumeric | 5 Alpha + 4 Numeric + 1 Alpha | Yes | 2+ |
+| Address | Text | Auto-fetch via Aadhaar API | Yes | 2+ |
+
+#### Section 3: Bank Details (Applicant)
+| Field | Type | Validation | Required | RBAC Level |
+| :--- | :--- | :--- | :--- | :--- |
+| Bank Name | Dropdown | Select from IFSC Database | Yes | 3+ |
+| Acc No | Numeric | Min 9, Max 18 Digits | Yes | 3+ |
+| IFSC Code | Alphanumeric | 11 Characters | Yes | 3+ |
+
+#### Section 4: Nominee Details (Beneficiary)
+| Field | Type | Validation | Required | RBAC Level |
+| :--- | :--- | :--- | :--- | :--- |
+| Full Name | Text | Alphabetic, Max 100 chars | Yes | 3+ |
+| Contact No | Numeric | 10 Digits | Yes | 3+ |
+| Relation | Dropdown | Father, Mother, Spouse, Sibling | Yes | 3+ |
+| Aadhaar No | Numeric | 12 Digits | Yes | 3+ |
+| PAN No | Alphanumeric | Standard PAN Format | Yes | 3+ |
+| Bank Details | Same as Applicant | Same validation | Yes | 3+ |
+| **Age Check** | Logic | Must be >18 years | Yes | 6+ (Compliance) |
+
+#### Section 5: Account Security & Finalization
+| Field | Type | Validation | Required | RBAC Level |
+| :--- | :--- | :--- | :--- | :--- |
+| Referral Code | Alphanumeric | Must exist in Referral Table | Mandatory | 2+ |
+| Username | Text | Unique, Min 6 chars, No special chars | Yes | 2+ |
+| Password | Password | Min 8 chars, 1 Upper, 1 Lower, 1 Number, 1 Symbol | Yes | 2+ |
+| Contact OTP | Numeric | 4-6 Digits, 5 min expiry | Yes | 2+ |
+| Email OTP | Numeric | 4-6 Digits, 5 min expiry | Yes | 2+ |
+| Captcha | Token | Server-side validation | Yes | 2+ |
+
+### 8.2 Registration Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    REGISTRATION FLOW                            │
+├─────────────────────────────────────────────────────────────────┤
+│  1. Enter Personal Info (Level 1+)                              │
+│          ↓                                                       │
+│  2. Verify Contact & Email OTP (Level 2+)                       │
+│          ↓                                                       │
+│  3. Enter KYC Details - Aadhaar/PAN (Level 2+)                  │
+│          ↓                                                       │
+│  4. Enter Bank Details (Level 3+)                               │
+│          ↓                                                       │
+│  5. Enter Nominee Details (Level 3+)                            │
+│          ↓                                                       │
+│  6. Create Credentials - User/Pass (Level 2+)                   │
+│          ↓                                                       │
+│  7. Enter Mandatory Referral Code (Level 2+)                    │
+│          ↓                                                       │
+│  8. Solve Captcha (Level 2+)                                    │
+│          ↓                                                       │
+│  9. Submit & Encrypt Data (Level 6+ for KYC verification)       │
+│          ↓                                                       │
+│  10. Registration Complete → Status: RED (Before Investment)    │
+│          ↓                                                       │
+│  11. Investment & Verification → Status: GREEN (Active)         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 8.3 Security & Compliance Standards
+
+```typescript
+// src/lib/security/compliance-standards.ts
+
+export const COMPLIANCE_STANDARDS = {
+  // Encryption
+  DATA_ENCRYPTION: 'AES-256', // At rest
+  TRANSIT_ENCRYPTION: 'TLS-1.3', // In transit
+  
+  // Verification
+  CONTACT_VERIFICATION: 'SMS_OTP',
+  EMAIL_VERIFICATION: 'LINK_OR_OTP',
+  KYC_VERIFICATION: 'AADHAAR_PAN_VERIFY',
+  BANK_VERIFICATION: 'PENNY_DROP',
+  
+  // Bot Protection
+  CAPTCHA_PROVIDER: 'GOOGLE_RECAPTCHA_V3',
+  RATE_LIMITING: '100_REQUESTS_PER_MINUTE',
+  
+  // Privacy
+  DATA_PROTECTION_ACT: 'DPDP-2023', // India
+  GDPR_COMPLIANT: true,
+  AADHAAR_STORAGE: 'ENCRYPTED_HASH_ONLY', // Never store plain text
+  
+  // Audit
+  AUDIT_LOG_RETENTION_DAYS: 2555, // 7 years
+  SESSION_LOG_RETENTION_DAYS: 90,
+  
+  // Age Verification
+  MIN_AGE: 18,
+  NOMINEE_MIN_AGE: 18,
+  AGE_VERIFICATION_METHOD: 'AADHAAR_API',
+} as const;
+```
+
+---
+
+## 9. PRODUCT LISTING STRATEGY
+
+### 9.1 Strategic Listing Process (24h+ Analysis)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              PRODUCT LISTING STRATEGY FLOW                      │
+├─────────────────────────────────────────────────────────────────┤
+│  1. Vendor Submits Product (Webhook Queued, 1h delay)           │
+│          ↓                                                       │
+│  2. Trend Data Collection (Google Trends RSS, Free)             │
+│          ↓                                                       │
+│  3. 24-Hour Data Accumulation (Batch Processing)                │
+│          ↓                                                       │
+│  4. Strategic Analysis (Trend Score, Competition, Timing)       │
+│          ↓                                                       │
+│  5. Decision: LIST / POSTPONE / REJECT                          │
+│          ↓                                                       │
+│  6. If LIST → Product Created (Webhook Triggered)               │
+│          ↓                                                       │
+│  7. If POSTPONE → Re-evaluate in 7 days                         │
+│          ↓                                                       │
+│  8. If REJECT → Notify Vendor with Reasons                      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 9.2 Listing Decision Criteria
+
+| Score Range | Decision | Confidence | Action |
+| :--- | :--- | :--- | :--- |
+| **80-100** | LIST | 90% | Approve immediately, HIGH priority |
+| **60-79** | LIST | 75% | Approve, NORMAL priority |
+| **40-59** | POSTPONE | 60% | Re-evaluate in 7 days |
+| **0-39** | REJECT | 50% | Reject with reasons |
+
+### 9.3 Trend Analysis Scoring
+
+```typescript
+// src/lib/product/trend-scoring.ts
+
+export const TREND_SCORING = {
+  // Market Demand Score (0-100)
+  TREND_SCORE_WEIGHT: 0.40, // 40%
+  SEARCH_VOLUME_WEIGHT: 0.30, // 30%
+  GROWTH_RATE_WEIGHT: 0.30, // 30%
+  
+  // Thresholds
+  HIGH_DEMAND_SCORE: 80,
+  MEDIUM_DEMAND_SCORE: 60,
+  LOW_DEMAND_SCORE: 40,
+  
+  // Data Collection
+  MIN_DATA_HOURS: 24, // Minimum 24h before decision
+  OPTIMAL_DATA_HOURS: 48, // Optimal 48h for best decisions
+  MAX_DATA_HOURS: 168, // Max 7 days
+  
+  // Competition Levels
+  LOW_COMPETITION_THRESHOLD: 10, // <10 competitors
+  MEDIUM_COMPETITION_THRESHOLD: 50, // 10-50 competitors
+  HIGH_COMPETITION_THRESHOLD: 50, // >50 competitors
+} as const;
+
+export function calculateMarketDemandScore(
+  trendScore: number,
+  searchVolume: number,
+  growthRate: number
+): number {
+  const trendComponent = Math.min(trendScore, 100) * TREND_SCORING.TREND_SCORE_WEIGHT;
+  const volumeComponent = Math.min((searchVolume / 10000) * 100, 100) * TREND_SCORING.SEARCH_VOLUME_WEIGHT;
+  const growthComponent = Math.min((growthRate + 50) * 2, 100) * TREND_SCORING.GROWTH_RATE_WEIGHT;
+  
+  return trendComponent + volumeComponent + growthComponent;
+}
+```
+
+---
+
+## 10. SECURITY & COMPLIANCE
+
+### 10.1 Security Measures
+
+| Layer | Technology | Implementation |
+| :--- | :--- | :--- |
+| **Authentication** | JWT + 2FA | Token-based with refresh |
+| **Authorization** | RBAC (10 Levels) | Permission-based access |
+| **Encryption** | AES-256 + TLS 1.3 | At rest + in transit |
+| **KYC/AML** | Aadhaar + PAN API | Mandatory verification |
+| **Audit Trail** | Database Logs | 7-year retention |
+| **Rate Limiting** | Redis + Middleware | 100 req/min per user |
+| **Bot Protection** | reCAPTCHA v3 | Registration forms |
+| **Session Management** | Redis Store | 24h expiry |
+
+### 10.2 Compliance Requirements
+
+```typescript
+// src/lib/compliance/requirements.ts
+
+export const COMPLIANCE_REQUIREMENTS = {
+  // KYC/AML
+  KYC_MANDATORY_THRESHOLD: 51111, // ₹51,111
+  AML_SCREENING_REQUIRED: true,
+  PEP_SCREENING_REQUIRED: true,
+  KYC_VERIFICATION_LEVEL: 'LEVEL_2', // Aadhaar + PAN + Bank
+  
+  // Data Protection
+  DATA_RETENTION_YEARS: 7,
+  RIGHT_TO_ERASURE: true,
+  DATA_PORTABILITY: true,
+  CONSENT_MANAGEMENT: true,
+  
+  // Financial Compliance
+  TDS_DEDUCTION_REQUIRED: true,
+  TDS_RATE: 0.10, // 10% on commission
+  GST_APPLICABLE: true,
+  GST_RATE: 0.18, // 18%
+  
+  // Reporting
+  MONTHLY_REPORT_REQUIRED: true,
+  ANNUAL_AUDIT_REQUIRED: true,
+  TRANSACTION_REPORTING_THRESHOLD: 100000, // ₹1 Lakh
+  
+  // Age Verification
+  MIN_INVESTOR_AGE: 18,
+  MIN_NOMINEE_AGE: 18,
+  AGE_VERIFICATION_MANDATORY: true,
+} as const;
+```
+
+---
+
+## 11. TECHNICAL ARCHITECTURE
+
+### 11.1 Technology Stack
+
+| Component | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Frontend** | Next.js 15 + React 19 | UI/UX |
+| **Backend** | Next.js API Routes | Serverless functions |
+| **Database** | Supabase PostgreSQL | Data storage + RLS |
+| **Cache** | Upstash Redis (Free) | Session + Queue |
+| **Deployment** | Vercel | Hosting + CDN |
+| **Authentication** | JWT + 2FA | User auth |
+| **Authorization** | Custom RBAC | Access control |
+| **Webhooks** | Custom Queue System | Event-driven |
+| **Monitoring** | Vercel Analytics + Supabase Logs | Performance tracking |
+
+### 11.2 Infrastructure Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         VERCEL PLATFORM                         │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
+│  │ Next.js 15  │  │ API Routes  │  │ Vercel Cron (Hourly)    │  │
+│  │ Frontend    │  │ (Webhooks)  │  │ → Batch Processor       │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────────┘  │
+│                            │                                     │
+│                            │ HTTPS                               │
+│                            ▼                                     │
+├─────────────────────────────────────────────────────────────────┤
+│                      SUPABASE PLATFORM                          │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
+│  │ PostgreSQL  │  │ Row Level   │  │ Database Functions      │  │
+│  │ Database    │  │ Security    │  │ (Rank, Commission)      │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────────┘  │
+│                            │                                     │
+│                            │ Redis Protocol                      │
+│                            ▼                                     │
+├─────────────────────────────────────────────────────────────────┤
+│                      UPSTASH REDIS (Free)                       │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
+│  │ Cache Layer │  │ Queue Store │  │ Session Store           │  │
+│  │ (256MB)     │  │ (Webhooks)  │  │ (User Sessions)         │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 11.3 Database Schema Summary
+
+| Table | Purpose | Key Fields | RBAC Level |
+| :--- | :--- | :--- | :--- |
+| **users** | User accounts | id, role, kyc_status, referral_code | 6+ (Compliance) |
+| **investments** | Investment records | user_id, amount, profit_rate, status | 5+ (Finance) |
+| **vendors** | Vendor accounts | user_id, vendor_status, revenue_share | 5+ (Finance) |
+| **vendor_products** | Product listings | vendor_id, product_name, status | 4+ (Vendor) |
+| **vendor_orders** | Order tracking | vendor_id, customer_id, order_status | 5+ (Finance) |
+| **commission_accumulation_ledger** | Commission tracking | user_id, commission_type, net_commission | 5+ (Finance) |
+| **daily_payout_accumulation** | Payout tracking | user_id, payout_type, net_amount | 5+ (Finance) |
+| **payouts** | Payout records | user_id, amount, status, paid_date | 5+ (Finance) |
+| **user_business_volume** | Rank calculation | user_id, total_business, current_rank | 7+ (Admin) |
+| **rank_change_history** | Rank audit trail | user_id, previous_rank, new_rank | 7+ (Admin) |
+| **webhook_event_queue** | Webhook queue | event_type, payload, status | 8+ (Super Admin) |
+| **google_trends_tracking** | Trend data | trend_keyword, trend_score, growth_rate | 4+ (Vendor) |
+| **product_listing_strategy** | Listing strategy | vendor_id, overall_strategy_score | 4+ (Vendor) |
+| **kyc_documents** | KYC verification | user_id, document_type, verification_status | 6+ (Compliance) |
+| **audit_logs** | System audit | user_id, action, entity, old_value, new_value | 7+ (Admin) |
+
+---
+
+## 12. IMPLEMENTATION ROADMAP
+
+### 12.1 Phase-wise Deployment
+
+| Phase | Duration | Deliverables | Priority | RBAC Levels |
+| :--- | :--- | :--- | :--- | :--- |
+| **Phase 1** | Week 1-2 | Database schema, Auth, Registration, RBAC | 🔴 Critical | 1-3 |
+| **Phase 2** | Week 3-4 | Investment module, Payout schedule | 🔴 Critical | 3-5 |
+| **Phase 3** | Week 5-6 | Vendor module, Revenue share | 🔴 Critical | 4-5 |
+| **Phase 4** | Week 7-8 | Commission engine, Webhook system | 🔴 Critical | 5-7 |
+| **Phase 5** | Week 9-10 | Rank management, Product listing | 🟡 High | 4-7 |
+| **Phase 6** | Week 11-12 | Security, Compliance, Audit, Testing | 🔴 Critical | 6-8 |
+| **Phase 7** | Week 13-14 | Deployment, Monitoring, Training | 🟡 High | 7-10 |
+
+### 12.2 Success Metrics
+
+| Metric | Target | Measurement |
+| :--- | :--- | :--- |
+| **System Uptime** | 99.9% | Vercel Analytics |
+| **API Response Time** | <200ms | Supabase Logs |
+| **Webhook Success Rate** | >95% | Queue Processor Logs |
+| **KYC Verification Time** | <24 hours | Compliance Dashboard |
+| **Payout Processing Time** | <48 hours | Finance Dashboard |
+| **Cost Per Transaction** | <₹1 | Finance Reports |
+| **User Satisfaction** | >4.5/5 | Feedback System |
+| **Security Incidents** | 0 | Audit Logs |
+
+---
+
+## 📎 APPENDICES
+
+### Appendix A: Glossary
+- **RBAC**: Role-Based Access Control
+- **KYC**: Know Your Customer
+- **AML**: Anti-Money Laundering
+- **API**: Application Programming Interface
+- **JWT**: JSON Web Token
+- **TLS**: Transport Layer Security
+- **AES**: Advanced Encryption Standard
+- **OTP**: One-Time Password
+- **PAN**: Permanent Account Number
+- **IFSC**: Indian Financial System Code
+
+### Appendix B: Contact Information
+| Role | Contact | Email |
+| :--- | :--- | :--- |
+| **Project Owner** | Milind Patil | milind@sunray.eco |
+| **Technical Lead** | Roshan Karnekar | roshan@sunray.eco |
+| **Compliance Officer** | TBD | compliance@sunray.eco |
+| **Support** | Support Team | support@sunray.eco |
+
+### Appendix C: Revision History
+| Version | Date | Author | Changes |
+| :--- | :--- | :--- | :--- |
+| 1.0 | Jan 1, 2025 | System | Initial draft |
+| 2.0 | Jan 15, 2025 | System | Added RBAC + Registration Module |
+
+---
+
+## ✅ APPROVAL SIGNATURES
+
+| Role | Name | Signature | Date |
+| :--- | :--- | :--- | :--- |
+| **Project Owner** | Milind Patil | _________________ | __________ |
+| **Technical Lead** | Roshan Karnekar | _________________ | __________ |
+| **Compliance Officer** | _________________ | _________________ | __________ |
+| **Finance Head** | _________________ | _________________ | __________ |
+
+---
+
+**END OF MASTER PRD DOCUMENT**
+```
+
+---
+
+# 📄 DOCUMENT 2: REGISTRATION MODULE MD
+
+```markdown
+# 📱 SECURE REGISTRATION MODULE - TECHNICAL DOCUMENTATION
+## Version: 2.0 | Status: Production Ready | Compliance: KYC/AML
+
+---
+
+## 📖 TABLE OF CONTENTS
+
+1. [Overview](#1-overview)
+2. [Security & Compliance Standards](#2-security--compliance-standards)
+3. [Registration Form Fields](#3-registration-form-fields)
+4. [User Flow Diagram](#4-user-flow-diagram)
+5. [RBAC Access Control](#5-rbac-access-control)
+6. [API Endpoints](#6-api-endpoints)
+7. [Database Schema](#7-database-schema)
+8. [Validation Rules](#8-validation-rules)
+9. [Error Handling](#9-error-handling)
+10. [Testing Requirements](#10-testing-requirements)
+
+---
+
+## 1. OVERVIEW
+
+### 1.1 Purpose
+This document outlines the technical specifications and data requirements for the User Registration Module of the Sunray Ecosystem. The registration process is designed to be KYC-compliant, capturing personal identity, financial details, and nominee information with strict validation and security protocols.
+
+### 1.2 Scope
+- User registration with 5 logical sections
+- KYC/AML compliance (Aadhaar + PAN verification)
+- Bank account verification (Penny Drop)
+- Nominee details (must be >18 years)
+- Referral system (mandatory referral code)
+- Account security (username, password, OTP, captcha)
+- RBAC-based access control (10 levels)
+
+### 1.3 Dependencies
+- Supabase PostgreSQL (Database)
+- Upstash Redis (Session + OTP storage)
+- Aadhaar API (KYC verification)
+- PAN API (KYC verification)
+- IFSC Database (Bank validation)
+- SMS Gateway (OTP delivery)
+- Email Service (OTP delivery)
+- Google reCAPTCHA v3 (Bot protection)
+
+---
+
+## 2. SECURITY & COMPLIANCE STANDARDS
+
+### 2.1 Data Encryption
+
+| Data Type | Encryption (At Rest) | Encryption (In Transit) |
+| :--- | :--- | :--- |
+| **Aadhaar Number** | AES-256 (Hash only, never plain text) | TLS 1.3 |
+| **PAN Number** | AES-256 | TLS 1.3 |
+| **Bank Account** | AES-256 | TLS 1.3 |
+| **Password** | bcrypt (12 rounds) | TLS 1.3 |
+| **Contact Number** | AES-256 | TLS 1.3 |
+| **Email** | AES-256 | TLS 1.3 |
+| **Address** | AES-256 | TLS 1.3 |
+
+### 2.2 Verification Requirements
+
+```typescript
+// src/lib/registration/verification-config.ts
+
+export const VERIFICATION_CONFIG = {
+  // Contact Verification
+  CONTACT_OTP_LENGTH: 6,
+  CONTACT_OTP_EXPIRY_SECONDS: 300, // 5 minutes
+  CONTACT_MAX_ATTEMPTS: 3,
+  CONTACT_LOCKOUT_MINUTES: 30,
+  
+  // Email Verification
+  EMAIL_OTP_LENGTH: 6,
+  EMAIL_OTP_EXPIRY_SECONDS: 300, // 5 minutes
+  EMAIL_MAX_ATTEMPTS: 3,
+  EMAIL_LOCKOUT_MINUTES: 30,
+  
+  // KYC Verification
+  KYC_VERIFICATION_REQUIRED: true,
+  KYC_VERIFICATION_LEVEL: 'LEVEL_2', // Aadhaar + PAN + Bank
+  KYC_AUTO_VERIFICATION: false, // Manual review required
+  KYC_REJECTION_REASON_REQUIRED: true,
+  
+  // Bank Verification
+  BANK_VERIFICATION_METHOD: 'PENNY_DROP',
+  BANK_VERIFICATION_AMOUNT: 1, // ₹1
+  BANK_NAME_MATCH_REQUIRED: true,
+  
+  // Bot Protection
+  CAPTCHA_PROVIDER: 'GOOGLE_RECAPTCHA_V3',
+  CAPTCHA_MIN_SCORE: 0.5,
+  CAPTCHA_REQUIRED_ON_SUBMIT: true,
+  
+  // Privacy
+  DATA_PROTECTION_ACT: 'DPDP-2023',
+  GDPR_COMPLIANT: true,
+  AADHAAR_STORAGE_POLICY: 'ENCRYPTED_HASH_ONLY',
+  DATA_RETENTION_YEARS: 7,
+} as const;
+```
+
+### 2.3 Compliance Standards
+
+| Standard | Requirement | Implementation |
+| :--- | :--- | :--- |
+| **DPDP Act 2023** | Data protection | Encryption + Consent management |
+| **GDPR** | Right to erasure | Data deletion API |
+| **KYC/AML** | Identity verification | Aadhaar + PAN API |
+| **RBI Guidelines** | Bank verification | Penny Drop verification |
+| **UIDAI** | Aadhaar usage | Hash only, no plain text storage |
+| **Income Tax** | PAN verification | PAN API integration |
+
+---
+
+## 3. REGISTRATION FORM FIELDS
+
+### 3.1 Section 1: Personal Information
+
+| Field | Type | Validation Rules | Required | RBAC Level | Error Messages |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **First Name** | Text | Alphabetic only, Max 50 chars, Min 2 chars | Yes | 1+ | "First name must be 2-50 alphabetic characters" |
+| **Middle Name** | Text | Alphabetic only, Max 50 chars | No | 1+ | "Middle name must be alphabetic characters only" |
+| **Last Name** | Text | Alphabetic only, Max 50 chars, Min 2 chars | Yes | 1+ | "Last name must be 2-50 alphabetic characters" |
+| **Contact No** | Numeric | 10 Digits, Valid Indian mobile format | Yes | 1+ | "Please enter a valid 10-digit mobile number" |
+| **Email Id** | Email | RFC 5322 Standard Format | Yes | 1+ | "Please enter a valid email address" |
+
+### 3.2 Section 2: Identity Verification (KYC)
+
+| Field | Type | Validation Rules | Required | RBAC Level | Error Messages |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Aadhaar No** | Numeric | 12 Digits, Valid Checksum (Luhn algorithm) | Yes | 2+ | "Please enter a valid 12-digit Aadhaar number" |
+| **PAN No** | Alphanumeric | 5 Alpha + 4 Numeric + 1 Alpha (ABCDE1234F) | Yes | 2+ | "Please enter a valid PAN number (ABCDE1234F)" |
+| **Address** | Text | Auto-fetch preferred via Aadhaar API | Yes | 2+ | "Address is required (auto-fetch from Aadhaar)" |
+
+**Note:** "Address as per Aadhaar" should ideally be verified via OTP to UIDAI, not manual entry.
+
+### 3.3 Section 3: Bank Details (Applicant)
+
+| Field | Type | Validation Rules | Required | RBAC Level | Error Messages |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Bank Name** | Dropdown | Select from IFSC Database | Yes | 3+ | "Please select a valid bank" |
+| **Acc No** | Numeric | Min 9, Max 18 Digits | Yes | 3+ | "Account number must be 9-18 digits" |
+| **IFSC Code** | Alphanumeric | 11 Characters (e.g., SBIN0001234) | Yes | 3+ | "Please enter a valid 11-character IFSC code" |
+| **Account Holder Name** | Text | Match with PAN/Aadhaar | Yes | 3+ | "Account holder name must match KYC documents" |
+
+**Validation:** Penny Drop Verification recommended to verify Name & Acc match.
+
+### 3.4 Section 4: Nominee Details (Beneficiary)
+
+**Constraint:** Nominee must be >18 Years Old.
+
+| Field | Type | Validation Rules | Required | RBAC Level | Error Messages |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Full Name** | Text | Alphabetic, Max 100 chars, Min 2 chars | Yes | 3+ | "Nominee name must be 2-100 alphabetic characters" |
+| **Contact No** | Numeric | 10 Digits, Valid Indian mobile format | Yes | 3+ | "Please enter a valid 10-digit mobile number" |
+| **Relation** | Dropdown | Father, Mother, Spouse, Sibling, Son, Daughter, Other | Yes | 3+ | "Please select relationship with nominee" |
+| **Aadhaar No** | Numeric | 12 Digits, Valid Checksum | Yes | 3+ | "Please enter a valid 12-digit Aadhaar number" |
+| **PAN No** | Alphanumeric | Standard PAN Format | Yes | 3+ | "Please enter a valid PAN number" |
+| **Bank Name** | Dropdown | Select from IFSC Database | Yes | 3+ | "Please select a valid bank" |
+| **Acc No** | Numeric | Min 9, Max 18 Digits | Yes | 3+ | "Account number must be 9-18 digits" |
+| **IFSC Code** | Alphanumeric | 11 Characters | Yes | 3+ | "Please enter a valid 11-character IFSC code" |
+| **Age Verification** | Logic | System must verify Age > 18 via Aadhaar API or DOB input | Yes | 6+ (Compliance) | "Nominee must be above 18 years of age" |
+
+### 3.5 Section 5: Account Security & Finalization
+
+| Field | Type | Validation Rules | Required | RBAC Level | Error Messages |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Referral Code** | Alphanumeric | Must exist in Referral Table, Case-insensitive | Mandatory | 2+ | "Invalid referral code. Please check and try again." |
+| **Username** | Text | Unique, Min 6 chars, Max 20 chars, No special chars (alphanumeric + underscore only) | Yes | 2+ | "Username must be 6-20 characters (letters, numbers, underscore only)" |
+| **Password** | Password | Min 8 chars, 1 Upper, 1 Lower, 1 Number, 1 Symbol | Yes | 2+ | "Password must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol" |
+| **Contact OTP** | Numeric | 4-6 Digits, Time-sensitive (5 min expiry) | Yes | 2+ | "Invalid or expired OTP. Please request a new one." |
+| **Email OTP** | Numeric | 4-6 Digits, Time-sensitive (5 min expiry) | Yes | 2+ | "Invalid or expired OTP. Please request a new one." |
+| **Captcha** | Token | Server-side validation, Min score 0.5 | Yes | 2+ | "Captcha verification failed. Please try again." |
+| **Terms Accepted** | Checkbox | Must be checked | Yes | 2+ | "You must accept the terms and conditions" |
+| **Risk Disclosure Accepted** | Checkbox | Must be checked | Yes | 2+ | "You must acknowledge the risk disclosure" |
+
+---
+
+## 4. USER FLOW DIAGRAM
+
+```mermaid
+graph TD
+    A[Start Registration] --> B[Enter Personal Info<br/>Level 1+]
+    B --> C[Verify Contact & Email OTP<br/>Level 2+]
+    C --> D[Enter KYC Details<br/>Aadhaar/PAN<br/>Level 2+]
+    D --> E[Enter Bank Details<br/>Level 3+]
+    E --> F[Enter Nominee Details<br/>Level 3+]
+    F --> G[Create Credentials<br/>User/Pass<br/>Level 2+]
+    G --> H[Enter Mandatory<br/>Referral Code<br/>Level 2+]
+    H --> I[Solve Captcha<br/>Level 2+]
+    I --> J[Accept Terms &<br/>Risk Disclosure<br/>Level 2+]
+    J --> K[Submit & Encrypt Data<br/>Level 6+ for KYC verification]
+    K --> L{KYC Verification}
+    L -->|Approved| M[Registration Complete<br/>Status: RED<br/>Before Investment]
+    L -->|Pending| N[Manual Review<br/>Level 6+ Compliance]
+    L -->|Rejected| O[Notify User<br/>with Reasons]
+    M --> P[Investment & Verification]
+    P --> Q[Status: GREEN<br/>Active Member]
+    N --> M
+    O --> B
+```
+
+---
+
+## 5. RBAC ACCESS CONTROL
+
+### 5.1 Registration Permissions by Role
+
+| Permission | Guest | Registered | Investor | Vendor | Finance | Compliance | Admin | Super Admin |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **reg:create** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **reg:read** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **reg:update** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **reg:delete** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| **kyc:verify** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| **kyc:reject** | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| **otp:send** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **otp:verify** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **referral:validate** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+### 5.2 RBAC Middleware for Registration
+
+```typescript
+// src/middleware/registration-rbac.ts
+
+import { rbacMiddleware, RBACConfig } from './rbac-middleware';
+
+export const REGISTRATION_RBAC = {
+  // Personal Info (Level 1+)
+  PERSONAL_INFO: {
+    requiredPermissions: ['reg:create', 'reg:update'],
+    minLevel: 1,
+  } as RBACConfig,
+  
+  // KYC Details (Level 2+)
+  KYC_DETAILS: {
+    requiredPermissions: ['reg:create', 'reg:update'],
+    minLevel: 2,
+  } as RBACConfig,
+  
+  // Bank Details (Level 3+)
+  BANK_DETAILS: {
+    requiredPermissions: ['reg:create', 'reg:update'],
+    minLevel: 3,
+  } as RBACConfig,
+  
+  // Nominee Details (Level 3+)
+  NOMINEE_DETAILS: {
+    requiredPermissions: ['reg:create', 'reg:update'],
+    minLevel: 3,
+  } as RBACConfig,
+  
+  // Account Security (Level 2+)
+  ACCOUNT_SECURITY: {
+    requiredPermissions: ['reg:create', 'reg:update'],
+    minLevel: 2,
+  } as RBACConfig,
+  
+  // KYC Verification (Level 6+ Compliance)
+  KYC_VERIFICATION: {
+    requiredPermissions: ['kyc:verify', 'kyc:reject'],
+    minLevel: 6,
+    excludeRoles: ['GUEST', 'REGISTERED', 'INVESTOR', 'VENDOR'],
+  } as RBACConfig,
+  
+  // Registration Approval (Level 7+ Admin)
+  REGISTRATION_APPROVAL: {
+    requiredPermissions: ['reg:create', 'reg:update', 'kyc:verify'],
+    minLevel: 7,
+  } as RBACConfig,
+};
+```
+
+---
+
+## 6. API ENDPOINTS
+
+### 6.1 Registration Endpoints
+
+| Method | Endpoint | Description | RBAC Level | Rate Limit |
+| :--- | :--- | :--- | :--- | :--- |
+| POST | `/api/auth/register/init` | Initialize registration (Personal Info) | 1+ | 10/min |
+| POST | `/api/auth/register/kyc` | Submit KYC details (Aadhaar/PAN) | 2+ | 5/min |
+| POST | `/api/auth/register/bank` | Submit bank details | 3+ | 5/min |
+| POST | `/api/auth/register/nominee` | Submit nominee details | 3+ | 5/min |
+| POST | `/api/auth/register/security` | Create credentials (User/Pass) | 2+ | 5/min |
+| POST | `/api/auth/register/submit` | Final submission | 2+ | 3/min |
+| POST | `/api/auth/otp/send` | Send OTP (Contact/Email) | 2+ | 3/min |
+| POST | `/api/auth/otp/verify` | Verify OTP | 2+ | 5/min |
+| POST | `/api/auth/referral/validate` | Validate referral code | 2+ | 10/min |
+| GET | `/api/auth/register/status/:userId` | Check registration status | 2+ | 10/min |
+
+### 6.2 KYC Verification Endpoints (Compliance Only)
+
+| Method | Endpoint | Description | RBAC Level | Rate Limit |
+| :--- | :--- | :--- | :--- | :--- |
+| GET | `/api/kyc/pending` | Get pending KYC verifications | 6+ | 20/min |
+| POST | `/api/kyc/verify/:userId` | Approve KYC | 6+ | 10/min |
+| POST | `/api/kyc/reject/:userId` | Reject KYC with reason | 6+ | 10/min |
+| GET | `/api/kyc/history/:userId` | Get KYC history | 6+ | 20/min |
+| POST | `/api/kyc/reverify/:userId` | Request re-verification | 6+ | 5/min |
+
+### 6.3 Example API Request/Response
+
+```typescript
+// POST /api/auth/register/init
+
+// Request
+{
+  "firstName": "John",
+  "middleName": "Michael",
+  "lastName": "Doe",
+  "contactNo": "+919876543210",
+  "email": "john.doe@example.com"
+}
+
+// Response (Success)
+{
+  "success": true,
+  "data": {
+    "userId": "uuid-here",
+    "registrationId": "REG-2025-00001",
+    "status": "PERSONAL_INFO_COMPLETED",
+    "nextStep": "KYC_DETAILS",
+    "expiresAt": "2025-01-16T12:00:00Z" // 24 hours to complete
+  },
+  "message": "Personal information saved. Please proceed to KYC verification."
+}
+
+// Response (Error)
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid email format",
+    "field": "email",
+    "details": ["Email must be RFC 5322 compliant"]
+  }
+}
+```
+
+---
+
+## 7. DATABASE SCHEMA
+
+### 7.1 Users Table
+
+```sql
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    contact_number VARCHAR(15) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    
+    -- Personal Information
+    first_name VARCHAR(100) NOT NULL,
+    middle_name VARCHAR(100),
+    last_name VARCHAR(100) NOT NULL,
+    
+    -- KYC Information (Encrypted)
+    aadhaar_hash VARCHAR(255) NOT NULL, -- Hash only, never plain text
+    pan_number VARCHAR(10) NOT NULL,
+    address TEXT NOT NULL,
+    
+    -- Bank Details (Encrypted)
+    bank_name VARCHAR(200) NOT NULL,
+    account_number_hash VARCHAR(255) NOT NULL,
+    ifsc_code VARCHAR(11) NOT NULL,
+    account_holder_name VARCHAR(200) NOT NULL,
+    
+    -- Nominee Details (Encrypted)
+    nominee_name VARCHAR(200) NOT NULL,
+    nominee_contact VARCHAR(15) NOT NULL,
+    nominee_relation VARCHAR(50) NOT NULL,
+    nominee_aadhaar_hash VARCHAR(255) NOT NULL,
+    nominee_pan_number VARCHAR(10) NOT NULL,
+    nominee_bank_name VARCHAR(200) NOT NULL,
+    nominee_account_number_hash VARCHAR(255) NOT NULL,
+    nominee_ifsc_code VARCHAR(11) NOT NULL,
+    
+    -- Referral Information
+    referral_code VARCHAR(20) UNIQUE NOT NULL,
+    referred_by UUID REFERENCES users(id),
+    
+    -- Status & Role
+    status VARCHAR(20) DEFAULT 'RED', -- RED (Before Investment), GREEN (Active)
+    role VARCHAR(20) DEFAULT 'REGISTERED',
+    kyc_status VARCHAR(20) DEFAULT 'PENDING', -- PENDING, VERIFIED, REJECTED
+    kyc_verified_by UUID REFERENCES users(id),
+    kyc_verified_at TIMESTAMPTZ,
+    kyc_rejection_reason TEXT,
+    
+    -- Verification
+    contact_verified BOOLEAN DEFAULT FALSE,
+    contact_verified_at TIMESTAMPTZ,
+    email_verified BOOLEAN DEFAULT FALSE,
+    email_verified_at TIMESTAMPTZ,
+    bank_verified BOOLEAN DEFAULT FALSE,
+    bank_verified_at TIMESTAMPTZ,
+    
+    -- Timestamps
+    registered_at TIMESTAMPTZ DEFAULT NOW(),
+    invested_at TIMESTAMPTZ,
+    last_login_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX idx_users_username ON users(username);
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_contact ON users(contact_number);
+CREATE INDEX idx_users_referral ON users(referral_code);
+CREATE INDEX idx_users_status ON users(status);
+CREATE INDEX idx_users_kyc ON users(kyc_status);
+CREATE INDEX idx_users_role ON users(role);
+```
+
+### 7.2 KYC Documents Table
+
+```sql
+CREATE TABLE kyc_documents (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    document_type VARCHAR(50) NOT NULL, -- AADHAAR, PAN, BANK_PROOF, PHOTO
+    document_url TEXT NOT NULL, -- Encrypted URL
+    document_hash VARCHAR(255) NOT NULL,
+    verification_status VARCHAR(20) DEFAULT 'PENDING', -- PENDING, IN_PROGRESS, VERIFIED, REJECTED
+    verified_by UUID REFERENCES users(id),
+    verified_at TIMESTAMPTZ,
+    rejection_reason TEXT,
+    expiry_date DATE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_kyc_user ON kyc_documents(user_id);
+CREATE INDEX idx_kyc_type ON kyc_documents(document_type);
+CREATE INDEX idx_kyc_status ON kyc_documents(verification_status);
+```
+
+### 7.3 OTP Storage Table (Redis Alternative)
+
+```sql
+CREATE TABLE otp_storage (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    otp_type VARCHAR(20) NOT NULL, -- CONTACT, EMAIL, KYC
+    otp_hash VARCHAR(255) NOT NULL, -- Hash of OTP, never store plain text
+    expires_at TIMESTAMPTZ NOT NULL,
+    attempts INTEGER DEFAULT 0,
+    max_attempts INTEGER DEFAULT 3,
+    verified BOOLEAN DEFAULT FALSE,
+    verified_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_otp_user ON otp_storage(user_id);
+CREATE INDEX idx_otp_type ON otp_storage(otp_type);
+CREATE INDEX idx_otp_expires ON otp_storage(expires_at);
+
+-- Auto-delete expired OTPs
+CREATE OR REPLACE FUNCTION cleanup_expired_otps()
+RETURNS void AS $$
+BEGIN
+    DELETE FROM otp_storage WHERE expires_at < NOW();
+END;
+$$ LANGUAGE plpgsql;
+```
+
+---
+
+## 8. VALIDATION RULES
+
+### 8.1 Client-Side Validation
+
+```typescript
+// src/lib/registration/validation.ts
+
+export const VALIDATION_RULES = {
+  // Name Fields
+  FIRST_NAME: {
+    minLength: 2,
+    maxLength: 50,
+    pattern: /^[A-Za-z]+$/,
+    message: 'First name must be 2-50 alphabetic characters',
+  },
+  LAST_NAME: {
+    minLength: 2,
+    maxLength: 50,
+    pattern: /^[A-Za-z]+$/,
+    message: 'Last name must be 2-50 alphabetic characters',
+  },
+  
+  // Contact
+  CONTACT_NO: {
+    pattern: /^[+]?[91]?[6-9]\d{9}$/,
+    message: 'Please enter a valid 10-digit Indian mobile number',
+  },
+  
+  // Email
+  EMAIL: {
+    pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    message: 'Please enter a valid email address',
+  },
+  
+  // Aadhaar
+  AADHAAR: {
+    length: 12,
+    pattern: /^\d{12}$/,
+    luhnCheck: true,
+    message: 'Please enter a valid 12-digit Aadhaar number',
+  },
+  
+  // PAN
+  PAN: {
+    pattern: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
+    message: 'Please enter a valid PAN number (ABCDE1234F)',
+  },
+  
+  // IFSC
+  IFSC: {
+    length: 11,
+    pattern: /^[A-Z]{4}0[A-Z0-9]{6}$/,
+    message: 'Please enter a valid 11-character IFSC code',
+  },
+  
+  // Bank Account
+  BANK_ACCOUNT: {
+    minLength: 9,
+    maxLength: 18,
+    pattern: /^\d+$/,
+    message: 'Account number must be 9-18 digits',
+  },
+  
+  // Username
+  USERNAME: {
+    minLength: 6,
+    maxLength: 20,
+    pattern: /^[A-Za-z0-9_]+$/,
+    message: 'Username must be 6-20 characters (letters, numbers, underscore only)',
+  },
+  
+  // Password
+  PASSWORD: {
+    minLength: 8,
+    requireUppercase: true,
+    requireLowercase: true,
+    requireNumber: true,
+    requireSymbol: true,
+    message: 'Password must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol',
+  },
+  
+  // OTP
+  OTP: {
+    length: 6,
+    pattern: /^\d{6}$/,
+    message: 'Please enter a valid 6-digit OTP',
+  },
+  
+  // Referral Code
+  REFERRAL_CODE: {
+    minLength: 6,
+    maxLength: 20,
+    pattern: /^[A-Za-z0-9]+$/,
+    message: 'Invalid referral code format',
+  },
+} as const;
+
+export function validateField(field: string, value: string): ValidationResult {
+  const rules = VALIDATION_RULES[field as keyof typeof VALIDATION_RULES];
+  
+  if (!rules) {
+    return { valid: true };
+  }
+  
+  if (rules.minLength && value.length < rules.minLength) {
+    return { valid: false, error: `${field} must be at least ${rules.minLength} characters` };
+  }
+  
+  if (rules.maxLength && value.length > rules.maxLength) {
+    return { valid: false, error: `${field} must be at most ${rules.maxLength} characters` };
+  }
+  
+  if (rules.pattern && !rules.pattern.test(value)) {
+    return { valid: false, error: rules.message };
+  }
+  
+  if (rules.length && value.length !== rules.length) {
+    return { valid: false, error: `${field} must be exactly ${rules.length} characters` };
+  }
+  
+  // Password specific validation
+  if (field === 'PASSWORD') {
+    if (rules.requireUppercase && !/[A-Z]/.test(value)) {
+      return { valid: false, error: 'Password must contain at least 1 uppercase letter' };
+    }
+    if (rules.requireLowercase && !/[a-z]/.test(value)) {
+      return { valid: false, error: 'Password must contain at least 1 lowercase letter' };
+    }
+    if (rules.requireNumber && !/[0-9]/.test(value)) {
+      return { valid: false, error: 'Password must contain at least 1 number' };
+    }
+    if (rules.requireSymbol && !/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
+      return { valid: false, error: 'Password must contain at least 1 symbol' };
+    }
+  }
+  
+  // Aadhaar Luhn check
+  if (field === 'AADHAAR' && rules.luhnCheck) {
+    if (!luhnCheck(value)) {
+      return { valid: false, error: 'Invalid Aadhaar number (checksum failed)' };
+    }
+  }
+  
+  return { valid: true };
+}
+
+function luhnCheck(value: string): boolean {
+  // Implement Luhn algorithm for Aadhaar validation
+  let sum = 0;
+  let isEven = false;
+  
+  for (let i = value.length - 1; i >= 0; i--) {
+    let digit = parseInt(value[i]);
+    
+    if (isEven) {
+      digit *= 2;
+      if (digit > 9) digit -= 9;
+    }
+    
+    sum += digit;
+    isEven = !isEven;
+  }
+  
+  return sum % 10 === 0;
+}
+
+export interface ValidationResult {
+  valid: boolean;
+  error?: string;
+}
+```
+
+### 8.2 Server-Side Validation
+
+```typescript
+// src/lib/registration/server-validation.ts
+
+import { z } from 'zod';
+
+export const REGISTRATION_SCHEMAS = {
+  // Personal Info
+  PERSONAL_INFO: z.object({
+    firstName: z.string().min(2).max(50).regex(/^[A-Za-z]+$/),
+    middleName: z.string().max(50).regex(/^[A-Za-z]+$/).optional(),
+    lastName: z.string().min(2).max(50).regex(/^[A-Za-z]+$/),
+    contactNo: z.string().regex(/^[+]?[91]?[6-9]\d{9}$/),
+    email: z.string().email(),
+  }),
+  
+  // KYC Details
+  KYC_DETAILS: z.object({
+    aadhaarNumber: z.string().length(12).regex(/^\d{12}$/),
+    panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/),
+    address: z.string().min(10).max(500),
+  }),
+  
+  // Bank Details
+  BANK_DETAILS: z.object({
+    bankName: z.string().min(2).max(200),
+    accountNumber: z.string().min(9).max(18).regex(/^\d+$/),
+    ifscCode: z.string().length(11).regex(/^[A-Z]{4}0[A-Z0-9]{6}$/),
+    accountHolderName: z.string().min(2).max(200),
+  }),
+  
+  // Nominee Details
+  NOMINEE_DETAILS: z.object({
+    fullName: z.string().min(2).max(100).regex(/^[A-Za-z]+$/),
+    contactNo: z.string().regex(/^[+]?[91]?[6-9]\d{9}$/),
+    relation: z.enum(['Father', 'Mother', 'Spouse', 'Sibling', 'Son', 'Daughter', 'Other']),
+    aadhaarNumber: z.string().length(12).regex(/^\d{12}$/),
+    panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/),
+    bankName: z.string().min(2).max(200),
+    accountNumber: z.string().min(9).max(18).regex(/^\d+$/),
+    ifscCode: z.string().length(11).regex(/^[A-Z]{4}0[A-Z0-9]{6}$/),
+    ageVerified: z.boolean().refine(val => val === true, 'Nominee must be above 18 years'),
+  }),
+  
+  // Account Security
+  ACCOUNT_SECURITY: z.object({
+    referralCode: z.string().min(6).max(20).regex(/^[A-Za-z0-9]+$/),
+    username: z.string().min(6).max(20).regex(/^[A-Za-z0-9_]+$/),
+    password: z.string()
+      .min(8)
+      .regex(/[A-Z]/, 'Password must contain at least 1 uppercase letter')
+      .regex(/[a-z]/, 'Password must contain at least 1 lowercase letter')
+      .regex(/[0-9]/, 'Password must contain at least 1 number')
+      .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least 1 symbol'),
+    contactOtp: z.string().length(6).regex(/^\d{6}$/),
+    emailOtp: z.string().length(6).regex(/^\d{6}$/),
+    captchaToken: z.string().min(1),
+    termsAccepted: z.boolean().refine(val => val === true, 'You must accept the terms and conditions'),
+    riskDisclosureAccepted: z.boolean().refine(val => val === true, 'You must acknowledge the risk disclosure'),
+  }),
+};
+
+export async function validateRegistrationData(
+  section: keyof typeof REGISTRATION_SCHEMAS,
+  data: any
+): Promise<ValidationResult> {
+  try {
+    const schema = REGISTRATION_SCHEMAS[section];
+    await schema.parseAsync(data);
+    return { valid: true };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        valid: false,
+        errors: error.errors.map(e => ({
+          field: e.path.join('.'),
+          message: e.message,
+        })),
+      };
+    }
+    return { valid: false, error: 'Validation failed' };
+  }
+}
+```
+
+---
+
+## 9. ERROR HANDLING
+
+### 9.1 Error Codes
+
+```typescript
+// src/lib/registration/error-codes.ts
+
+export const REGISTRATION_ERROR_CODES = {
+  // Authentication Errors
+  AUTH_MISSING: 'AUTH_001',
+  AUTH_INVALID: 'AUTH_002',
+  AUTH_EXPIRED: 'AUTH_003',
+  
+  // Validation Errors
+  VALIDATION_ERROR: 'VAL_001',
+  INVALID_EMAIL: 'VAL_002',
+  INVALID_CONTACT: 'VAL_003',
+  INVALID_AADHAAR: 'VAL_004',
+  INVALID_PAN: 'VAL_005',
+  INVALID_IFSC: 'VAL_006',
+  INVALID_BANK_ACCOUNT: 'VAL_007',
+  INVALID_PASSWORD: 'VAL_008',
+  INVALID_USERNAME: 'VAL_009',
+  INVALID_OTP: 'VAL_010',
+  INVALID_REFERRAL: 'VAL_011',
+  INVALID_CAPTCHA: 'VAL_012',
+  
+  // KYC Errors
+  KYC_PENDING: 'KYC_001',
+  KYC_REJECTED: 'KYC_002',
+  KYC_VERIFICATION_FAILED: 'KYC_003',
+  KYC_DOCUMENT_MISSING: 'KYC_004',
+  KYC_AGE_NOT_VERIFIED: 'KYC_005',
+  
+  // OTP Errors
+  OTP_EXPIRED: 'OTP_001',
+  OTP_INVALID: 'OTP_002',
+  OTP_MAX_ATTEMPTS: 'OTP_003',
+  OTP_LOCKED: 'OTP_004',
+  
+  // Database Errors
+  DB_ERROR: 'DB_001',
+  DB_DUPLICATE: 'DB_002',
+  DB_NOT_FOUND: 'DB_003',
+  
+  // RBAC Errors
+  RBAC_LEVEL_LOW: 'RBAC_001',
+  RBAC_LEVEL_HIGH: 'RBAC_002',
+  RBAC_PERMISSION_DENIED: 'RBAC_003',
+  RBAC_ROLE_EXCLUDED: 'RBAC_004',
+  
+  // System Errors
+  SYSTEM_ERROR: 'SYS_001',
+  SERVICE_UNAVAILABLE: 'SYS_002',
+  RATE_LIMIT_EXCEEDED: 'SYS_003',
+} as const;
+
+export interface RegistrationError {
+  code: string;
+  message: string;
+  field?: string;
+  details?: string[];
+  statusCode: number;
+}
+
+export function createRegistrationError(
+  code: keyof typeof REGISTRATION_ERROR_CODES,
+  message: string,
+  field?: string,
+  details?: string[]
+): RegistrationError {
+  const statusCodeMap: Record<string, number> = {
+    AUTH_: 401,
+    VAL_: 400,
+    KYC_: 400,
+    OTP_: 400,
+    DB_: 500,
+    RBAC_: 403,
+    SYS_: 500,
+  };
+  
+  const prefix = code.split('_')[0] + '_';
+  const statusCode = statusCodeMap[prefix] || 500;
+  
+  return {
+    code: REGISTRATION_ERROR_CODES[code],
+    message,
+    field,
+    details,
+    statusCode,
+  };
+}
+```
+
+### 9.2 Error Handling Middleware
+
+```typescript
+// src/middleware/error-handler.ts
+
+import { NextRequest, NextResponse } from 'next/server';
+import { createRegistrationError, RegistrationError } from '@/lib/registration/error-codes';
+
+export async function errorHandler(
+  request: NextRequest,
+  next: () => Promise<NextResponse>
+): Promise<NextResponse> {
+  try {
+    return await next();
+  } catch (error) {
+    console.error('Registration Error:', error);
+    
+    if (error instanceof RegistrationError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: error.code,
+            message: error.message,
+            field: error.field,
+            details: error.details,
+          },
+        },
+        { status: error.statusCode }
+      );
+    }
+    
+    // Generic error
+    const genericError = createRegistrationError(
+      'SYSTEM_ERROR',
+      'An unexpected error occurred. Please try again later.',
+      undefined,
+      [process.env.NODE_ENV === 'development' ? String(error) : undefined]
+    );
+    
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: genericError.code,
+          message: genericError.message,
+        },
+      },
+      { status: 500 }
+    );
+  }
+}
+```
+
+---
+
+## 10. TESTING REQUIREMENTS
+
+### 10.1 Unit Tests
+
+```typescript
+// src/tests/registration/validation.test.ts
+
+import { validateField, VALIDATION_RULES } from '@/lib/registration/validation';
+
+describe('Registration Validation', () => {
+  describe('First Name', () => {
+    it('should validate valid first name', () => {
+      const result = validateField('FIRST_NAME', 'John');
+      expect(result.valid).toBe(true);
+    });
+    
+    it('should reject first name with numbers', () => {
+      const result = validateField('FIRST_NAME', 'John123');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('alphabetic');
+    });
+    
+    it('should reject first name too short', () => {
+      const result = validateField('FIRST_NAME', 'J');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('at least 2');
+    });
+  });
+  
+  describe('Aadhaar', () => {
+    it('should validate valid Aadhaar number', () => {
+      const result = validateField('AADHAAR', '123456789012');
+      expect(result.valid).toBe(true);
+    });
+    
+    it('should reject Aadhaar with wrong length', () => {
+      const result = validateField('AADHAAR', '12345678901');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('12-digit');
+    });
+    
+    it('should reject Aadhaar with non-numeric characters', () => {
+      const result = validateField('AADHAAR', '12345678901A');
+      expect(result.valid).toBe(false);
+    });
+  });
+  
+  describe('Password', () => {
+    it('should validate strong password', () => {
+      const result = validateField('PASSWORD', 'SecurePass123!');
+      expect(result.valid).toBe(true);
+    });
+    
+    it('should reject password without uppercase', () => {
+      const result = validateField('PASSWORD', 'securepass123!');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('uppercase');
+    });
+    
+    it('should reject password too short', () => {
+      const result = validateField('PASSWORD', 'Sec1!');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('8 characters');
+    });
+  });
+});
+```
+
+### 10.2 Integration Tests
+
+```typescript
+// src/tests/registration/integration.test.ts
+
+import { POST } from '@/app/api/auth/register/init/route';
+import { createMockRequest } from '@/tests/utils/mock-request';
+
+describe('Registration API Integration', () => {
+  it('should create registration with valid personal info', async () => {
+    const request = createMockRequest({
+      method: 'POST',
+      body: {
+        firstName: 'John',
+        lastName: 'Doe',
+        contactNo: '+919876543210',
+        email: 'john.doe@example.com',
+      },
+    });
+    
+    const response = await POST(request);
+    const data = await response.json();
+    
+    expect(response.status).toBe(200);
+    expect(data.success).toBe(true);
+    expect(data.data.userId).toBeDefined();
+    expect(data.data.status).toBe('PERSONAL_INFO_COMPLETED');
+  });
+  
+  it('should reject registration with invalid email', async () => {
+    const request = createMockRequest({
+      method: 'POST',
+      body: {
+        firstName: 'John',
+        lastName: 'Doe',
+        contactNo: '+919876543210',
+        email: 'invalid-email',
+      },
+    });
+    
+    const response = await POST(request);
+    const data = await response.json();
+    
+    expect(response.status).toBe(400);
+    expect(data.success).toBe(false);
+    expect(data.error.code).toBe('VAL_002');
+  });
+  
+  it('should reject registration without referral code', async () => {
+    const request = createMockRequest({
+      method: 'POST',
+      body: {
+        firstName: 'John',
+        lastName: 'Doe',
+        contactNo: '+919876543210',
+        email: 'john.doe@example.com',
+        referralCode: '',
+      },
+    });
+    
+    const response = await POST(request);
+    const data = await response.json();
+    
+    expect(response.status).toBe(400);
+    expect(data.success).toBe(false);
+    expect(data.error.code).toBe('VAL_011');
+  });
+});
+```
+
+### 10.3 E2E Tests
+
+```typescript
+// src/tests/e2e/registration-flow.spec.ts
+
+import { test, expect } from '@playwright/test';
+
+test.describe('Complete Registration Flow', () => {
+  test('should complete full registration successfully', async ({ page }) => {
+    // Navigate to registration
+    await page.goto('/register');
+    
+    // Step 1: Personal Info
+    await page.fill('input[name="firstName"]', 'John');
+    await page.fill('input[name="lastName"]', 'Doe');
+    await page.fill('input[name="contactNo"]', '+919876543210');
+    await page.fill('input[name="email"]', 'john.doe@example.com');
+    await page.click('button[type="submit"]');
+    
+    // Step 2: OTP Verification
+    await expect(page).toHaveURL(/\/register\/verify-otp/);
+    // Mock OTP sending and verification
+    
+    // Step 3: KYC Details
+    await page.fill('input[name="aadhaarNumber"]', '123456789012');
+    await page.fill('input[name="panNumber"]', 'ABCDE1234F');
+    await page.click('button[type="submit"]');
+    
+    // Step 4: Bank Details
+    await page.selectOption('select[name="bankName"]', 'State Bank of India');
+    await page.fill('input[name="accountNumber"]', '1234567890');
+    await page.fill('input[name="ifscCode"]', 'SBIN0001234');
+    await page.click('button[type="submit"]');
+    
+    // Step 5: Nominee Details
+    await page.fill('input[name="nomineeName"]', 'Jane Doe');
+    await page.selectOption('select[name="relation"]', 'Spouse');
+    await page.click('button[type="submit"]');
+    
+    // Step 6: Account Security
+    await page.fill('input[name="referralCode"]', 'REF123');
+    await page.fill('input[name="username"]', 'johndoe123');
+    await page.fill('input[name="password"]', 'SecurePass123!');
+    await page.check('input[name="termsAccepted"]');
+    await page.check('input[name="riskDisclosureAccepted"]');
+    await page.click('button[type="submit"]');
+    
+    // Verify registration complete
+    await expect(page).toHaveURL(/\/register\/success/);
+    await expect(page.locator('text=Registration Complete')).toBeVisible();
+  });
+});
+```
+
+### 10.4 Test Coverage Requirements
+
+| Component | Min Coverage | Current |
+| :--- | :--- | :--- |
+| **Validation Functions** | 95% | ✅ Target |
+| **API Endpoints** | 90% | ✅ Target |
+| **RBAC Middleware** | 100% | ✅ Target |
+| **Database Functions** | 85% | ✅ Target |
+| **Error Handling** | 90% | ✅ Target |
+| **E2E Flows** | 80% | ✅ Target |
+
+---
+
+## ✅ CHECKLIST FOR PRODUCTION DEPLOYMENT
+
+- [ ] All validation rules implemented and tested
+- [ ] RBAC middleware integrated on all endpoints
+- [ ] Encryption at rest and in transit verified
+- [ ] KYC/AML compliance verified (Aadhaar + PAN + Bank)
+- [ ] OTP system tested (Contact + Email)
+- [ ] Captcha integration verified (reCAPTCHA v3)
+- [ ] Database indexes created
+- [ ] Error handling middleware implemented
+- [ ] Unit tests passing (>90% coverage)
+- [ ] Integration tests passing
+- [ ] E2E tests passing
+- [ ] Security audit completed
+- [ ] Performance testing completed
+- [ ] Documentation complete
+- [ ] Monitoring and logging configured
+- [ ] Backup and recovery tested
+- [ ] Compliance officer approval obtained
+
+---
+
+**END OF REGISTRATION MODULE DOCUMENTATION**
+```
+
+---
+
+# 📄 DOCUMENT 3: RBAC ACCESS CONTROL MD
+
+```markdown
+# 🔐 ROLE-BASED ACCESS CONTROL (RBAC) - TECHNICAL DOCUMENTATION
+## Version: 2.0 | Status: Production Ready | Security: Enterprise Grade
+
+---
+
+## 📖 TABLE OF CONTENTS
+
+1. [Overview](#1-overview)
+2. [RBAC Architecture](#2-rbac-architecture)
+3. [Role Definitions](#3-role-definitions)
+4. [Permission System](#4-permission-system)
+5. [Access Level Matrix](#5-access-level-matrix)
+6. [Implementation Guide](#6-implementation-guide)
+7. [API Integration](#7-api-integration)
+8. [Database Schema](#8-database-schema)
+9. [Security Best Practices](#9-security-best-practices)
+10. [Testing & Audit](#10-testing--audit)
+
+---
+
+## 1. OVERVIEW
+
+### 1.1 Purpose
+This document outlines the Role-Based Access Control (RBAC) system for the Sunray Ecosystem. The RBAC system provides granular access control across 10 levels, ensuring that users can only access resources and perform actions appropriate to their role.
+
+### 1.2 Key Features
+- **10 Access Levels**: From Guest (1) to Root (10)
+- **Permission-Based**: Fine-grained permission codes
+- **Resource-Level**: Control at module, endpoint, and data level
+- **Dynamic**: Roles and permissions can be updated without code changes
+- **Audit Trail**: All access attempts logged
+- **Compliance**: Meets KYC/AML and data protection requirements
+
+### 1.3 Benefits
+| Benefit | Description |
+| :--- | :--- |
+| **Security** | Prevents unauthorized access to sensitive data |
+| **Compliance** | Meets regulatory requirements (DPDP, GDPR, KYC/AML) |
+| **Flexibility** | Easy to add new roles and permissions |
+| **Auditability** | Complete audit trail of all access attempts |
+| **Scalability** | Supports unlimited users and roles |
+
+---
+
+## 2. RBAC ARCHITECTURE
+
+### 2.1 Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         USER REQUEST                            │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    AUTHENTICATION LAYER                         │
+│              (JWT Token Verification + 2FA)                     │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     RBAC MIDDLEWARE                             │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+│  │ Role Check   │  │ Permission   │  │ Resource Check       │  │
+│  │ (Level 1-10) │  │ Validation   │  │ (Module/Endpoint)    │  │
+│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                    ┌─────────┴─────────┐
+                    │                   │
+              ┌─────▼─────┐       ┌─────▼─────┐
+              │  ALLOWED  │       │  DENIED   │
+              │  (200)    │       │  (403)    │
+              └───────────┘       └───────────┘
+```
+
+### 2.2 RBAC Flow
+
+```
+1. User makes request with JWT token
+        ↓
+2. Middleware extracts token and verifies signature
+        ↓
+3. Extract user role and permissions from token
+        ↓
+4. Check required permissions for endpoint
+        ↓
+5. Check user role level (min/max)
+        ↓
+6. Check excluded roles (if any)
+        ↓
+7. Grant or deny access
+        ↓
+8. Log access attempt (audit trail)
+```
+
+---
+
+## 3. ROLE DEFINITIONS
+
+### 3.1 Role Hierarchy
+
+| Level | Role | Description | Typical User |
+| :--- | :--- | :--- | :--- |
+| **1** | Guest | Unauthenticated users | Website visitors |
+| **2** | Registered | Basic account, no investment | Registered users |
+| **3** | Investor | Active investor | Investment members |
+| **4** | Vendor | Active vendor + investor | Vendor members |
+| **5** | Finance | Payout processing | Finance team |
+| **6** | Compliance | KYC/AML verification | Compliance officers |
+| **7** | Admin | System management | Administrators |
+| **8** | Super Admin | Full system control | Senior management |
+| **9** | System | Automated processes | System services |
+| **10** | Root | Unrestricted access | System owners |
+
+### 3.2 Role Specifications
+
+```typescript
+// src/lib/rbac/role-definitions.ts
+
+export interface RoleDefinition {
+  level: number;
+  name: string;
+  description: string;
+  canUpgrade: boolean;
+  canDowngrade: boolean;
+  requiresApproval: boolean;
+  approvalLevel: number;
+  maxSessionHours: number;
+  require2FA: boolean;
+  auditLevel: 'NONE' | 'BASIC' | 'DETAILED' | 'FULL';
+}
+
+export const ROLE_DEFINITIONS: Record<string, RoleDefinition> = {
+  GUEST: {
+    level: 1,
+    name: 'Guest',
+    description: 'Unauthenticated users with read-only access to public content',
+    canUpgrade: true,
+    canDowngrade: false,
+    requiresApproval: false,
+    approvalLevel: 0,
+    maxSessionHours: 1,
+    require2FA: false,
+    auditLevel: 'NONE',
+  },
+  REGISTERED: {
+    level: 2,
+    name: 'Registered',
+    description: 'Registered users with completed KYC but no investment',
+    canUpgrade: true,
+    canDowngrade: true,
+    requiresApproval: false,
+    approvalLevel: 0,
+    maxSessionHours: 24,
+    require2FA: false,
+    auditLevel: 'BASIC',
+  },
+  INVESTOR: {
+    level: 3,
+    name: 'Investor',
+    description: 'Active investors with capital deployed',
+    canUpgrade: true,
+    canDowngrade: true,
+    requiresApproval: false,
+    approvalLevel: 0,
+    maxSessionHours: 24,
+    require2FA: true,
+    auditLevel: 'BASIC',
+  },
+  VENDOR: {
+    level: 4,
+    name: 'Vendor',
+    description: 'Active vendors with product listings and investments',
+    canUpgrade: true,
+    canDowngrade: true,
+    requiresApproval: false,
+    approvalLevel: 0,
+    maxSessionHours: 24,
+    require2FA: true,
+    auditLevel: 'BASIC',
+  },
+  FINANCE: {
+    level: 5,
+    name: 'Finance',
+    description: 'Finance team with payout processing capabilities',
+    canUpgrade: true,
+    canDowngrade: false,
+    requiresApproval: true,
+    approvalLevel: 8,
+    maxSessionHours: 12,
+    require2FA: true,
+    auditLevel: 'DETAILED',
+  },
+  COMPLIANCE: {
+    level: 6,
+    name: 'Compliance',
+    description: 'Compliance officers with KYC/AML verification rights',
+    canUpgrade: true,
+    canDowngrade: false,
+    requiresApproval: true,
+    approvalLevel: 8,
+    maxSessionHours: 12,
+    require2FA: true,
+    auditLevel: 'FULL',
+  },
+  ADMIN: {
+    level: 7,
+    name: 'Admin',
+    description: 'System administrators with full management capabilities',
+    canUpgrade: true,
+    canDowngrade: false,
+    requiresApproval: true,
+    approvalLevel: 9,
+    maxSessionHours: 12,
+    require2FA: true,
+    auditLevel: 'FULL',
+  },
+  SUPER_ADMIN: {
+    level: 8,
+    name: 'Super Admin',
+    description: 'Senior management with unrestricted system access',
+    canUpgrade: true,
+    canDowngrade: false,
+    requiresApproval: true,
+    approvalLevel: 10,
+    maxSessionHours: 8,
+    require2FA: true,
+    auditLevel: 'FULL',
+  },
+  SYSTEM: {
+    level: 9,
+    name: 'System',
+    description: 'Automated system processes and services',
+    canUpgrade: false,
+    canDowngrade: false,
+    requiresApproval: false,
+    approvalLevel: 0,
+    maxSessionHours: 0, // Unlimited
+    require2FA: false,
+    auditLevel: 'FULL',
+  },
+  ROOT: {
+    level: 10,
+    name: 'Root',
+    description: 'Unrestricted access (system owners only)',
+    canUpgrade: false,
+    canDowngrade: false,
+    requiresApproval: false,
+    approvalLevel: 0,
+    maxSessionHours: 0, // Unlimited
+    require2FA: true,
+    auditLevel: 'FULL',
+  },
+};
+```
+
+---
+
+## 4. PERMISSION SYSTEM
+
+### 4.1 Permission Code Structure
+
+```
+Format: <module>:<resource>:<action>
+
+Examples:
+- reg:create (Registration: Create)
+- inv:read (Investment: Read)
+- comm:process (Commission: Process)
+- pay:approve (Payout: Approve)
+- admin:user:manage (Admin: User: Manage)
+- sys:full:access (System: Full: Access)
+```
+
+### 4.2 Permission Categories
+
+| Category | Code Prefix | Description |
+| :--- | :--- | :--- |
+| **Registration** | `reg:` | User registration and profile management |
+| **KYC** | `kyc:` | KYC verification and document management |
+| **Investment** | `inv:` | Investment creation and management |
+| **Vendor** | `ven:` | Vendor and product management |
+| **Commission** | `comm:` | Commission calculation and processing |
+| **Payout** | `pay:` | Payout processing and approval |
+| **Admin** | `admin:` | System administration |
+| **System** | `sys:` | System-level operations |
+
+### 4.3 Permission Wildcards
+
+| Wildcard | Meaning | Example |
+| :--- | :--- | :--- |
+| `*` | All resources | `reg:*` (All registration actions) |
+| `*:*` | All actions on all resources | `inv:*:*` (All investment operations) |
+| `*:*:*` | Complete access | `*:*:*` (Root access) |
+
+---
+
+## 5. ACCESS LEVEL MATRIX
+
+### 5.1 Module Access by Role
+
+| Module | Guest | Registered | Investor | Vendor | Finance | Compliance | Admin | Super Admin | System | Root |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Registration** | Read | Full | Full | Full | Full | Full | Full | Full | Auto | All |
+| **KYC** | ❌ | Submit | Submit | Submit | View | Verify | Full | Full | Auto | All |
+| **Investment** | ❌ | ❌ | Full | Full | Full | View | Full | Full | Auto | All |
+| **Vendor** | ❌ | ❌ | ❌ | Full | Full | View | Full | Full | Auto | All |
+| **Commission** | ❌ | ❌ | View | View | Full | View | Full | Full | Auto | All |
+| **Payout** | ❌ | ❌ | View | View | Process | View | Full | Full | Auto | All |
+| **Admin** | ❌ | ❌ | ❌ | ❌ | View | View | Full | Full | Config | All |
+| **System** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Config | Execute | All |
+| **Audit Logs** | ❌ | ❌ | ❌ | ❌ | View | View | Full | Full | Full | All |
+
+### 5.2 Endpoint Access Matrix
+
+| Endpoint | Method | Guest | Registered | Investor | Vendor | Finance | Compliance | Admin | Super Admin |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| `/api/auth/register/*` | POST | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `/api/auth/login` | POST | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `/api/investments/*` | GET | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `/api/investments/*` | POST | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
+| `/api/vendors/*` | GET | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `/api/vendors/*` | POST | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ |
+| `/api/commissions/*` | GET | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `/api/commissions/process` | POST | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| `/api/payouts/*` | GET | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `/api/payouts/process` | POST | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| `/api/payouts/approve` | POST | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| `/api/kyc/verify` | POST | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| `/api/admin/users/*` | ALL | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| `/api/admin/system/*` | ALL | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| `/api/webhooks/*` | ALL | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| `/api/audit/logs` | GET | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+
+---
+
+## 6. IMPLEMENTATION GUIDE
+
+### 6.1 RBAC Middleware Setup
+
+```typescript
+// src/middleware/rbac-middleware.ts
+
+import { NextRequest, NextResponse } from 'next/server';
+import { verifyToken } from '@/lib/auth/jwt';
+import { ROLE_PERMISSIONS, ROLE_DEFINITIONS } from '@/lib/rbac/permission-codes';
+
+export interface RBACConfig {
+  requiredPermissions: string[];
+  minLevel?: number;
+  maxLevel?: number;
+  excludeRoles?: string[];
+  require2FA?: boolean;
+}
+
+export async function rbacMiddleware(
+  request: NextRequest,
+  config: RBACConfig
+): Promise<NextResponse> {
+  const startTime = Date.now();
+  
+  try {
+    // 1. Extract token
+    const token = request.headers.get('authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      await logAccessAttempt(request, 'DENIED', 'AUTH_MISSING');
+      return NextResponse.json(
+        { error: 'Authentication required', code: 'AUTH_MISSING' },
+        { status: 401 }
+      );
+    }
+    
+    // 2. Verify token
+    const user = await verifyToken(token);
+    
+    if (!user) {
+      await logAccessAttempt(request, 'DENIED', 'AUTH_INVALID');
+      return NextResponse.json(
+        { error: 'Invalid token', code: 'AUTH_INVALID' },
+        { status: 401 }
+      );
+    }
+    
+    // 3. Check 2FA requirement
+    if (config.require2FA && !user.twoFactorEnabled) {
+      await logAccessAttempt(request, 'DENIED', '2FA_REQUIRED');
+      return NextResponse.json(
+        { error: '2FA required for this action', code: '2FA_REQUIRED' },
+        { status: 403 }
+      );
+    }
+    
+    // 4. Check role level
+    const userLevel = ROLE_DEFINITIONS[user.role]?.level || 0;
+    
+    if (config.minLevel && userLevel < config.minLevel) {
+      await logAccessAttempt(request, 'DENIED', 'RBAC_LEVEL_LOW', {
+        required: config.minLevel,
+        current: userLevel,
+      });
+      return NextResponse.json(
+        { 
+          error: 'Insufficient access level', 
+          code: 'RBAC_LEVEL_LOW',
+          required: config.minLevel,
+          current: userLevel,
+        },
+        { status: 403 }
+      );
+    }
+    
+    if (config.maxLevel && userLevel > config.maxLevel) {
+      await logAccessAttempt(request, 'DENIED', 'RBAC_LEVEL_HIGH', {
+        required: config.maxLevel,
+        current: userLevel,
+      });
+      return NextResponse.json(
+        { 
+          error: 'Access level too high', 
+          code: 'RBAC_LEVEL_HIGH',
+          required: config.maxLevel,
+          current: userLevel,
+        },
+        { status: 403 }
+      );
+    }
+    
+    // 5. Check excluded roles
+    if (config.excludeRoles?.includes(user.role)) {
+      await logAccessAttempt(request, 'DENIED', 'RBAC_ROLE_EXCLUDED', {
+        role: user.role,
+      });
+      return NextResponse.json(
+        { error: 'Role excluded from this action', code: 'RBAC_ROLE_EXCLUDED' },
+        { status: 403 }
+      );
+    }
+    
+    // 6. Check permissions
+    const userPermissions = ROLE_PERMISSIONS[user.role] || [];
+    
+    for (const requiredPerm of config.requiredPermissions) {
+      const hasPermission = userPermissions.some(perm => {
+        if (perm === '*:*:*') return true; // Root access
+        if (perm.endsWith('*')) {
+          const prefix = perm.slice(0, -1);
+          return requiredPerm.startsWith(prefix);
+        }
+        return perm === requiredPerm;
+      });
+      
+      if (!hasPermission) {
+        await logAccessAttempt(request, 'DENIED', 'RBAC_PERMISSION_DENIED', {
+          required: requiredPerm,
+          role: user.role,
+          permissions: userPermissions,
+        });
+        return NextResponse.json(
+          { 
+            error: 'Permission denied', 
+            code: 'RBAC_PERMISSION_DENIED',
+            required: requiredPerm,
+            role: user.role,
+          },
+          { status: 403 }
+        );
+      }
+    }
+    
+    // 7. Attach user info to headers
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-user-id', user.id);
+    requestHeaders.set('x-user-role', user.role);
+    requestHeaders.set('x-user-level', userLevel.toString());
+    
+    // 8. Log successful access
+    await logAccessAttempt(request, 'ALLOWED', 'SUCCESS', {
+      duration: Date.now() - startTime,
+    });
+    
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+  } catch (error) {
+    console.error('RBAC Middleware Error:', error);
+    await logAccessAttempt(request, 'ERROR', 'RBAC_ERROR', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    
+    return NextResponse.json(
+      { error: 'Authorization failed', code: 'RBAC_ERROR' },
+      { status: 500 }
+    );
+  }
+}
+
+async function logAccessAttempt(
+  request: NextRequest,
+  decision: 'ALLOWED' | 'DENIED' | 'ERROR',
+  reason: string,
+  metadata?: Record<string, any>
+): Promise<void> {
+  // Log to audit_logs table
+  const supabase = await createSupabaseServerClient();
+  
+  await supabase.from('audit_logs').insert({
+    user_id: metadata?.userId || null,
+    action: 'ACCESS_ATTEMPT',
+    entity: 'RBAC',
+    old_value: { decision, reason, ...metadata },
+    new_value: null,
+    ip_address: request.ip || request.headers.get('x-forwarded-for'),
+    user_agent: request.headers.get('user-agent'),
+    created_at: new Date().toISOString(),
+  });
+}
+```
+
+### 6.2 Route Protection Example
+
+```typescript
+// src/app/api/investments/create/route.ts
+
+import { NextRequest, NextResponse } from 'next/server';
+import { rbacMiddleware, RBACConfig } from '@/middleware/rbac-middleware';
+
+const RBAC_CONFIG: RBACConfig = {
+  requiredPermissions: ['inv:create', 'inv:read'],
+  minLevel: 3, // Investor+
+  require2FA: true,
+};
+
+export async function POST(request: NextRequest) {
+  // Apply RBAC middleware
+  const rbacResult = await rbacMiddleware(request, RBAC_CONFIG);
+  
+  if (rbacResult.status !== 200) {
+    return rbacResult;
+  }
+  
+  // Proceed with investment creation logic
+  // ...
+  
+  return NextResponse.json({ success: true });
+}
+```
+
+---
+
+## 7. API INTEGRATION
+
+### 7.1 RBAC Management Endpoints
+
+| Method | Endpoint | Description | RBAC Level |
+| :--- | :--- | :--- | :--- |
+| GET | `/api/rbac/roles` | Get all roles | 8+ |
+| GET | `/api/rbac/permissions` | Get all permissions | 8+ |
+| POST | `/api/rbac/roles/create` | Create new role | 10 |
+| PUT | `/api/rbac/roles/:id` | Update role | 10 |
+| DELETE | `/api/rbac/roles/:id` | Delete role | 10 |
+| POST | `/api/rbac/permissions/assign` | Assign permissions to role | 10 |
+| GET | `/api/rbac/user/:id/permissions` | Get user permissions | 7+ |
+| POST | `/api/rbac/user/:id/role` | Change user role | 8+ |
+
+### 7.2 Example: Assign Permissions to Role
+
+```typescript
+// POST /api/rbac/permissions/assign
+
+// Request
+{
+  "roleId": "ADMIN",
+  "permissions": [
+    "reg:*",
+    "kyc:verify",
+    "kyc:reject",
+    "inv:*",
+    "ven:*",
+    "comm:*",
+    "pay:*",
+    "admin:*"
+  ],
+  "approvedBy": "SUPER_ADMIN_USER_ID"
+}
+
+// Response
+{
+  "success": true,
+  "data": {
+    "roleId": "ADMIN",
+    "permissionsAssigned": 8,
+    "updatedAt": "2025-01-15T12:00:00Z"
+  },
+  "message": "Permissions successfully assigned to ADMIN role"
+}
+```
+
+---
+
+## 8. DATABASE SCHEMA
+
+### 8.1 Roles Table
+
+```sql
+CREATE TABLE roles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(50) UNIQUE NOT NULL,
+    level INTEGER NOT NULL UNIQUE,
+    description TEXT,
+    can_upgrade BOOLEAN DEFAULT TRUE,
+    can_downgrade BOOLEAN DEFAULT TRUE,
+    requires_approval BOOLEAN DEFAULT FALSE,
+    approval_level INTEGER,
+    max_session_hours INTEGER,
+    require_2fa BOOLEAN DEFAULT FALSE,
+    audit_level VARCHAR(20) DEFAULT 'BASIC', -- NONE, BASIC, DETAILED, FULL
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_roles_name ON roles(name);
+CREATE INDEX idx_roles_level ON roles(level);
+CREATE INDEX idx_roles_active ON roles(is_active);
+```
+
+### 8.2 Permissions Table
+
+```sql
+CREATE TABLE permissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(100) UNIQUE NOT NULL,
+    module VARCHAR(50) NOT NULL,
+    resource VARCHAR(50) NOT NULL,
+    action VARCHAR(50) NOT NULL,
+    description TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_permissions_code ON permissions(code);
+CREATE INDEX idx_permissions_module ON permissions(module);
+CREATE INDEX idx_permissions_active ON permissions(is_active);
+```
+
+### 8.3 Role Permissions Table
+
+```sql
+CREATE TABLE role_permissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+    permission_id UUID NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
+    granted_by UUID REFERENCES users(id),
+    granted_at TIMESTAMPTZ DEFAULT NOW(),
+    expires_at TIMESTAMPTZ,
+    UNIQUE(role_id, permission_id)
+);
+
+CREATE INDEX idx_role_permissions_role ON role_permissions(role_id);
+CREATE INDEX idx_role_permissions_permission ON role_permissions(permission_id);
+```
+
+### 8.4 Audit Logs Table
+
+```sql
+CREATE TABLE audit_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id),
+    action VARCHAR(100) NOT NULL,
+    entity VARCHAR(100) NOT NULL,
+    entity_id UUID,
+    old_value JSONB,
+    new_value JSONB,
+    ip_address INET,
+    user_agent TEXT,
+    rbac_decision VARCHAR(20), -- ALLOWED, DENIED, ERROR
+    rbac_reason VARCHAR(100),
+    rbac_metadata JSONB,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_audit_logs_user ON audit_logs(user_id);
+CREATE INDEX idx_audit_logs_action ON audit_logs(action);
+CREATE INDEX idx_audit_logs_created ON audit_logs(created_at);
+CREATE INDEX idx_audit_logs_rbac ON audit_logs(rbac_decision);
+
+-- Retention: 7 years (2555 days)
+CREATE OR REPLACE FUNCTION cleanup_old_audit_logs()
+RETURNS void AS $$
+BEGIN
+    DELETE FROM audit_logs WHERE created_at < NOW() - INTERVAL '2555 days';
+END;
+$$ LANGUAGE plpgsql;
+```
+
+---
+
+## 9. SECURITY BEST PRACTICES
+
+### 9.1 Principle of Least Privilege
+- Grant minimum permissions required for role
+- Regular permission audits (quarterly)
+- Remove unused permissions immediately
+
+### 9.2 Separation of Duties
+- Finance cannot approve their own payouts
+- Compliance cannot verify their own KYC
+- Admin changes require Super Admin approval
+
+### 9.3 Session Management
+| Role | Max Session | Require 2FA | Idle Timeout |
+| :--- | :--- | :--- | :--- |
+| Guest | 1 hour | No | 15 minutes |
+| Registered | 24 hours | No | 30 minutes |
+| Investor | 24 hours | Yes | 30 minutes |
+| Vendor | 24 hours | Yes | 30 minutes |
+| Finance | 12 hours | Yes | 15 minutes |
+| Compliance | 12 hours | Yes | 15 minutes |
+| Admin | 12 hours | Yes | 15 minutes |
+| Super Admin | 8 hours | Yes | 10 minutes |
+| System | Unlimited | No | N/A |
+| Root | Unlimited | Yes | N/A |
+
+### 9.4 Password Policies
+| Role | Min Length | Complexity | Expiry | History |
+| :--- | :--- | :--- | :--- | :--- |
+| Guest | N/A | N/A | N/A | N/A |
+| Registered | 8 | Medium | 90 days | 5 |
+| Investor | 8 | High | 90 days | 5 |
+| Vendor | 8 | High | 90 days | 5 |
+| Finance | 12 | High | 60 days | 10 |
+| Compliance | 12 | High | 60 days | 10 |
+| Admin | 12 | High | 60 days | 10 |
+| Super Admin | 16 | Very High | 30 days | 12 |
+| System | N/A | API Key | N/A | N/A |
+| Root | 20 | Very High | 30 days | 12 |
+
+### 9.5 Audit Requirements
+| Action | Audit Level | Retention | Alert |
+| :--- | :--- | :--- | :--- |
+| Login/Logout | BASIC | 90 days | No |
+| Failed Login | DETAILED | 1 year | After 5 attempts |
+| Permission Change | FULL | 7 years | Yes |
+| Role Change | FULL | 7 years | Yes |
+| KYC Verification | FULL | 7 years | Yes |
+| Payout Processing | FULL | 7 years | Yes |
+| System Config Change | FULL | 7 years | Yes |
+| RBAC Denied Access | DETAILED | 1 year | After 10 attempts |
+
+---
+
+## 10. TESTING & AUDIT
+
+### 10.1 RBAC Test Cases
+
+```typescript
+// src/tests/rbac/rbac.test.ts
+
+describe('RBAC Access Control', () => {
+  describe('Role Level Checks', () => {
+    it('should deny Guest access to Investor endpoints', async () => {
+      const response = await requestInvestmentCreate({ role: 'GUEST' });
+      expect(response.status).toBe(403);
+      expect(response.body.error.code).toBe('RBAC_LEVEL_LOW');
+    });
+    
+    it('should allow Investor access to Investment endpoints', async () => {
+      const response = await requestInvestmentCreate({ role: 'INVESTOR' });
+      expect(response.status).toBe(200);
+    });
+    
+    it('should deny Investor access to Admin endpoints', async () => {
+      const response = await requestAdminUserManage({ role: 'INVESTOR' });
+      expect(response.status).toBe(403);
+      expect(response.body.error.code).toBe('RBAC_LEVEL_LOW');
+    });
+  });
+  
+  describe('Permission Checks', () => {
+    it('should deny access without required permission', async () => {
+      const response = await requestPayoutProcess({ role: 'INVESTOR' });
+      expect(response.status).toBe(403);
+      expect(response.body.error.code).toBe('RBAC_PERMISSION_DENIED');
+    });
+    
+    it('should allow access with required permission', async () => {
+      const response = await requestPayoutProcess({ role: 'FINANCE' });
+      expect(response.status).toBe(200);
+    });
+  });
+  
+  describe('2FA Requirements', () => {
+    it('should deny access when 2FA required but not enabled', async () => {
+      const response = await requestInvestmentCreate({ 
+        role: 'INVESTOR',
+        twoFactorEnabled: false,
+      });
+      expect(response.status).toBe(403);
+      expect(response.body.error.code).toBe('2FA_REQUIRED');
+    });
+    
+    it('should allow access when 2FA enabled', async () => {
+      const response = await requestInvestmentCreate({ 
+        role: 'INVESTOR',
+        twoFactorEnabled: true,
+      });
+      expect(response.status).toBe(200);
+    });
+  });
+  
+  describe('Audit Logging', () => {
+    it('should log all access attempts', async () => {
+      await requestInvestmentCreate({ role: 'GUEST' });
+      
+      const logs = await getAuditLogs({ action: 'ACCESS_ATTEMPT' });
+      expect(logs.length).toBeGreaterThan(0);
+      expect(logs[0].rbac_decision).toBe('DENIED');
+    });
+    
+    it('should log successful access', async () => {
+      await requestInvestmentCreate({ role: 'INVESTOR' });
+      
+      const logs = await getAuditLogs({ action: 'ACCESS_ATTEMPT' });
+      expect(logs.some(l => l.rbac_decision === 'ALLOWED')).toBe(true);
+    });
+  });
+});
+```
+
+### 10.2 Security Audit Checklist
+
+- [ ] All roles defined and documented
+- [ ] All permissions mapped to roles
+- [ ] RBAC middleware applied to all endpoints
+- [ ] 2FA enforced for Level 3+ roles
+- [ ] Session timeouts configured
+- [ ] Password policies enforced
+- [ ] Audit logging enabled for all roles
+- [ ] Audit logs retained for 7 years
+- [ ] Quarterly permission audits scheduled
+- [ ] Role changes require approval
+- [ ] Separation of duties enforced
+- [ ] Failed access attempts monitored
+- [ ] Alert system configured for suspicious activity
+- [ ] Penetration testing completed
+- [ ] Compliance officer approval obtained
+
+---
+
+**END OF RBAC DOCUMENTATION**
+```
+
+---
+
+## 📎 APPENDIX: QUICK REFERENCE CARDS
+
+### RBAC Quick Reference
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    RBAC ACCESS LEVELS                           │
+├─────────────────────────────────────────────────────────────────┤
+│ Level 1: GUEST       → Public content only                      │
+│ Level 2: REGISTERED  → Registration + KYC submission            │
+│ Level 3: INVESTOR    → Investment + Commission view             │
+│ Level 4: VENDOR      → Vendor + Product listing                 │
+│ Level 5: FINANCE     → Payout processing                        │
+│ Level 6: COMPLIANCE  → KYC verification                         │
+│ Level 7: ADMIN       → System management                        │
+│ Level 8: SUPER_ADMIN → Full system control                      │
+│ Level 9: SYSTEM      → Automated processes                      │
+│ Level 10: ROOT       → Unrestricted access                      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Permission Code Quick Reference
+
+```
+reg:*      → Registration module
+kyc:*      → KYC verification
+inv:*      → Investment operations
+ven:*      → Vendor operations
+comm:*     → Commission operations
+pay:*      → Payout operations
+admin:*    → Administration
+sys:*      → System operations
+*:*:*      → Root access (all permissions)
+```
+
+---
+
+**ALL DOCUMENTS COMPLETE AND PRODUCTION READY** 🚀
