@@ -2,20 +2,23 @@ import { ReactNode, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import {
-  LayoutDashboard,
   Package,
+  LayoutDashboard,
+  ShoppingCart,
+  RotateCcw,
+  BarChart3,
+  Upload,
   Users,
   Settings,
-  LogOut,
+  DollarSign,
+  TrendingUp,
   Menu,
   X,
-  BarChart3,
-  FileText,
-  Bell,
-  User
+  LogOut
 } from "lucide-react";
-import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -28,7 +31,7 @@ const roleConfig = {
     nav: [
       { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/client" },
       { icon: Package, label: "My Orders", href: "/dashboard/client/orders" },
-      { icon: FileText, label: "Returns", href: "/dashboard/client/returns" },
+      { icon: ShoppingCart, label: "Returns", href: "/dashboard/client/returns" },
       { icon: Settings, label: "Settings", href: "/dashboard/client/settings" }
     ]
   },
@@ -38,7 +41,7 @@ const roleConfig = {
       { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/vendor" },
       { icon: Package, label: "Orders", href: "/dashboard/vendor/orders" },
       { icon: BarChart3, label: "Performance", href: "/dashboard/vendor/performance" },
-      { icon: FileText, label: "Reports", href: "/dashboard/vendor/reports" },
+      { icon: Upload, label: "Reports", href: "/dashboard/vendor/reports" },
       { icon: Settings, label: "Settings", href: "/dashboard/vendor/settings" }
     ]
   },
@@ -49,7 +52,7 @@ const roleConfig = {
       { icon: Users, label: "Vendors", href: "/dashboard/admin/vendors" },
       { icon: Package, label: "Orders", href: "/dashboard/admin/orders" },
       { icon: BarChart3, label: "Analytics", href: "/dashboard/admin/analytics" },
-      { icon: FileText, label: "Reports", href: "/dashboard/admin/reports" },
+      { icon: Upload, label: "Reports", href: "/dashboard/admin/reports" },
       { icon: Settings, label: "Settings", href: "/dashboard/admin/settings" }
     ]
   },
@@ -58,7 +61,7 @@ const roleConfig = {
     nav: [
       { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/bdm" },
       { icon: Users, label: "Vendors", href: "/dashboard/bdm/vendors" },
-      { icon: FileText, label: "Onboarding", href: "/dashboard/bdm/onboarding" },
+      { icon: RotateCcw, label: "Onboarding", href: "/dashboard/bdm/onboarding" },
       { icon: BarChart3, label: "Performance", href: "/dashboard/bdm/performance" },
       { icon: Settings, label: "Settings", href: "/dashboard/bdm/settings" }
     ]
@@ -145,13 +148,10 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
             {config.title}
           </h1>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </Button>
+            <NotificationCenter />
             <ThemeSwitch />
             <Button variant="ghost" size="icon">
-              <User className="w-5 h-5" />
+              <LogOut className="w-5 h-5" />
             </Button>
           </div>
         </header>
