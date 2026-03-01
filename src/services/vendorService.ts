@@ -86,7 +86,7 @@ export const vendorService = {
   },
 
   // Update onboarding step
-  async updateOnboardingStep(vendorId: string, step: number) {
+  async updateOnboardingStep(vendorId: string, step: Database["public"]["Enums"]["onboarding_step"]) {
     const { data, error } = await supabase
       .from("vendors")
       .update({ onboarding_step: step })

@@ -112,10 +112,10 @@ export const settlementService = {
   // Update settlement status
   async updateSettlementStatus(
     settlementId: string, 
-    status: Database["public"]["Enums"]["settlement_status"]
+    status: Database["public"]["Enums"]["payment_status"]
   ) {
-    const updates: any = { status };
-    if (status === "paid") updates.paid_at = new Date().toISOString();
+    const updates: any = { payment_status: status };
+    if (status === "completed") updates.payment_date = new Date().toISOString();
 
     const { data, error } = await supabase
       .from("settlements")
@@ -160,16 +160,19 @@ export const settlementService = {
         return_count: calc.returnCount,
         penalty_amount: calc.totalPenalties,
         net_payout: calc.netPayout,
-        status: "pending"
+        payment_status: "pending"
       });
     }
 
-    const { data, error } = await supabase
-      .from("settlements")
-      .insert(settlements)
-      .select();
+    if (settlements.length > 0) {
+      const { data, error } = await supabase
+        .from("settlements")
+        .insert(settlements)
+        .select();
 
-    if (error) throw error;
-    return data;
+      if (error) throw error;
+      return data;
+    }
+    return [];
   }
 };

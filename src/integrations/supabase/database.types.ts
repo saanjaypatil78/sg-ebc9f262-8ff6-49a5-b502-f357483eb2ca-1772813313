@@ -210,6 +210,61 @@ export type Database = {
           },
         ]
       }
+      penalties: {
+        Row: {
+          amount: number
+          applied_at: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          reason: string
+          settlement_id: string | null
+          vendor_id: string
+        }
+        Insert: {
+          amount: number
+          applied_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          reason: string
+          settlement_id?: string | null
+          vendor_id: string
+        }
+        Update: {
+          amount?: number
+          applied_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          reason?: string
+          settlement_id?: string | null
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "penalties_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "penalties_settlement_id_fkey"
+            columns: ["settlement_id"]
+            isOneToOne: false
+            referencedRelation: "settlements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "penalties_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string | null
@@ -333,6 +388,7 @@ export type Database = {
           order_id: string
           reason: string
           replacement_order_id: string | null
+          resolved_at: string | null
           return_number: string
           status: Database["public"]["Enums"]["return_status"] | null
           updated_at: string | null
@@ -350,6 +406,7 @@ export type Database = {
           order_id: string
           reason: string
           replacement_order_id?: string | null
+          resolved_at?: string | null
           return_number: string
           status?: Database["public"]["Enums"]["return_status"] | null
           updated_at?: string | null
@@ -367,6 +424,7 @@ export type Database = {
           order_id?: string
           reason?: string
           replacement_order_id?: string | null
+          resolved_at?: string | null
           return_number?: string
           status?: Database["public"]["Enums"]["return_status"] | null
           updated_at?: string | null
@@ -421,8 +479,10 @@ export type Database = {
           payment_date: string | null
           payment_reference: string | null
           payment_status: Database["public"]["Enums"]["payment_status"] | null
+          penalty_amount: number | null
           period_end: string
           period_start: string
+          return_count: number | null
           return_penalty: number | null
           settlement_number: string
           sla_penalty: number | null
@@ -441,8 +501,10 @@ export type Database = {
           payment_date?: string | null
           payment_reference?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"] | null
+          penalty_amount?: number | null
           period_end: string
           period_start: string
+          return_count?: number | null
           return_penalty?: number | null
           settlement_number: string
           sla_penalty?: number | null
@@ -461,8 +523,10 @@ export type Database = {
           payment_date?: string | null
           payment_reference?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"] | null
+          penalty_amount?: number | null
           period_end?: string
           period_start?: string
+          return_count?: number | null
           return_penalty?: number | null
           settlement_number?: string
           sla_penalty?: number | null
