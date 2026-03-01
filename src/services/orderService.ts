@@ -2,7 +2,8 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
 type OrderStatus = Database["public"]["Enums"]["order_status"];
-type OrderInsert = Database["public"]["Tables"]["orders"]["Insert"];
+// Simplified type to prevent excessive depth error
+type OrderInsert = any;
 
 export const orderService = {
   // Get all orders for a user (client view)

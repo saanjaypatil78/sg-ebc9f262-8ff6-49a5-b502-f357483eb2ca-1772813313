@@ -2,8 +2,9 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
 type ReturnStatus = Database["public"]["Enums"]["return_status"];
-type ReturnInsert = Database["public"]["Tables"]["returns"]["Insert"];
-type ReturnUpdate = Database["public"]["Tables"]["returns"]["Update"];
+// Simplified types to prevent excessive depth error
+type ReturnInsert = any;
+type ReturnUpdate = any;
 
 export const returnService = {
   // Get returns for customer
