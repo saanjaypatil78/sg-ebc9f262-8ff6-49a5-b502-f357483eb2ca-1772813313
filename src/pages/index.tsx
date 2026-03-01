@@ -1,45 +1,36 @@
 import { SEO } from "@/components/SEO";
 import Link from "next/link";
-import { ArrowRight, Package, TrendingUp, Shield, Zap } from "lucide-react";
+import { ArrowRight, Package, TrendingUp, Shield, Users, FileSpreadsheet, Zap, CheckCircle, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function Home() {
   return (
     <>
-      <SEO
+      <SEO 
         title="DropSync - Professional Dropshipping Platform"
-        description="Complete dropshipping ecosystem with vendor management, automated settlements, and guaranteed compliance"
+        description="Enterprise dropshipping platform with automated vendor management, SLA enforcement, and guaranteed returns"
       />
-      
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50 dark:from-slate-950 dark:via-slate-900 dark:to-cyan-950">
         {/* Header */}
-        <header className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-xl">
-          <div className="container mx-auto px-6 py-4">
+        <header className="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Package className="w-8 h-8 text-cyan-400" />
-                <span className="text-2xl font-bold text-white">DropSync</span>
+                <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
+                  <Package className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-2xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
+                  DropSync
+                </span>
               </div>
-              <nav className="hidden md:flex items-center gap-8">
-                <Link href="#features" className="text-slate-300 hover:text-white transition-colors">
-                  Features
-                </Link>
-                <Link href="#roles" className="text-slate-300 hover:text-white transition-colors">
-                  Roles
-                </Link>
-                <Link href="#pricing" className="text-slate-300 hover:text-white transition-colors">
-                  Pricing
-                </Link>
-              </nav>
               <div className="flex items-center gap-4">
                 <Link href="/auth/login">
-                  <Button variant="ghost" className="text-slate-300 hover:text-white">
-                    Sign In
-                  </Button>
+                  <Button variant="ghost">Sign In</Button>
                 </Link>
                 <Link href="/auth/register">
-                  <Button className="bg-cyan-500 hover:bg-cyan-600 text-white">
+                  <Button className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700">
                     Get Started
                   </Button>
                 </Link>
@@ -49,63 +40,86 @@ export default function Home() {
         </header>
 
         {/* Hero Section */}
-        <section className="container mx-auto px-6 py-24">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 mb-8">
-              <Zap className="w-4 h-4" />
-              <span className="text-sm font-medium">Production-Ready Dropshipping Platform</span>
-            </div>
-            
-            <h1 className="text-6xl md:text-7xl font-black text-white mb-6 leading-tight">
-              Complete Dropshipping
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-                Ecosystem
-              </span>
-            </h1>
-            
-            <p className="text-xl text-slate-300 mb-12 leading-relaxed">
-              Multi-vendor marketplace with automated settlements, SLA enforcement,
-              <br />
-              QR tracking, and guaranteed return management
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/auth/register">
-                <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600 text-white text-lg px-8 py-6">
-                  Start Free Trial
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-              <Link href="#demo">
-                <Button size="lg" variant="outline" className="border-slate-700 text-white hover:bg-slate-800 text-lg px-8 py-6">
+        <section className="container mx-auto px-4 py-20">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <Badge className="mb-4 bg-cyan-100 text-cyan-700 dark:bg-cyan-900/20 dark:text-cyan-400">
+                Professional E-commerce Solution
+              </Badge>
+              <h1 className="text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
+                Dropshipping Platform Built for{" "}
+                <span className="bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
+                  Scale
+                </span>
+              </h1>
+              <p className="text-xl text-slate-600 dark:text-slate-400 mb-8">
+                Enterprise-grade vendor management with automated SLA enforcement, guaranteed returns under 10%, and 90% on-time delivery tracking.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link href="/auth/register">
+                  <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700">
+                    Start Free Trial
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+                <Button size="lg" variant="outline">
                   Watch Demo
                 </Button>
-              </Link>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-24 max-w-4xl mx-auto">
-            {[
-              { label: "Return Rate Control", value: "≤10%" },
-              { label: "On-Time Delivery", value: "90%" },
-              { label: "Automated Tracking", value: "100%" },
-              { label: "Vendor Support", value: "24/7" }
-            ].map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className="text-4xl font-black text-cyan-400 mb-2">{stat.value}</div>
-                <div className="text-sm text-slate-400">{stat.label}</div>
               </div>
-            ))}
+              <div className="mt-8 flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-sm text-slate-600 dark:text-slate-400">No credit card required</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-sm text-slate-600 dark:text-slate-400">Free 14-day trial</span>
+                </div>
+              </div>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 blur-3xl rounded-full" />
+              <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-8 border border-slate-200 dark:border-slate-800">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <div>
+                      <p className="text-sm text-green-700 dark:text-green-400">On-Time Delivery</p>
+                      <p className="text-3xl font-bold text-green-600">94.8%</p>
+                    </div>
+                    <TrendingUp className="w-12 h-12 text-green-600 opacity-20" />
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div>
+                      <p className="text-sm text-blue-700 dark:text-blue-400">Return Rate</p>
+                      <p className="text-3xl font-bold text-blue-600">6.2%</p>
+                    </div>
+                    <Shield className="w-12 h-12 text-blue-600 opacity-20" />
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <div>
+                      <p className="text-sm text-purple-700 dark:text-purple-400">Active Vendors</p>
+                      <p className="text-3xl font-bold text-purple-600">147</p>
+                    </div>
+                    <Users className="w-12 h-12 text-purple-600 opacity-20" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Features Grid */}
-        <section id="features" className="container mx-auto px-6 py-24">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-black text-white mb-4">Platform Features</h2>
-            <p className="text-slate-400 text-lg">Everything you need to run a professional dropshipping business</p>
+        <section className="container mx-auto px-4 py-20 bg-white dark:bg-slate-900/50 rounded-3xl">
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
+              Platform Features
+            </Badge>
+            <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">
+              Everything You Need to Scale
+            </h2>
+            <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+              Comprehensive tools for vendors, admins, and business development teams
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -113,92 +127,124 @@ export default function Home() {
               {
                 icon: Package,
                 title: "Multi-Vendor Management",
-                description: "Onboard, manage, and monitor unlimited vendors with performance scorecards"
+                description: "Centralized dashboard to manage unlimited vendors with performance tracking",
+                color: "from-cyan-500 to-blue-600"
               },
               {
                 icon: Shield,
-                title: "Guaranteed Returns",
-                description: "10% return limit with mandatory free replacements and zero commission"
+                title: "10% Return Guarantee",
+                description: "Automated replacement handling with zero commission on replacement products",
+                color: "from-green-500 to-emerald-600"
               },
               {
                 icon: TrendingUp,
                 title: "90% On-Time SLA",
-                description: "Automated delivery tracking with penalties for non-compliance"
+                description: "Real-time delivery performance monitoring with automated penalty enforcement",
+                color: "from-blue-500 to-purple-600"
+              },
+              {
+                icon: FileSpreadsheet,
+                title: "File Automation",
+                description: "Upload operational files for automated reconciliation and settlements",
+                color: "from-orange-500 to-red-600"
               },
               {
                 icon: Zap,
                 title: "QR Code Tracking",
-                description: "Vendor-printed QR codes on every package for complete traceability"
+                description: "Vendor-printed QR codes on every package for seamless tracking",
+                color: "from-purple-500 to-pink-600"
               },
               {
-                icon: Package,
-                title: "File Automation",
-                description: "Upload operational files for automatic reconciliation and settlements"
-              },
-              {
-                icon: Shield,
+                icon: Users,
                 title: "Role-Based Access",
-                description: "Separate dashboards for Clients, Vendors, Admins, and BDMs"
+                description: "Custom dashboards for clients, vendors, admins, and BDMs",
+                color: "from-pink-500 to-rose-600"
               }
             ].map((feature, i) => (
-              <Card key={i} className="bg-slate-900/50 border-slate-800 hover:border-cyan-500/50 transition-all">
-                <CardHeader>
-                  <feature.icon className="w-12 h-12 text-cyan-400 mb-4" />
-                  <CardTitle className="text-white">{feature.title}</CardTitle>
-                  <CardDescription className="text-slate-400">
+              <Card key={i} className="border-slate-200 dark:border-slate-800 hover:shadow-lg transition-shadow">
+                <CardContent className="pt-6">
+                  <div className={`w-12 h-12 bg-gradient-to-r ${feature.color} rounded-lg flex items-center justify-center mb-4`}>
+                    <feature.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-slate-600 dark:text-slate-400">
                     {feature.description}
-                  </CardDescription>
-                </CardHeader>
+                  </p>
+                </CardContent>
               </Card>
             ))}
           </div>
         </section>
 
-        {/* Roles Section */}
-        <section id="roles" className="container mx-auto px-6 py-24">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-black text-white mb-4">Four Powerful Roles</h2>
-            <p className="text-slate-400 text-lg">Each role gets a customized drag-and-drop dashboard</p>
+        {/* Role Selection */}
+        <section className="container mx-auto px-4 py-20">
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400">
+              Choose Your Role
+            </Badge>
+            <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">
+              Four Specialized Dashboards
+            </h2>
+            <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+              Every user gets a customized experience based on their role
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
-                title: "Clients",
-                description: "Browse products, place orders, track shipments, manage returns",
-                color: "from-blue-500 to-cyan-500"
+                role: "Client",
+                description: "Order tracking, returns, and support",
+                features: ["Order history", "Live tracking", "Easy returns"],
+                color: "from-blue-500 to-cyan-600",
+                link: "/dashboard/client"
               },
               {
-                title: "Vendors",
-                description: "Fulfill orders, print QR codes, upload reports, track performance",
-                color: "from-purple-500 to-pink-500"
+                role: "Vendor",
+                description: "Fulfillment and performance tools",
+                features: ["QR generation", "File uploads", "Performance metrics"],
+                color: "from-green-500 to-emerald-600",
+                link: "/dashboard/vendor"
               },
               {
-                title: "Admins",
-                description: "Approve vendors, monitor SLA, process settlements, resolve disputes",
-                color: "from-orange-500 to-red-500"
+                role: "Admin",
+                description: "Platform control and monitoring",
+                features: ["Vendor management", "SLA tracking", "Settlements"],
+                color: "from-purple-500 to-pink-600",
+                link: "/dashboard/admin"
               },
               {
-                title: "BDMs",
-                description: "Acquire vendors, manage relationships, design plans, track onboarding",
-                color: "from-green-500 to-emerald-500"
+                role: "BDM",
+                description: "Vendor acquisition and growth",
+                features: ["Onboarding pipeline", "Performance reports", "Incentives"],
+                color: "from-orange-500 to-red-600",
+                link: "/dashboard/bdm"
               }
             ].map((role, i) => (
-              <Card key={i} className="bg-slate-900/50 border-slate-800 hover:border-slate-700 transition-all">
-                <CardHeader>
-                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${role.color} mb-4 flex items-center justify-center text-white text-2xl font-black`}>
-                    {role.title[0]}
+              <Card key={i} className="border-slate-200 dark:border-slate-800 hover:shadow-xl transition-all hover:-translate-y-1">
+                <CardContent className="pt-6">
+                  <div className={`w-full h-32 bg-gradient-to-br ${role.color} rounded-lg flex items-center justify-center mb-4`}>
+                    <span className="text-4xl font-bold text-white">{role.role}</span>
                   </div>
-                  <CardTitle className="text-white text-xl">{role.title}</CardTitle>
-                  <CardDescription className="text-slate-400">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                    {role.role} Dashboard
+                  </h3>
+                  <p className="text-slate-600 dark:text-slate-400 mb-4">
                     {role.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link href={`/auth/register?role=${role.title.toLowerCase()}`}>
-                    <Button variant="ghost" className="w-full text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10">
-                      Get Started
-                      <ArrowRight className="ml-2 w-4 h-4" />
+                  </p>
+                  <ul className="space-y-2 mb-6">
+                    {role.features.map((feature, j) => (
+                      <li key={j} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href={role.link}>
+                    <Button className="w-full" variant="outline">
+                      View Demo
                     </Button>
                   </Link>
                 </CardContent>
@@ -207,35 +253,97 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="container mx-auto px-6 py-24">
-          <div className="bg-gradient-to-r from-cyan-500 to-blue-600 rounded-3xl p-12 text-center">
-            <h2 className="text-4xl font-black text-white mb-4">
-              Ready to Launch Your Dropshipping Business?
+        {/* Stats Section */}
+        <section className="container mx-auto px-4 py-20 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-3xl text-white">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-4">
+              Trusted by Growing Businesses
             </h2>
-            <p className="text-xl text-white/90 mb-8">
-              Join hundreds of successful vendors and start selling today
+            <p className="text-xl opacity-90">
+              Platform metrics that speak for themselves
             </p>
-            <Link href="/auth/register">
-              <Button size="lg" className="bg-white text-cyan-600 hover:bg-slate-100 text-lg px-8 py-6 font-bold">
-                Create Free Account
-                <ArrowRight className="ml-2 w-5 h-5" />
+          </div>
+          <div className="grid md:grid-cols-4 gap-8">
+            {[
+              { label: "Orders Processed", value: "1.2M+", icon: Package },
+              { label: "Active Vendors", value: "500+", icon: Users },
+              { label: "Avg On-Time Rate", value: "92.4%", icon: TrendingUp },
+              { label: "Customer Satisfaction", value: "4.8/5", icon: Star }
+            ].map((stat, i) => (
+              <div key={i} className="text-center">
+                <stat.icon className="w-12 h-12 mx-auto mb-4 opacity-80" />
+                <p className="text-5xl font-bold mb-2">{stat.value}</p>
+                <p className="text-lg opacity-90">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="container mx-auto px-4 py-20">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-950 dark:to-slate-900 rounded-3xl p-12 text-center border border-slate-700">
+            <h2 className="text-4xl font-bold text-white mb-4">
+              Ready to Transform Your Dropshipping Business?
+            </h2>
+            <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+              Join hundreds of businesses using DropSync to automate vendor management and scale operations
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link href="/auth/register">
+                <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700">
+                  Start Free Trial
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+              <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white/10">
+                Schedule Demo
               </Button>
-            </Link>
+            </div>
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="border-t border-slate-800 bg-slate-950/50">
-          <div className="container mx-auto px-6 py-8">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Package className="w-6 h-6 text-cyan-400" />
-                <span className="text-lg font-bold text-white">DropSync</span>
+        <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 mt-20">
+          <div className="container mx-auto px-4 py-12">
+            <div className="grid md:grid-cols-4 gap-8">
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
+                    <Package className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-xl font-bold text-slate-900 dark:text-white">DropSync</span>
+                </div>
+                <p className="text-slate-600 dark:text-slate-400">
+                  Professional dropshipping platform for modern e-commerce businesses.
+                </p>
               </div>
-              <div className="text-slate-400 text-sm">
-                © 2026 DropSync. Professional Dropshipping Platform.
+              <div>
+                <h4 className="font-bold text-slate-900 dark:text-white mb-4">Product</h4>
+                <ul className="space-y-2">
+                  <li><Link href="#" className="text-slate-600 dark:text-slate-400 hover:text-cyan-600">Features</Link></li>
+                  <li><Link href="#" className="text-slate-600 dark:text-slate-400 hover:text-cyan-600">Pricing</Link></li>
+                  <li><Link href="#" className="text-slate-600 dark:text-slate-400 hover:text-cyan-600">Documentation</Link></li>
+                </ul>
               </div>
+              <div>
+                <h4 className="font-bold text-slate-900 dark:text-white mb-4">Company</h4>
+                <ul className="space-y-2">
+                  <li><Link href="#" className="text-slate-600 dark:text-slate-400 hover:text-cyan-600">About</Link></li>
+                  <li><Link href="#" className="text-slate-600 dark:text-slate-400 hover:text-cyan-600">Blog</Link></li>
+                  <li><Link href="#" className="text-slate-600 dark:text-slate-400 hover:text-cyan-600">Careers</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-900 dark:text-white mb-4">Legal</h4>
+                <ul className="space-y-2">
+                  <li><Link href="#" className="text-slate-600 dark:text-slate-400 hover:text-cyan-600">Privacy</Link></li>
+                  <li><Link href="#" className="text-slate-600 dark:text-slate-400 hover:text-cyan-600">Terms</Link></li>
+                  <li><Link href="#" className="text-slate-600 dark:text-slate-400 hover:text-cyan-600">Security</Link></li>
+                </ul>
+              </div>
+            </div>
+            <div className="border-t border-slate-200 dark:border-slate-800 mt-8 pt-8 text-center text-slate-600 dark:text-slate-400">
+              <p>© {new Date().getFullYear()} DropSync. All rights reserved.</p>
             </div>
           </div>
         </footer>
