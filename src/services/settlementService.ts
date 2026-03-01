@@ -167,7 +167,7 @@ export const settlementService = {
     if (settlements.length > 0) {
       const { data, error } = await supabase
         .from("settlements")
-        .insert(settlements)
+        .insert(settlements as any)
         .select();
 
       if (error) throw error;

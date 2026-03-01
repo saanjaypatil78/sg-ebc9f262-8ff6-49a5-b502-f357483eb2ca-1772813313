@@ -23,7 +23,7 @@ export const returnService = {
       console.error("Error fetching customer returns:", error);
       throw error;
     }
-    return data || [];
+    return (data || []) as any[];
   },
 
   // Get returns for vendor
@@ -43,7 +43,7 @@ export const returnService = {
       console.error("Error fetching vendor returns:", error);
       throw error;
     }
-    return data || [];
+    return (data || []) as any[];
   },
 
   // Get all returns (admin)
@@ -63,7 +63,7 @@ export const returnService = {
       console.error("Error fetching all returns:", error);
       throw error;
     }
-    return data || [];
+    return (data || []) as any[];
   },
 
   // Create return request

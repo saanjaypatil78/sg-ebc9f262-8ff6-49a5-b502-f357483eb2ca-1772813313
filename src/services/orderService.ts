@@ -22,7 +22,7 @@ export const orderService = {
       console.error("Error fetching client orders:", error);
       throw error;
     }
-    return data || [];
+    return (data || []) as any[];
   },
 
   // Get all orders for a vendor
@@ -41,7 +41,7 @@ export const orderService = {
       console.error("Error fetching vendor orders:", error);
       throw error;
     }
-    return data || [];
+    return (data || []) as any[];
   },
 
   // Get all orders (admin view)
@@ -60,7 +60,7 @@ export const orderService = {
       console.error("Error fetching all orders:", error);
       throw error;
     }
-    return data || [];
+    return (data || []) as any[];
   },
 
   // Create new order

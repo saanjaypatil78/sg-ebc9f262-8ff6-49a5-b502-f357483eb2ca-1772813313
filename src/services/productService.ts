@@ -21,7 +21,7 @@ export const productService = {
       console.error("Error fetching products:", error);
       throw error;
     }
-    return data || [];
+    return (data || []) as any[];
   },
 
   // Get products by vendor
@@ -54,7 +54,7 @@ export const productService = {
       console.error("Error fetching product:", error);
       throw error;
     }
-    return data;
+    return data as any;
   },
 
   // Create product
@@ -136,6 +136,6 @@ export const productService = {
       console.error("Error searching products:", error);
       throw error;
     }
-    return data || [];
+    return (data || []) as any[];
   }
 };
