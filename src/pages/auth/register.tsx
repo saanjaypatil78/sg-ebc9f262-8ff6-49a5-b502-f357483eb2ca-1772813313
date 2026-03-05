@@ -1,151 +1,136 @@
 import { SEO } from "@/components/SEO";
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Package, ArrowLeft } from "lucide-react";
+import { Package, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import type { Database } from "@/integrations/supabase/types";
 
-export default function Register() {
-  const router = useRouter();
-  const { role } = router.query;
-  
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: (role as string) || "client",
-    company: ""
-  });
+type UserRole = Database["public"]["Enums"]["user_role"];
+
+export default function RegisterPage() {
+  const { register } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState<UserRole>("client");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    
-    // Demo registration
-    setTimeout(() => {
-      router.push(`/dashboard/${formData.role}`);
-    }, 1000);
+
+    try {
+      await register(email, password, fullName, role);
+    } catch (err: any) {
+      setError(err.message || "Failed to register. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
-      <SEO title="Create Account - DropSync" />
-      
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-6">
+      <SEO 
+        title="Register - DropSync Platform"
+        description="Create your DropSync account"
+      />
+      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-cyan-950 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <Link href="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-white mb-8 transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            Back to home
-          </Link>
-
-          <Card className="bg-slate-900/50 border-slate-800">
-            <CardHeader className="text-center">
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-                  <Package className="w-8 h-8 text-white" />
-                </div>
+          <Card>
+            <CardHeader className="space-y-4">
+              <div className="flex items-center justify-center gap-2">
+                <Package className="w-8 h-8 text-cyan-500" />
+                <span className="text-2xl font-bold text-slate-900 dark:text-white">DropSync</span>
               </div>
-              <CardTitle className="text-2xl text-white">Create Account</CardTitle>
-              <CardDescription className="text-slate-400">
-                Get started with DropSync today
-              </CardDescription>
+              <div>
+                <CardTitle className="text-2xl text-center">Create Account</CardTitle>
+                <CardDescription className="text-center">
+                  Join the DropSync ecosystem today
+                </CardDescription>
+              </div>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="role" className="text-slate-300">Account Type</Label>
-                  <Select
-                    value={formData.role}
-                    onValueChange={(value) => setFormData({ ...formData, role: value })}
-                  >
-                    <SelectTrigger className="bg-slate-950 border-slate-800 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-950 border-slate-800">
-                      <SelectItem value="client" className="text-white">Client - Buy Products</SelectItem>
-                      <SelectItem value="vendor" className="text-white">Vendor - Sell Products</SelectItem>
-                      <SelectItem value="bdm" className="text-white">BDM - Manage Vendors</SelectItem>
-                      <SelectItem value="admin" className="text-white">Admin - Platform Management</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-slate-300">Full Name</Label>
+                  <Label htmlFor="fullName">Full Name</Label>
                   <Input
-                    id="name"
+                    id="fullName"
                     type="text"
                     placeholder="John Doe"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
                     required
-                    className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-500"
+                    disabled={loading}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-slate-300">Email</Label>
+                  <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     type="email"
                     placeholder="you@example.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-500"
+                    disabled={loading}
                   />
                 </div>
 
-                {(formData.role === "vendor" || formData.role === "bdm") && (
-                  <div className="space-y-2">
-                    <Label htmlFor="company" className="text-slate-300">Company Name</Label>
-                    <Input
-                      id="company"
-                      type="text"
-                      placeholder="Your Company Ltd."
-                      value={formData.company}
-                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                      required
-                      className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-500"
-                    />
-                  </div>
-                )}
-
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-slate-300">Password</Label>
+                  <Label htmlFor="password">Password</Label>
                   <Input
                     id="password"
                     type="password"
                     placeholder="••••••••"
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-500"
+                    disabled={loading}
+                    minLength={6}
                   />
                 </div>
 
-                <Button
-                  type="submit"
-                  className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-medium"
-                  disabled={loading}
-                >
-                  {loading ? "Creating account..." : "Create Account"}
-                </Button>
-              </form>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Account Type</Label>
+                  <Select value={role} onValueChange={(value) => setRole(value as UserRole)} disabled={loading}>
+                    <SelectTrigger id="role">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="client">Client</SelectItem>
+                      <SelectItem value="vendor">Vendor</SelectItem>
+                      <SelectItem value="bdm">Business Development Manager</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="mt-6 text-center">
-                <p className="text-slate-400 text-sm">
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Creating Account..." : "Create Account"}
+                </Button>
+
+                <div className="text-center text-sm text-slate-600 dark:text-slate-400">
                   Already have an account?{" "}
-                  <Link href="/auth/login" className="text-cyan-400 hover:text-cyan-300 font-medium">
-                    Sign in
+                  <Link href="/auth/login" className="text-cyan-600 hover:text-cyan-500 font-medium">
+                    Login here
                   </Link>
-                </p>
-              </div>
+                </div>
+              </form>
             </CardContent>
           </Card>
         </div>

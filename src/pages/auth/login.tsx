@@ -1,64 +1,67 @@
 import { SEO } from "@/components/SEO";
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, ArrowLeft } from "lucide-react";
+import { Package, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export default function Login() {
-  const router = useRouter();
+export default function LoginPage() {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    
-    // Demo login - route based on email
-    setTimeout(() => {
-      if (email.includes("admin")) {
-        router.push("/dashboard/admin");
-      } else if (email.includes("vendor")) {
-        router.push("/dashboard/vendor");
-      } else if (email.includes("bdm")) {
-        router.push("/dashboard/bdm");
-      } else {
-        router.push("/dashboard/client");
-      }
-    }, 1000);
+
+    try {
+      await login(email, password);
+    } catch (err: any) {
+      setError(err.message || "Failed to login. Please check your credentials.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
-      <SEO title="Sign In - DropSync" />
-      
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-6">
+      <SEO 
+        title="Login - DropSync Platform"
+        description="Login to your DropSync account"
+      />
+      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-cyan-950 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <Link href="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-white mb-8 transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            Back to home
-          </Link>
-
-          <Card className="bg-slate-900/50 border-slate-800">
-            <CardHeader className="text-center">
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-                  <Package className="w-8 h-8 text-white" />
-                </div>
+          <Card>
+            <CardHeader className="space-y-4">
+              <div className="flex items-center justify-center gap-2">
+                <Package className="w-8 h-8 text-cyan-500" />
+                <span className="text-2xl font-bold text-slate-900 dark:text-white">DropSync</span>
               </div>
-              <CardTitle className="text-2xl text-white">Welcome Back</CardTitle>
-              <CardDescription className="text-slate-400">
-                Sign in to your DropSync account
-              </CardDescription>
+              <div>
+                <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
+                <CardDescription className="text-center">
+                  Enter your credentials to access your account
+                </CardDescription>
+              </div>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleLogin} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-slate-300">Email</Label>
+                  <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     type="email"
@@ -66,17 +69,12 @@ export default function Login() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-500"
+                    disabled={loading}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="text-slate-300">Password</Label>
-                    <Link href="/auth/forgot-password" className="text-sm text-cyan-400 hover:text-cyan-300">
-                      Forgot password?
-                    </Link>
-                  </div>
+                  <Label htmlFor="password">Password</Label>
                   <Input
                     id="password"
                     type="password"
@@ -84,33 +82,21 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-500"
+                    disabled={loading}
                   />
                 </div>
 
-                <Button
-                  type="submit"
-                  className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-medium"
-                  disabled={loading}
-                >
-                  {loading ? "Signing in..." : "Sign In"}
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Logging in..." : "Login"}
                 </Button>
-              </form>
 
-              <div className="mt-6 text-center">
-                <p className="text-slate-400 text-sm">
+                <div className="text-center text-sm text-slate-600 dark:text-slate-400">
                   Don't have an account?{" "}
-                  <Link href="/auth/register" className="text-cyan-400 hover:text-cyan-300 font-medium">
-                    Create account
+                  <Link href="/auth/register" className="text-cyan-600 hover:text-cyan-500 font-medium">
+                    Register here
                   </Link>
-                </p>
-              </div>
-
-              <div className="mt-6 pt-6 border-t border-slate-800">
-                <p className="text-xs text-slate-500 text-center">
-                  Demo accounts: admin@dropsync.com, vendor@dropsync.com, bdm@dropsync.com, client@dropsync.com
-                </p>
-              </div>
+                </div>
+              </form>
             </CardContent>
           </Card>
         </div>
