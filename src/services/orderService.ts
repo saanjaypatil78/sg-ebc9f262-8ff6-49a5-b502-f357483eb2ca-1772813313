@@ -1,8 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
 
-type OrderStatus = Database["public"]["Enums"]["order_status"];
-// Simplified type to prevent excessive depth error
+// Use string literal types instead of Database type extraction to avoid deep recursion
+type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled" | "returned";
 type OrderInsert = any;
 
 export const orderService = {

@@ -1,8 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
 
-type ReturnStatus = Database["public"]["Enums"]["return_status"];
-// Simplified types to prevent excessive depth error
+// Use string literal types instead of Database type extraction to avoid deep recursion
+type ReturnStatus = "pending" | "approved" | "rejected" | "replacement_shipped" | "completed";
 type ReturnInsert = any;
 type ReturnUpdate = any;
 

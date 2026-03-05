@@ -1,7 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
 
-// Simplified types to prevent excessive depth error
+// Use simple types instead of Database type extraction to avoid deep recursion
 type ProductInsert = any;
 type ProductUpdate = any;
 
