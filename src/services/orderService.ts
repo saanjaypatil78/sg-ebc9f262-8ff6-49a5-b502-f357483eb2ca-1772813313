@@ -1,13 +1,16 @@
 import { supabase } from "@/integrations/supabase/client";
 
-// Use string literal types instead of Database type extraction to avoid deep recursion
-type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled" | "returned";
+// Explicitly define types to match Database Enum exactly
+type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled" | "confirmed";
 type OrderInsert = any;
+
+// Cast supabase to any to prevent "Type instantiation is excessively deep" error
+const db = supabase as any;
 
 export const orderService = {
   // Get all orders for a user (client view)
   async getClientOrders(userId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("orders")
       .select(`
         *,
@@ -26,7 +29,7 @@ export const orderService = {
 
   // Get all orders for a vendor
   async getVendorOrders(vendorId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("orders")
       .select(`
         *,
@@ -45,7 +48,7 @@ export const orderService = {
 
   // Get all orders (admin view)
   async getAllOrders() {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("orders")
       .select(`
         *,
@@ -64,7 +67,7 @@ export const orderService = {
 
   // Create new order
   async createOrder(order: OrderInsert) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("orders")
       .insert(order)
       .select()
@@ -79,7 +82,7 @@ export const orderService = {
 
   // Update order status
   async updateOrderStatus(orderId: string, status: OrderStatus) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("orders")
       .update({ status })
       .eq("id", orderId)
@@ -95,7 +98,7 @@ export const orderService = {
 
   // Update tracking information
   async updateTracking(orderId: string, trackingNumber: string, courierName?: string) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("orders")
       .update({ 
         tracking_number: trackingNumber,
@@ -115,7 +118,7 @@ export const orderService = {
 
   // Update QR code
   async updateQRCode(orderId: string, qrCode: string) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("orders")
       .update({ qr_code: qrCode })
       .eq("id", orderId)
@@ -131,7 +134,7 @@ export const orderService = {
 
   // Mark order as delivered
   async markDelivered(orderId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("orders")
       .update({ 
         status: "delivered",
@@ -150,7 +153,7 @@ export const orderService = {
 
   // Get order statistics
   async getOrderStats(vendorId?: string) {
-    let query = supabase
+    let query = db
       .from("orders")
       .select("status, total_amount");
 
@@ -167,12 +170,12 @@ export const orderService = {
 
     const stats = {
       total: data?.length || 0,
-      pending: data?.filter(o => o.status === "pending").length || 0,
-      processing: data?.filter(o => o.status === "processing").length || 0,
-      shipped: data?.filter(o => o.status === "shipped").length || 0,
-      delivered: data?.filter(o => o.status === "delivered").length || 0,
-      cancelled: data?.filter(o => o.status === "cancelled").length || 0,
-      totalRevenue: data?.reduce((sum, o) => sum + (o.total_amount || 0), 0) || 0
+      pending: data?.filter((o: any) => o.status === "pending").length || 0,
+      processing: data?.filter((o: any) => o.status === "processing").length || 0,
+      shipped: data?.filter((o: any) => o.status === "shipped").length || 0,
+      delivered: data?.filter((o: any) => o.status === "delivered").length || 0,
+      cancelled: data?.filter((o: any) => o.status === "cancelled").length || 0,
+      totalRevenue: data?.reduce((sum: number, o: any) => sum + (o.total_amount || 0), 0) || 0
     };
 
     return stats;

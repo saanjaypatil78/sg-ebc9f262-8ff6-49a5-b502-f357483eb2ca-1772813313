@@ -4,10 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 type ProductInsert = any;
 type ProductUpdate = any;
 
+// Cast supabase to any to prevent "Type instantiation is excessively deep" error
+const db = supabase as any;
+
 export const productService = {
   // Get all products
   async getAllProducts() {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("products")
       .select(`
         *,
@@ -25,7 +28,7 @@ export const productService = {
 
   // Get products by vendor
   async getVendorProducts(vendorId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("products")
       .select("*")
       .eq("vendor_id", vendorId)
@@ -40,7 +43,7 @@ export const productService = {
 
   // Get single product
   async getProduct(productId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("products")
       .select(`
         *,
@@ -58,7 +61,7 @@ export const productService = {
 
   // Create product
   async createProduct(product: ProductInsert) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("products")
       .insert(product)
       .select()
@@ -73,7 +76,7 @@ export const productService = {
 
   // Update product
   async updateProduct(productId: string, updates: ProductUpdate) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("products")
       .update(updates)
       .eq("id", productId)
@@ -89,7 +92,7 @@ export const productService = {
 
   // Update stock quantity
   async updateStock(productId: string, quantity: number) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("products")
       .update({ stock_quantity: quantity })
       .eq("id", productId)
@@ -105,7 +108,7 @@ export const productService = {
 
   // Deduct stock (when order placed)
   async deductStock(productId: string, quantity: number) {
-    const { data: product } = await supabase
+    const { data: product } = await db
       .from("products")
       .select("stock_quantity")
       .eq("id", productId)
@@ -121,7 +124,7 @@ export const productService = {
 
   // Search products
   async searchProducts(query: string) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("products")
       .select(`
         *,

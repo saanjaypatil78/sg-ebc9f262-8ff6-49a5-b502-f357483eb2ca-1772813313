@@ -5,10 +5,13 @@ type ReturnStatus = "pending" | "approved" | "rejected" | "replacement_shipped" 
 type ReturnInsert = any;
 type ReturnUpdate = any;
 
+// Cast supabase to any to prevent "Type instantiation is excessively deep" error
+const db = supabase as any;
+
 export const returnService = {
   // Get returns for customer
   async getCustomerReturns(customerId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("returns")
       .select(`
         *,
@@ -28,7 +31,7 @@ export const returnService = {
 
   // Get returns for vendor
   async getVendorReturns(vendorId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("returns")
       .select(`
         *,
@@ -48,7 +51,7 @@ export const returnService = {
 
   // Get all returns (admin)
   async getAllReturns() {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("returns")
       .select(`
         *,
@@ -68,7 +71,7 @@ export const returnService = {
 
   // Create return request
   async createReturn(returnData: ReturnInsert) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("returns")
       .insert(returnData)
       .select()
@@ -92,7 +95,7 @@ export const returnService = {
     if (status === "approved") updates.approved_at = new Date().toISOString();
     if (status === "completed") updates.resolved_at = new Date().toISOString();
 
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("returns")
       .update(updates)
       .eq("id", returnId)
@@ -108,7 +111,7 @@ export const returnService = {
 
   // Update replacement tracking
   async updateReplacementTracking(returnId: string, trackingNumber: string) {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from("returns")
       .update({ 
         replacement_tracking: trackingNumber,
@@ -128,7 +131,7 @@ export const returnService = {
   // Get return rate for vendor
   async getVendorReturnRate(vendorId: string): Promise<number> {
     // Get total delivered orders
-    const { data: orders, error: ordersError } = await supabase
+    const { data: orders, error: ordersError } = await db
       .from("orders")
       .select("id")
       .eq("vendor_id", vendorId)
@@ -137,7 +140,7 @@ export const returnService = {
     if (ordersError) throw ordersError;
 
     // Get approved returns
-    const { data: returns, error: returnsError } = await supabase
+    const { data: returns, error: returnsError } = await db
       .from("returns")
       .select("id")
       .eq("vendor_id", vendorId)
