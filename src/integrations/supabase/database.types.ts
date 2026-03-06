@@ -326,50 +326,98 @@ export type Database = {
       }
       profiles: {
         Row: {
+          aadhaar_number: string | null
+          account_holder_name: string | null
+          account_number: string | null
           address: Json | null
           avatar_url: string | null
           bank_details: Json | null
+          bank_name: string | null
           business_registration: string | null
+          city: string | null
           company_name: string | null
           created_at: string | null
           email: string | null
+          franchise_location: string | null
+          franchise_type: string | null
           full_name: string | null
           id: string
+          ifsc_code: string | null
+          investment_amount: number | null
+          investment_tier: string | null
           is_active: boolean | null
+          kyc_status: string | null
+          onboarding_completed: boolean | null
+          pan_number: string | null
           phone: string | null
+          pincode: string | null
+          referral_code: string | null
           role: Database["public"]["Enums"]["user_role"] | null
+          state: string | null
           tax_id: string | null
           updated_at: string | null
         }
         Insert: {
+          aadhaar_number?: string | null
+          account_holder_name?: string | null
+          account_number?: string | null
           address?: Json | null
           avatar_url?: string | null
           bank_details?: Json | null
+          bank_name?: string | null
           business_registration?: string | null
+          city?: string | null
           company_name?: string | null
           created_at?: string | null
           email?: string | null
+          franchise_location?: string | null
+          franchise_type?: string | null
           full_name?: string | null
           id: string
+          ifsc_code?: string | null
+          investment_amount?: number | null
+          investment_tier?: string | null
           is_active?: boolean | null
+          kyc_status?: string | null
+          onboarding_completed?: boolean | null
+          pan_number?: string | null
           phone?: string | null
+          pincode?: string | null
+          referral_code?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          state?: string | null
           tax_id?: string | null
           updated_at?: string | null
         }
         Update: {
+          aadhaar_number?: string | null
+          account_holder_name?: string | null
+          account_number?: string | null
           address?: Json | null
           avatar_url?: string | null
           bank_details?: Json | null
+          bank_name?: string | null
           business_registration?: string | null
+          city?: string | null
           company_name?: string | null
           created_at?: string | null
           email?: string | null
+          franchise_location?: string | null
+          franchise_type?: string | null
           full_name?: string | null
           id?: string
+          ifsc_code?: string | null
+          investment_amount?: number | null
+          investment_tier?: string | null
           is_active?: boolean | null
+          kyc_status?: string | null
+          onboarding_completed?: boolean | null
+          pan_number?: string | null
           phone?: string | null
+          pincode?: string | null
+          referral_code?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          state?: string | null
           tax_id?: string | null
           updated_at?: string | null
         }
@@ -702,7 +750,14 @@ export type Database = {
         | "rejected"
         | "replacement_shipped"
         | "completed"
-      user_role: "client" | "vendor" | "admin" | "bdm"
+      user_role:
+        | "client"
+        | "vendor"
+        | "admin"
+        | "bdm"
+        | "investor"
+        | "franchise_partner"
+        | "super_admin"
       vendor_status: "pending" | "active" | "suspended" | "rejected"
     }
     CompositeTypes: {
@@ -855,7 +910,15 @@ export const Constants = {
         "replacement_shipped",
         "completed",
       ],
-      user_role: ["client", "vendor", "admin", "bdm"],
+      user_role: [
+        "client",
+        "vendor",
+        "admin",
+        "bdm",
+        "investor",
+        "franchise_partner",
+        "super_admin",
+      ],
       vendor_status: ["pending", "active", "suspended", "rejected"],
     },
   },

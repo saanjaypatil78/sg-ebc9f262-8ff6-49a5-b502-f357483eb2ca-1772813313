@@ -50,6 +50,7 @@ const roleConfig = {
     title: "Admin Control Panel",
     nav: [
       { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/admin" },
+      { icon: Users, label: "User Management", href: "/dashboard/admin/users" },
       { icon: Users, label: "Vendors", href: "/dashboard/admin/vendors" },
       { icon: DollarSign, label: "Settlements", href: "/dashboard/admin/settlements" },
       { icon: BarChart3, label: "Analytics", href: "/dashboard/admin/analytics" },
