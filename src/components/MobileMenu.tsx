@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "./ui/button";
 
 interface MobileMenuProps {
-  role?: "investor" | "admin" | "vendor" | "client" | "bdm" | "franchise";
+  role?: "investor" | "admin" | "super_admin" | "vendor" | "client" | "bdm" | "franchise" | "franchise_partner";
 }
 
 export function MobileMenu({ role = "investor" }: MobileMenuProps) {
