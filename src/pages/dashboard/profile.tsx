@@ -93,7 +93,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <DashboardLayout role="client">
         <div className="flex h-[50vh] items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -104,7 +104,7 @@ export default function ProfilePage() {
   return (
     <>
       <SEO title="My Profile - Brave Ecom" />
-      <DashboardLayout>
+      <DashboardLayout role={profile?.role || "client"}>
         <div className="space-y-6 max-w-4xl mx-auto">
           <div>
             <h1 className="text-3xl font-bold">My Profile</h1>

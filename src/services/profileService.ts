@@ -6,7 +6,7 @@ export interface UserProfile {
   first_name: string | null;
   last_name: string | null;
   phone: string | null;
-  role: string;
+  role: "admin" | "super_admin" | "vendor" | "client" | "investor" | "franchise_partner" | "bdm";
   avatar_url: string | null;
   address: string | null;
   city: string | null;
