@@ -12,6 +12,10 @@ interface MetricCardProps {
   icon: React.ElementType;
 }
 
+interface DashboardWidgetsProps {
+  metrics?: Record<string, number>;
+}
+
 function MetricCard({ title, value, change, trend, icon: Icon }: MetricCardProps) {
   return (
     <motion.div
@@ -38,13 +42,21 @@ function MetricCard({ title, value, change, trend, icon: Icon }: MetricCardProps
   );
 }
 
-export function DashboardWidgets() {
-  const metrics = [
+export function DashboardWidgets({ metrics: customMetrics }: DashboardWidgetsProps) {
+  const defaultMetrics = [
     { title: "Total Investment", value: "₹2.5 Cr", change: "+12.5%", trend: "up" as const, icon: DollarSign },
     { title: "Monthly Returns", value: "₹37.5 L", change: "+15%", trend: "up" as const, icon: TrendingUp },
     { title: "Active Referrals", value: "28", change: "+8", trend: "up" as const, icon: Users },
     { title: "Current Rank", value: "Gold", change: "↑ 1", trend: "up" as const, icon: Award },
   ];
+
+  // Map custom metrics to default structure if provided
+  const metrics = customMetrics ? [
+    { title: "Total Revenue", value: `₹${(customMetrics.totalRevenue || 0).toLocaleString()}`, change: "+12.5%", trend: "up" as const, icon: DollarSign },
+    { title: "Total Orders", value: (customMetrics.totalOrders || 0).toLocaleString(), change: "+5%", trend: "up" as const, icon: TrendingUp },
+    { title: "Active Users", value: ((customMetrics.activeVendors || 0) + (customMetrics.activeInvestors || 0)).toLocaleString(), change: "+8", trend: "up" as const, icon: Users },
+    { title: "Pending", value: (customMetrics.pendingSettlements || 0).toLocaleString(), change: "-2", trend: "down" as const, icon: Target },
+  ] : defaultMetrics;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

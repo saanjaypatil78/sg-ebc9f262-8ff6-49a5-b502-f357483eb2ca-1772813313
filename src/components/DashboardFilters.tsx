@@ -10,6 +10,10 @@ import { format } from "date-fns";
 
 interface DashboardFiltersProps {
   onFilterChange?: (filters: FilterState) => void;
+  showDateRange?: boolean;
+  showStatus?: boolean;
+  showRole?: boolean;
+  showSearch?: boolean;
 }
 
 export interface FilterState {
@@ -17,14 +21,22 @@ export interface FilterState {
   dateFrom: Date | undefined;
   dateTo: Date | undefined;
   status: string;
+  search?: string;
 }
 
-export function DashboardFilters({ onFilterChange }: DashboardFiltersProps) {
+export function DashboardFilters({ 
+  onFilterChange,
+  showDateRange = true,
+  showStatus = true,
+  showRole = false,
+  showSearch = false
+}: DashboardFiltersProps) {
   const [filters, setFilters] = useState<FilterState>({
     rank: "all",
     dateFrom: undefined,
     dateTo: undefined,
-    status: "all"
+    status: "all",
+    search: ""
   });
 
   const [showFilters, setShowFilters] = useState(false);
