@@ -17,10 +17,10 @@ export interface UserRanking {
   user_id: string;
   current_rank: 'grey' | 'orange' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
   rank_color: 'grey' | 'orange' | 'green' | 'dark_green';
-  total_commission_earned: number;
+  total_network_commission: number;
   bronze_countdown_start: string | null;
   bronze_countdown_end: string | null;
-  rank_achieved_at: string | null;
+  rank_upgraded_at: string | null;
   is_team_leader: boolean;
   team_leader_activated_by: string | null;
 }
@@ -176,17 +176,17 @@ export const commissionService = {
           user_id: userId,
           current_rank: 'grey',
           rank_color: 'grey',
-          total_commission_earned: additionalCommission
+          total_network_commission: additionalCommission
         });
       return;
     }
 
-    const newTotal = parseFloat(ranking.total_commission_earned.toString()) + additionalCommission;
+    const newTotal = parseFloat(ranking.total_network_commission.toString()) + additionalCommission;
 
     await supabase
       .from('user_rankings')
       .update({ 
-        total_commission_earned: newTotal,
+        total_network_commission: newTotal,
         updated_at: new Date().toISOString()
       })
       .eq('user_id', userId);
@@ -284,7 +284,7 @@ export const commissionService = {
       .eq('user_id', userId)
       .single();
 
-    const totalEarned = ranking?.total_commission_earned || 0;
+    const totalEarned = ranking?.total_network_commission || 0;
     const bronzeProgress = (totalEarned / COMMISSION_RATES.BRONZE_THRESHOLD) * 100;
 
     return {
