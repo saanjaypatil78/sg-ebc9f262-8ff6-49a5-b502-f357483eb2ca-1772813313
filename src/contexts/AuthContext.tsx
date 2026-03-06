@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useRouter } from "next/router";
 import { authService } from "@/services/authService";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Profile {
   id: string;
@@ -35,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const currentUser = await authService.getCurrentUser();
       if (currentUser) {
         // Fetch profile data from profiles table
-        const { data } = await authService.supabase
+        const { data } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', currentUser.id)
