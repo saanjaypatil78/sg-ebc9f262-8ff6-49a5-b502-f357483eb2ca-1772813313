@@ -44,8 +44,22 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // Step 1: Authenticate
       const result = await authService.login(email, password);
+
+      if (result.requires2FA) {
+        setTempUserId(result.user!.id);
+        setShow2FA(true);
+        setIsLoading(false);
+        return;
+      }
+
+      if (result.requiresDeviceBinding) {
+        setTempUserId(result.user!.id);
+        setDeviceBindingRequired(true);
+        setShowDeviceWarning(true);
+        setIsLoading(false);
+        return;
+      }
 
       if (!result.success) {
         toast({
@@ -57,62 +71,9 @@ export default function LoginPage() {
         return;
       }
 
-      const user = result.user!;
-
-      // Step 2: Check if 2FA is enabled
-      const has2FA = await twoFactorService.isEnabled(user.id);
-      
-      if (has2FA) {
-        setTempUserId(user.id);
-        setShow2FA(true);
-        setIsLoading(false);
-        return;
-      }
-
-      // Step 3: ABAC Policy Checks (Investment-based)
-      const abacContext = {
-        userId: user.id,
-        role: user.role,
-        investmentAmount: 60000000, // TODO: Get from database
-        deviceFingerprint: await deviceFingerprintService.generateFingerprint(),
-        ipAddress: 'user-ip', // TODO: Get from request
-        timestamp: new Date(),
-      };
-
-      // Check if device binding is required (>5 Cr investors)
-      const deviceBindingPolicy = await abacPolicyEngine.evaluate({
-        policyName: 'HIGH_VALUE_DEVICE_BINDING',
-        context: abacContext
-      });
-
-      if (!deviceBindingPolicy.allowed) {
-        setDeviceBindingRequired(true);
-        setShowDeviceWarning(true);
-        setTempUserId(user.id);
-        setIsLoading(false);
-        return;
-      }
-
-      // Step 4: Check time window policy
-      const timeWindowPolicy = await abacPolicyEngine.evaluate({
-        policyName: 'BUSINESS_HOURS_ONLY',
-        context: abacContext
-      });
-
-      if (!timeWindowPolicy.allowed) {
-        toast({
-          title: "Access Restricted",
-          description: "High-value operations are only allowed during business hours (9 AM - 6 PM)",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // Step 5: Success - redirect
       toast({
         title: "Login Successful",
-        description: `Welcome back, ${user.name}!`,
+        description: `Welcome back, ${result.user?.name}!`,
       });
 
       router.push(result.redirectTo || "/dashboard");
@@ -141,19 +102,18 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const isValid = await twoFactorService.verifyLoginToken(tempUserId, twoFactorCode);
+      const result = await authService.verify2FA(tempUserId, twoFactorCode);
 
-      if (!isValid) {
+      if (!result.success) {
         toast({
           title: "Invalid Code",
-          description: "The verification code is incorrect",
+          description: result.error || "The verification code is incorrect",
           variant: "destructive",
         });
         setIsLoading(false);
         return;
       }
 
-      // 2FA verified - proceed with login
       const user = authService.getSession();
       
       toast({
@@ -182,14 +142,23 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      await deviceFingerprintService.registerTrustedDevice(tempUserId, "Current Device");
+      const result = await authService.registerDevice(tempUserId, "Current Device");
       
+      if (!result.success) {
+        toast({
+          title: "Registration Failed",
+          description: result.error || "Failed to register device",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       toast({
         title: "Device Registered",
         description: "This device is now trusted for high-value operations",
       });
 
-      // Proceed with login
       const user = authService.getSession();
       const redirectTo = authService.getCurrentRole() 
         ? `/dashboard/${authService.getCurrentRole()?.toLowerCase()}`
