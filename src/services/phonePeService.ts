@@ -35,16 +35,7 @@ export interface PhonePeTransaction {
 
 export const phonePeService = {
   /**
-   * Generate SHA256 hash for PhonePe API authentication
-   */
-  generateChecksum(payload: string): string {
-    const crypto = require('crypto');
-    const data = payload + '/pg/v1/pay' + PHONEPE_CONFIG.SALT_KEY;
-    return crypto.createHash('sha256').update(data).digest('hex') + '###' + PHONEPE_CONFIG.SALT_INDEX;
-  },
-
-  /**
-   * Initiate investment payment
+   * Initiate investment payment via backend API
    */
   async initiateInvestmentPayment(request: PhonePePaymentRequest): Promise<{ 
     paymentUrl: string; 
@@ -52,26 +43,8 @@ export const phonePeService = {
   }> {
     const merchantTransactionId = `INV_${Date.now()}_${request.userId.substring(0, 8)}`;
 
-    // Create payment payload
-    const paymentPayload = {
-      merchantId: PHONEPE_CONFIG.MERCHANT_ID,
-      merchantTransactionId: merchantTransactionId,
-      merchantUserId: request.userId,
-      amount: request.amount * 100, // Convert to paise
-      redirectUrl: PHONEPE_CONFIG.REDIRECT_URL,
-      redirectMode: 'POST',
-      callbackUrl: PHONEPE_CONFIG.WEBHOOK_URL,
-      mobileNumber: request.mobileNumber,
-      paymentInstrument: {
-        type: 'PAY_PAGE'
-      }
-    };
-
-    const base64Payload = Buffer.from(JSON.stringify(paymentPayload)).toString('base64');
-    const checksum = this.generateChecksum(base64Payload);
-
-    // Store transaction in database
-    const { data: transaction } = await supabase
+    // Store transaction in database FIRST
+    const { data: transaction, error } = await supabase
       .from('phonepe_transactions')
       .insert({
         user_id: request.userId,
@@ -80,19 +53,21 @@ export const phonePeService = {
         amount: request.amount,
         status: 'initiated',
         transaction_type: request.purpose
-      })
+      } as any) // Type assertion to bypass temporary mismatch
       .select()
       .single();
 
-    // Call PhonePe API
-    const response = await fetch(`${PHONEPE_CONFIG.API_URL}/pg/v1/pay`, {
+    if (error) throw error;
+
+    // Call Backend API to generate checksum and initiate payment
+    const response = await fetch('/api/phonepe/initiate', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-VERIFY': checksum
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        request: base64Payload
+        amount: request.amount,
+        userId: request.userId,
+        mobileNumber: request.mobileNumber,
+        merchantTransactionId: merchantTransactionId
       })
     });
 
@@ -109,26 +84,16 @@ export const phonePeService = {
   },
 
   /**
-   * Check payment status
+   * Check payment status via backend API
    */
   async checkPaymentStatus(merchantTransactionId: string): Promise<any> {
-    const crypto = require('crypto');
-    const endpoint = `/pg/v1/status/${PHONEPE_CONFIG.MERCHANT_ID}/${merchantTransactionId}`;
-    const checksum = crypto.createHash('sha256')
-      .update(endpoint + PHONEPE_CONFIG.SALT_KEY)
-      .digest('hex') + '###' + PHONEPE_CONFIG.SALT_INDEX;
-
-    const response = await fetch(`${PHONEPE_CONFIG.API_URL}${endpoint}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-VERIFY': checksum,
-        'X-MERCHANT-ID': PHONEPE_CONFIG.MERCHANT_ID
-      }
+    const response = await fetch('/api/phonepe/status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ merchantTransactionId })
     });
 
-    const result = await response.json();
-    return result;
+    return await response.json();
   },
 
   /**
@@ -146,7 +111,7 @@ export const phonePeService = {
         status: status,
         callback_data: callbackData,
         completed_at: new Date().toISOString()
-      })
+      } as any)
       .eq('merchant_transaction_id', merchantTransactionId);
 
     // If successful investment, create agreement
@@ -180,5 +145,10 @@ export const phonePeService = {
 
     if (error) throw error;
     return (data || []) as unknown as PhonePeTransaction[];
+  },
+  
+  // Removed client-side generateChecksum to protect SALT_KEY
+  generateChecksum(payload: string): string {
+     throw new Error("Checksum generation moved to backend for security");
   }
 };
