@@ -31,6 +31,7 @@ export function PublicLedger() {
   const [isMounted, setIsMounted] = useState(false);
   const [allInvestors, setAllInvestors] = useState<InvestorData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Filters state
   const [filters, setFilters] = useState({
@@ -53,15 +54,24 @@ export function PublicLedger() {
   const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
   const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.4, 1, 1, 0.4]);
   
-  // Fetch Real Backend Data
+  // CRITICAL: Ensure component mounts properly
   useEffect(() => {
     setIsMounted(true);
+    console.log("PublicLedger mounted");
+  }, []);
+
+  // Fetch Real Backend Data with error handling
+  useEffect(() => {
     const loadInvestors = async () => {
       try {
+        console.log("Fetching investors from database...");
         const data = await getAllInvestors();
+        console.log("Fetched investors:", data.length);
         setAllInvestors(data);
+        setError(null);
       } catch (error) {
         console.error("Failed to load investors:", error);
+        setError("Failed to load investor data. Please refresh the page.");
       } finally {
         setIsLoading(false);
       }
@@ -81,7 +91,7 @@ export function PublicLedger() {
     }, 5000);
     
     return () => clearInterval(interval);
-  }, [isInView, allInvestors.length]);
+  }, [isInView, allInvestors.length, itemsPerPage]); // Fixed dependencies
   
   // Apply filters
   const filteredInvestors = allInvestors.filter(inv => {
@@ -122,7 +132,36 @@ export function PublicLedger() {
     setCurrentPage(0);
   };
   
-  if (!isMounted) return null;
+  // CRITICAL: Early returns must come AFTER all hooks (useEffect, etc.)
+  if (!isMounted) {
+    return (
+      <section id="transparency" className="py-24 px-4 bg-slate-950 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-400">Loading Public Ledger...</p>
+        </div>
+      </section>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <section id="transparency" className="py-24 px-4 bg-slate-950 min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h3 className="text-2xl font-bold text-white mb-2">Unable to Load Data</h3>
+          <p className="text-slate-400 mb-6">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-orange-600 hover:bg-orange-500 text-white px-6 py-3 rounded-lg"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section 
