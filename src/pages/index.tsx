@@ -19,7 +19,11 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useScroll, useTransform, motion } from "framer-motion";
-import { SparklingCountdown, useDailySound, Confetti, ScrollProgressIndicator } from "@/components/SparklingCountdown";
+import { SparklingCountdown } from "@/components/SparklingCountdown";
+import { useDailySound } from "@/hooks/use-daily-sound";
+import { Confetti } from "@/components/Confetti";
+import { ScrollProgressIndicator } from "@/components/ScrollProgressIndicator";
+import Image from "next/image";
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -102,7 +106,6 @@ export default function Home() {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         if (!countdownEnded) {
           setCountdownEnded(true);
-          // Trigger celebration (confetti already implemented)
         }
       }
     };
@@ -137,6 +140,14 @@ export default function Home() {
   // ULTRA-ENHANCED parallax scroll effects - MAXIMUM INTENSITY (2x stronger)
   const rotateHero = useTransform(scrollYProgress, [0, 1], [0, 8]); // Stronger rotation
   const scaleHero = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+
+  const { playSound } = useDailySound();
+
+  useEffect(() => {
+    if (countdownEnded) {
+      playSound('/sounds/success.mp3'); // Example path, will degrade gracefully if missing
+    }
+  }, [countdownEnded, playSound]);
 
   return (
     <>
@@ -176,6 +187,8 @@ export default function Home() {
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] rounded-full bg-gradient-to-t from-purple-600/15 via-cyan-600/10 to-transparent blur-[120px]" />
         </div>
 
+        <ScrollProgressIndicator />
+
         {/* Hero Section */}
         <motion.div
           style={{ scale: scaleHero, opacity: opacity }}
@@ -191,8 +204,18 @@ export default function Home() {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="mb-8"
           >
+            <div className="flex justify-center mb-8">
+               <Image 
+                 src="/bravecom-logo.jpg" 
+                 alt="BRAVECOM Logo" 
+                 width={180} 
+                 height={180} 
+                 className="rounded-2xl shadow-2xl shadow-orange-500/20"
+                 priority
+               />
+            </div>
             <h1 className="text-7xl md:text-8xl font-black mb-4">
-              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400 bg-clip-text text-transparent">
                 BRAVECOM
               </span>
             </h1>
@@ -229,9 +252,12 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.8, duration: 0.6 }}
-            className="mb-12"
+            className="mb-12 relative"
           >
-            <GlassmorphicCard className={`inline-block px-8 py-6 ${countdownEnded ? 'border-yellow-500/50' : 'border-purple-500/30'}`}>
+            <div className="absolute inset-0">
+               <SparklingCountdown active={countdownEnded} />
+            </div>
+            <GlassmorphicCard className={`inline-block px-8 py-6 relative z-10 ${countdownEnded ? 'border-yellow-500/50' : 'border-purple-500/30'}`}>
               {!countdownEnded ? (
                 <>
                   <p className="text-sm text-purple-400 mb-4 tracking-wider uppercase">
@@ -285,6 +311,8 @@ export default function Home() {
               )}
             </GlassmorphicCard>
           </motion.div>
+          
+          <Confetti trigger={countdownEnded} duration={5000} />
         </motion.div>
 
         {/* Features Section */}
