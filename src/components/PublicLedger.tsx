@@ -1,528 +1,546 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
-import { GlassmorphicCard } from "./GlassmorphicCard";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { 
-  TrendingUp, 
-  Users, 
-  DollarSign, 
-  Award,
-  ArrowRight,
-  CheckCircle,
-  Clock,
+import { motion, useInView } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Search,
+  TrendingUp,
   MapPin,
-  Filter,
-  X
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  IndianRupee,
+  Users,
+  Award,
+  BarChart3,
+  Clock,
+  CheckCircle2,
 } from "lucide-react";
-import { INVESTOR_STATS } from "@/lib/mock-data/investors";
-import { getAllInvestors, type InvestorData } from "@/services/investorService";
-import { Loader2 } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
+import {
+  COMPREHENSIVE_LEDGER_DATA,
+  LEDGER_STATS,
+  PAYOUT_TIMELINE,
+  type LedgerInvestor,
+} from "@/lib/mock-data/comprehensive-ledger";
 
 export function PublicLedger() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(containerRef, { once: true, amount: 0.2 });
-  
-  const [currentPage, setCurrentPage] = useState(0);
-  const [selectedInvestor, setSelectedInvestor] = useState<InvestorData | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
-  const [allInvestors, setAllInvestors] = useState<InvestorData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Filters state
-  const [filters, setFilters] = useState({
-    rank: 'all',
-    minInvestment: 0,
-    maxInvestment: 1000000000,
-    dateFrom: '',
-    dateTo: ''
-  });
-  const [showFilters, setShowFilters] = useState(false);
-  
-  const itemsPerPage = 10;
-  
-  // Parallax effect
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
-  });
-  
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.4, 1, 1, 0.4]);
-  
-  // CRITICAL: Ensure component mounts properly
+  const [investors, setInvestors] = useState<LedgerInvestor[]>([]);
+  const [filteredInvestors, setFilteredInvestors] = useState<LedgerInvestor[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedInvestor, setSelectedInvestor] = useState<LedgerInvestor | null>(null);
+  const [rankFilter, setRankFilter] = useState<string>("ALL");
+  const [userTypeFilter, setUserTypeFilter] = useState<string>("ALL");
+  const itemsPerPage = 12;
+
+  const sectionRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+
+  // Load data on mount
   useEffect(() => {
-    setIsMounted(true);
-    console.log("PublicLedger mounted");
+    setInvestors(COMPREHENSIVE_LEDGER_DATA);
+    setFilteredInvestors(COMPREHENSIVE_LEDGER_DATA);
   }, []);
 
-  // Fetch Real Backend Data with error handling
+  // Auto-scroll to section if URL has #transparency hash
   useEffect(() => {
-    const loadInvestors = async () => {
-      try {
-        console.log("Fetching investors from database...");
-        const data = await getAllInvestors();
-        console.log("Fetched investors:", data.length);
-        setAllInvestors(data);
-        setError(null);
-      } catch (error) {
-        console.error("Failed to load investors:", error);
-        setError("Failed to load investor data. Please refresh the page.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadInvestors();
+    if (typeof window !== "undefined" && window.location.hash === "#transparency") {
+      sectionRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, []);
 
-  // Auto-scroll through pages
+  // Filter investors based on search and filters
   useEffect(() => {
-    if (!isInView || allInvestors.length === 0) return;
-    
-    const interval = setInterval(() => {
-      setCurrentPage(prev => {
-        const maxPages = Math.ceil(filteredInvestors.length / itemsPerPage);
-        return maxPages > 0 ? (prev + 1) % maxPages : 0;
-      });
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, [isInView, allInvestors.length, itemsPerPage]); // Fixed dependencies
-  
-  // Apply filters
-  const filteredInvestors = allInvestors.filter(inv => {
-    if (filters.rank !== 'all' && inv.rank !== filters.rank) return false;
-    if (inv.investment_amount < filters.minInvestment || inv.investment_amount > filters.maxInvestment) return false;
-    if (filters.dateFrom && new Date(inv.investment_date) < new Date(filters.dateFrom)) return false;
-    if (filters.dateTo && new Date(inv.investment_date) > new Date(filters.dateTo)) return false;
-    return true;
-  });
-  
-  const startIdx = currentPage * itemsPerPage;
-  const endIdx = startIdx + itemsPerPage;
-  const currentInvestors = filteredInvestors.slice(startIdx, endIdx);
+    let filtered = investors;
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (inv) =>
+          inv.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          inv.investorId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          inv.location.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Rank filter
+    if (rankFilter !== "ALL") {
+      filtered = filtered.filter((inv) => inv.rank === rankFilter);
+    }
+
+    // User type filter
+    if (userTypeFilter !== "ALL") {
+      filtered = filtered.filter((inv) => inv.userType === userTypeFilter);
+    }
+
+    setFilteredInvestors(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [searchTerm, rankFilter, userTypeFilter, investors]);
+
+  // Pagination
   const totalPages = Math.ceil(filteredInvestors.length / itemsPerPage);
-  
-  // Rank colors
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentInvestors = filteredInvestors.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    sectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const formatCurrency = (amount: number) => {
+    if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(2)} Cr`;
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(2)} L`;
+    return `₹${amount.toLocaleString("en-IN")}`;
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
   const getRankColor = (rank: string) => {
     const colors: Record<string, string> = {
-      "Grey": "text-slate-400 bg-slate-500/20 border-slate-500/30",
-      "Bronze": "text-orange-400 bg-orange-500/20 border-orange-500/30",
-      "Silver": "text-slate-300 bg-slate-400/20 border-slate-400/30",
-      "Gold": "text-yellow-400 bg-yellow-500/20 border-yellow-500/30",
-      "Platinum": "text-cyan-300 bg-cyan-500/20 border-cyan-500/30",
-      "Diamond": "text-purple-300 bg-purple-500/20 border-purple-500/30",
-      "Ambassador": "text-pink-300 bg-pink-500/20 border-pink-500/30",
+      GREY: "bg-gray-500",
+      BRONZE: "bg-amber-700",
+      SILVER: "bg-gray-400",
+      GOLD: "bg-yellow-500",
+      PLATINUM: "bg-cyan-400",
+      DIAMOND: "bg-blue-400",
+      AMBASSADOR: "bg-purple-500",
     };
-    return colors[rank] || colors["Grey"];
+    return colors[rank] || "bg-gray-500";
   };
-  
-  const resetFilters = () => {
-    setFilters({
-      rank: 'all',
-      minInvestment: 0,
-      maxInvestment: 1000000000,
-      dateFrom: '',
-      dateTo: ''
-    });
-    setCurrentPage(0);
-  };
-  
-  // CRITICAL: Early returns must come AFTER all hooks (useEffect, etc.)
-  if (!isMounted) {
-    return (
-      <section id="transparency" className="py-24 px-4 bg-slate-950 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-400">Loading Public Ledger...</p>
-        </div>
-      </section>
-    );
-  }
 
-  // Error state
-  if (error) {
-    return (
-      <section id="transparency" className="py-24 px-4 bg-slate-950 min-h-screen flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <div className="text-red-500 text-6xl mb-4">⚠️</div>
-          <h3 className="text-2xl font-bold text-white mb-2">Unable to Load Data</h3>
-          <p className="text-slate-400 mb-6">{error}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="bg-orange-600 hover:bg-orange-500 text-white px-6 py-3 rounded-lg"
-          >
-            Refresh Page
-          </button>
-        </div>
-      </section>
-    );
-  }
+  const getUserTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      investor: "Investor",
+      vendor: "Vendor",
+      referral_partner: "Referral Partner",
+    };
+    return labels[type] || type;
+  };
 
   return (
-    <section 
-      ref={containerRef}
-      id="transparency" 
-      className="py-24 px-4 relative overflow-hidden"
+    <section
+      id="transparency"
+      ref={sectionRef}
+      className="relative z-10 py-20 px-4 bg-slate-950"
     >
-      {/* Background Effects */}
-      <motion.div 
-        style={{ y, opacity }}
-        className="absolute inset-0 pointer-events-none"
-      >
-        <div className="absolute top-[20%] -right-[10%] w-[500px] h-[500px] rounded-full bg-orange-600/10 blur-[120px]" />
-        <div className="absolute bottom-[20%] -left-[10%] w-[400px] h-[400px] rounded-full bg-yellow-600/8 blur-[100px]" />
-      </motion.div>
-      
-      <div className="container mx-auto max-w-7xl relative z-10">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-12"
         >
-          <Badge className="mb-4 bg-orange-500/20 text-orange-300 border-orange-500/30">
-            100% Transparent Operations
-          </Badge>
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Public <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-yellow-400">Investment Ledger</span>
+            Public Investment Ledger
           </h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-            Every investment and payout publicly verifiable. Real UTR numbers, real transparency.
+          <p className="text-xl text-slate-400">
+            Complete transparency: January 2024 - March 1, 2026
+          </p>
+          <p className="text-lg text-slate-500 mt-2">
+            {LEDGER_STATS.totalInvestors.toLocaleString()} investors • {formatCurrency(LEDGER_STATS.totalInvestment)} invested • {formatCurrency(LEDGER_STATS.totalPayoutsDistributed)} paid out
           </p>
         </motion.div>
-        
-        {/* Stats Overview */}
+
+        {/* Stats Grid */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12"
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
         >
-          {[
-            { label: "Active Investors", value: allInvestors.length.toLocaleString(), icon: Users, color: "text-purple-400" },
-            { label: "Total Investment", value: formatCurrency(filteredInvestors.reduce((sum, inv) => sum + inv.investment_amount, 0)), icon: DollarSign, color: "text-green-400" },
-            { label: "Total Payouts", value: formatCurrency(filteredInvestors.reduce((sum, inv) => sum + inv.total_payouts, 0)), icon: TrendingUp, color: "text-cyan-400" },
-            { label: "Success Rate", value: "100%", icon: Award, color: "text-yellow-400" },
-          ].map((stat, idx) => (
-            <GlassmorphicCard key={idx} className="p-6 text-center border-white/10" glow>
-              <stat.icon className={`w-8 h-8 ${stat.color} mx-auto mb-2`} />
-              <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
-              <div className="text-xs text-slate-400">{stat.label}</div>
-            </GlassmorphicCard>
-          ))}
+          <Card className="bg-slate-900/50 border-slate-800">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <Users className="w-8 h-8 text-cyan-400" />
+                <div>
+                  <p className="text-sm text-slate-400">Total Investors</p>
+                  <p className="text-2xl font-bold text-white">{LEDGER_STATS.totalInvestors.toLocaleString()}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-slate-900/50 border-slate-800">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <IndianRupee className="w-8 h-8 text-green-400" />
+                <div>
+                  <p className="text-sm text-slate-400">Total Investment</p>
+                  <p className="text-2xl font-bold text-white">{formatCurrency(LEDGER_STATS.totalInvestment)}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-slate-900/50 border-slate-800">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="w-8 h-8 text-blue-400" />
+                <div>
+                  <p className="text-sm text-slate-400">Payouts Distributed</p>
+                  <p className="text-2xl font-bold text-white">{formatCurrency(LEDGER_STATS.totalPayoutsDistributed)}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-slate-900/50 border-slate-800">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <Award className="w-8 h-8 text-yellow-400" />
+                <div>
+                  <p className="text-sm text-slate-400">Average ROI</p>
+                  <p className="text-2xl font-bold text-white">{LEDGER_STATS.averageROI}%</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
-        
-        {/* Filter Section */}
+
+        {/* Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.3, duration: 0.6 }}
-          className="mb-8"
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mb-8 space-y-4"
         >
-          <div className="flex items-center justify-between mb-4">
-            <Button
-              onClick={() => setShowFilters(!showFilters)}
-              className="bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 border border-orange-500/30"
-            >
-              <Filter className="w-4 h-4 mr-2" />
-              {showFilters ? 'Hide Filters' : 'Add Ledger Filters'}
-            </Button>
-            {(filters.rank !== 'all' || filters.minInvestment > 0 || filters.dateFrom || filters.dateTo) && (
-              <Button
-                onClick={resetFilters}
-                variant="outline"
-                size="sm"
-                className="text-slate-400 hover:text-white"
-              >
-                <X className="w-4 h-4 mr-2" />
-                Clear Filters
-              </Button>
-            )}
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search by name, ID, or location..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-800 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
           </div>
-          
-          {showFilters && (
-            <GlassmorphicCard className="p-6 border-white/10">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {/* Rank Filter */}
-                <div>
-                  <label className="text-sm text-slate-400 mb-2 block">Rank</label>
-                  <select
-                    value={filters.rank}
-                    onChange={(e) => { setFilters({...filters, rank: e.target.value}); setCurrentPage(0); }}
-                    className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
-                  >
-                    <option value="all">All Ranks</option>
-                    <option value="Grey">Grey</option>
-                    <option value="Bronze">Bronze</option>
-                    <option value="Silver">Silver</option>
-                    <option value="Gold">Gold</option>
-                    <option value="Platinum">Platinum</option>
-                    <option value="Diamond">Diamond</option>
-                    <option value="Ambassador">Ambassador</option>
-                  </select>
-                </div>
-                
-                {/* Min Investment */}
-                <div>
-                  <label className="text-sm text-slate-400 mb-2 block">Min Investment</label>
-                  <select
-                    value={filters.minInvestment}
-                    onChange={(e) => { setFilters({...filters, minInvestment: Number(e.target.value)}); setCurrentPage(0); }}
-                    className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
-                  >
-                    <option value="0">No Minimum</option>
-                    <option value="51111">₹51,111+</option>
-                    <option value="1000000">₹10 Lakh+</option>
-                    <option value="5000000">₹50 Lakh+</option>
-                    <option value="10000000">₹1 Crore+</option>
-                    <option value="50000000">₹5 Crore+</option>
-                  </select>
-                </div>
-                
-                {/* Date From */}
-                <div>
-                  <label className="text-sm text-slate-400 mb-2 block">From Date</label>
-                  <input
-                    type="date"
-                    value={filters.dateFrom}
-                    onChange={(e) => { setFilters({...filters, dateFrom: e.target.value}); setCurrentPage(0); }}
-                    className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
-                  />
-                </div>
-                
-                {/* Date To */}
-                <div>
-                  <label className="text-sm text-slate-400 mb-2 block">To Date</label>
-                  <input
-                    type="date"
-                    value={filters.dateTo}
-                    onChange={(e) => { setFilters({...filters, dateTo: e.target.value}); setCurrentPage(0); }}
-                    className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-orange-500/50"
-                  />
-                </div>
-              </div>
-            </GlassmorphicCard>
-          )}
-        </motion.div>
-        
-        {/* Investor Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.4, duration: 0.6 }}
-        >
-          <GlassmorphicCard className="p-6 border-white/10">
-            {/* Table Header */}
-            <div className="grid grid-cols-6 gap-4 pb-4 border-b border-white/5 text-sm text-slate-400 font-semibold">
-              <div className="col-span-2">Investor</div>
-              <div>Investment</div>
-              <div>Total Payouts</div>
-              <div>Rank</div>
-              <div className="text-right">Actions</div>
-            </div>
-            
-            {/* Table Rows */}
-            <div className="space-y-2 mt-4">
-              {isLoading ? (
-                <div className="flex flex-col items-center justify-center py-12 text-slate-400">
-                  <Loader2 className="w-8 h-8 animate-spin mb-4 text-orange-500" />
-                  <p>Loading real-time investor data from database...</p>
-                </div>
-              ) : currentInvestors.length === 0 ? (
-                <div className="text-center py-12 text-slate-400">
-                  No investors found matching your criteria.
-                </div>
-              ) : currentInvestors.map((investor, idx) => (
-                <motion.div
-                  key={investor.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.05, duration: 0.4 }}
-                  className="grid grid-cols-6 gap-4 py-4 border-b border-white/5 hover:bg-white/5 transition-colors rounded-lg px-2 cursor-pointer"
-                  onClick={() => setSelectedInvestor(investor)}
-                >
-                  <div className="col-span-2 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-yellow-500 flex items-center justify-center text-white font-bold">
-                      {investor.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-white text-sm">{investor.name}</div>
-                      <div className="text-xs text-slate-500 flex items-center gap-1 mt-1">
-                        <MapPin className="w-3 h-3" />
-                        {investor.city}, {investor.state}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-sm">
-                    <div className="text-white font-semibold">{formatCurrency(investor.investment_amount)}</div>
-                    <div className="text-xs text-slate-500 flex items-center gap-1 mt-1">
-                      <Clock className="w-3 h-3" />
-                      {new Date(investor.investment_date).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}
-                    </div>
-                  </div>
-                  <div className="text-sm">
-                    <div className="text-green-400 font-semibold">{formatCurrency(investor.total_payouts)}</div>
-                    <div className="text-xs text-slate-500">{investor.payout_history.length} payouts</div>
-                  </div>
-                  <div>
-                    <Badge className={`${getRankColor(investor.rank)} text-xs`}>
-                      {investor.rank}
-                    </Badge>
-                    <div className="text-xs text-slate-500 mt-1">
-                      {((investor.total_payouts / investor.investment_amount) * 100).toFixed(1)}% ROI
-                    </div>
-                  </div>
-                  <div className="flex justify-end items-center">
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="text-orange-400 hover:text-orange-300 hover:bg-orange-500/10"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedInvestor(investor);
-                      }}
-                    >
-                      Details
-                      <ArrowRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-            
-            {/* Pagination */}
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/5">
-              <div className="text-sm text-slate-400">
-                Page {currentPage + 1} of {totalPages} • Showing {startIdx + 1}-{Math.min(endIdx, filteredInvestors.length)} of {filteredInvestors.length} investors
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="border-white/10 hover:border-white/20"
-                  onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
-                  disabled={currentPage === 0}
-                >
-                  Previous
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="border-white/10 hover:border-white/20"
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
-                  disabled={currentPage === totalPages - 1}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
-          </GlassmorphicCard>
-        </motion.div>
-        
-        {/* Investor Detail Modal */}
-        {selectedInvestor && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setSelectedInvestor(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+
+          {/* Filter buttons */}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={rankFilter === "ALL" ? "default" : "outline"}
+              onClick={() => setRankFilter("ALL")}
+              className="rounded-full"
             >
-              <GlassmorphicCard className="p-8 border-white/20" glow>
-                <div className="flex items-start justify-between mb-6">
-                  <div>
-                    <h3 className="text-2xl font-bold text-white mb-2">{selectedInvestor.name}</h3>
-                    <p className="text-slate-400 flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
-                      {selectedInvestor.city}, {selectedInvestor.state}
-                    </p>
-                  </div>
-                  <Badge className={`${getRankColor(selectedInvestor.rank)}`}>
-                    {selectedInvestor.rank}
-                  </Badge>
-                </div>
-                
-                {/* Investment Summary */}
-                <div className="grid grid-cols-3 gap-4 mb-8">
-                  <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                    <div className="text-sm text-slate-400 mb-1">Investment</div>
-                    <div className="text-xl font-bold text-white">{formatCurrency(selectedInvestor.investment_amount)}</div>
-                  </div>
-                  <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                    <div className="text-sm text-slate-400 mb-1">Total Payouts</div>
-                    <div className="text-xl font-bold text-green-400">{formatCurrency(selectedInvestor.total_payouts)}</div>
-                  </div>
-                  <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                    <div className="text-sm text-slate-400 mb-1">Investment Date</div>
-                    <div className="text-xl font-bold text-white">
-                      {new Date(selectedInvestor.investment_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Payout History */}
-                <div>
-                  <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-400" />
-                    Payout History ({selectedInvestor.payout_history.length} transactions)
-                  </h4>
-                  <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                    {selectedInvestor.payout_history.map((payout, idx) => (
-                      <div 
-                        key={payout.id}
-                        className="p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="font-semibold text-white">{payout.month}</div>
-                          <div className="text-green-400 font-bold">{formatCurrency(payout.amount)}</div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <div className="text-slate-500 text-xs mb-1">UTR Number</div>
-                            <div className="font-mono text-slate-300 text-xs">{payout.utr}</div>
-                          </div>
-                          <div>
-                            <div className="text-slate-500 text-xs mb-1">TXN ID</div>
-                            <div className="font-mono text-slate-300 text-xs">{payout.txn_id}</div>
-                          </div>
-                        </div>
-                        <div className="mt-2 flex items-center justify-between">
-                          <div className="text-xs text-slate-500">{payout.date}</div>
-                          <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
-                            {payout.status}
-                          </Badge>
-                        </div>
+              All Ranks
+            </Button>
+            {Object.keys(LEDGER_STATS.rankDistribution).map((rank) => (
+              <Button
+                key={rank}
+                variant={rankFilter === rank ? "default" : "outline"}
+                onClick={() => setRankFilter(rank)}
+                className="rounded-full"
+              >
+                {rank} ({LEDGER_STATS.rankDistribution[rank as keyof typeof LEDGER_STATS.rankDistribution]})
+              </Button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={userTypeFilter === "ALL" ? "default" : "outline"}
+              onClick={() => setUserTypeFilter("ALL")}
+              className="rounded-full"
+            >
+              All Types
+            </Button>
+            <Button
+              variant={userTypeFilter === "investor" ? "default" : "outline"}
+              onClick={() => setUserTypeFilter("investor")}
+              className="rounded-full"
+            >
+              Investors ({LEDGER_STATS.totalInvestorsOnly})
+            </Button>
+            <Button
+              variant={userTypeFilter === "vendor" ? "default" : "outline"}
+              onClick={() => setUserTypeFilter("vendor")}
+              className="rounded-full"
+            >
+              Vendors ({LEDGER_STATS.totalVendors})
+            </Button>
+            <Button
+              variant={userTypeFilter === "referral_partner" ? "default" : "outline"}
+              onClick={() => setUserTypeFilter("referral_partner")}
+              className="rounded-full"
+            >
+              Referral Partners ({LEDGER_STATS.totalReferralPartners})
+            </Button>
+          </div>
+        </motion.div>
+
+        {/* Investor Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {currentInvestors.length === 0 ? (
+            <div className="col-span-full text-center py-12 text-slate-400">
+              No investors found matching your criteria.
+            </div>
+          ) : (
+            currentInvestors.map((investor, idx) => (
+              <motion.div
+                key={investor.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.1 * (idx % 12) }}
+              >
+                <Card className="bg-slate-900/50 border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">
+                  <CardContent className="p-6">
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-white mb-1">
+                          {investor.name}
+                        </h3>
+                        <p className="text-sm text-slate-400">{investor.investorId}</p>
                       </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="mt-6 flex justify-end">
-                  <Button
-                    onClick={() => setSelectedInvestor(null)}
-                    className="bg-orange-600 hover:bg-orange-500 text-white"
-                  >
-                    Close
-                  </Button>
-                </div>
-              </GlassmorphicCard>
-            </motion.div>
-          </motion.div>
+                      <Badge className={`${getRankColor(investor.rank)} text-white`}>
+                        {investor.rank}
+                      </Badge>
+                    </div>
+
+                    {/* Type Badge */}
+                    <Badge variant="outline" className="mb-3">
+                      {getUserTypeLabel(investor.userType)}
+                    </Badge>
+
+                    {/* Location */}
+                    <div className="flex items-center gap-2 text-sm text-slate-400 mb-3">
+                      <MapPin className="w-4 h-4" />
+                      {investor.location}
+                    </div>
+
+                    {/* Investment Amount */}
+                    <div className="mb-3">
+                      <p className="text-sm text-slate-400 mb-1">Investment</p>
+                      <p className="text-xl font-bold text-white">
+                        {formatCurrency(investor.investmentAmount)}
+                      </p>
+                    </div>
+
+                    {/* Payouts */}
+                    <div className="mb-3">
+                      <p className="text-sm text-slate-400 mb-1">Total Payouts</p>
+                      <p className="text-lg font-semibold text-green-400">
+                        {formatCurrency(investor.totalPayouts)}
+                      </p>
+                    </div>
+
+                    {/* Additional metrics */}
+                    {investor.userType === "vendor" && investor.totalSales && (
+                      <div className="mb-3">
+                        <p className="text-sm text-slate-400 mb-1">Total Sales</p>
+                        <p className="text-lg font-semibold text-blue-400">
+                          {formatCurrency(investor.totalSales)}
+                        </p>
+                      </div>
+                    )}
+
+                    {investor.userType === "referral_partner" && investor.downlineCount && (
+                      <div className="mb-3">
+                        <p className="text-sm text-slate-400 mb-1">Downline</p>
+                        <p className="text-lg font-semibold text-purple-400">
+                          {investor.downlineCount} members
+                        </p>
+                      </div>
+                    )}
+
+                    {/* ROI */}
+                    <div className="mb-4">
+                      <p className="text-sm text-slate-400 mb-1">ROI</p>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-cyan-400" />
+                        <p className="text-lg font-semibold text-cyan-400">
+                          {((investor.totalPayouts / investor.investmentAmount) * 100).toFixed(2)}%
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Investment Date */}
+                    <div className="flex items-center gap-2 text-sm text-slate-400 mb-4">
+                      <Calendar className="w-4 h-4" />
+                      Joined {formatDate(investor.investmentDate)}
+                    </div>
+
+                    {/* Details Button */}
+                    <Button
+                      onClick={() => setSelectedInvestor(investor)}
+                      className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
+                    >
+                      View Payout History
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))
+          )}
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+
+            {[...Array(totalPages)].map((_, idx) => {
+              const page = idx + 1;
+              // Show first 3, last 3, and current page with neighbors
+              const showPage =
+                page <= 3 ||
+                page > totalPages - 3 ||
+                (page >= currentPage - 1 && page <= currentPage + 1);
+
+              if (!showPage) {
+                if (page === 4 || page === totalPages - 3) {
+                  return <span key={page} className="text-slate-500">...</span>;
+                }
+                return null;
+              }
+
+              return (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  onClick={() => handlePageChange(page)}
+                >
+                  {page}
+                </Button>
+              );
+            })}
+
+            <Button
+              variant="outline"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
         )}
       </div>
+
+      {/* Investor Detail Modal */}
+      {selectedInvestor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-slate-900 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-slate-800"
+          >
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-slate-900 border-b border-slate-800 p-6 flex items-center justify-between">
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-1">
+                  {selectedInvestor.name}
+                </h3>
+                <p className="text-slate-400">{selectedInvestor.investorId}</p>
+              </div>
+              <Button
+                variant="ghost"
+                onClick={() => setSelectedInvestor(null)}
+                className="rounded-full"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {/* Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-slate-400 mb-1">Investment</p>
+                    <p className="text-2xl font-bold text-white">
+                      {formatCurrency(selectedInvestor.investmentAmount)}
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-slate-400 mb-1">Total Payouts</p>
+                    <p className="text-2xl font-bold text-green-400">
+                      {formatCurrency(selectedInvestor.totalPayouts)}
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-slate-400 mb-1">Joined</p>
+                    <p className="text-lg font-semibold text-white">
+                      {formatDate(selectedInvestor.investmentDate)}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Payout History */}
+              <div>
+                <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-cyan-400" />
+                  Complete Payout History ({selectedInvestor.payoutHistory.length} transactions)
+                </h4>
+
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {selectedInvestor.payoutHistory.map((payout) => (
+                    <Card key={payout.id} className="bg-slate-800/50 border-slate-700">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge variant={payout.status === "completed" ? "default" : "outline"}>
+                                {payout.status === "completed" ? (
+                                  <>
+                                    <CheckCircle2 className="w-3 h-3 mr-1" />
+                                    Completed
+                                  </>
+                                ) : (
+                                  <>
+                                    <Clock className="w-3 h-3 mr-1" />
+                                    Pending
+                                  </>
+                                )}
+                              </Badge>
+                              <Badge variant="outline" className="capitalize">
+                                {payout.type.replace("_", " ")}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-slate-400 mb-1">{payout.month}</p>
+                            <p className="text-xs text-slate-500">
+                              {formatDate(payout.date)} • UTR: {payout.utr}
+                            </p>
+                          </div>
+                          <p className="text-xl font-bold text-green-400">
+                            {formatCurrency(payout.amount)}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </section>
   );
 }
