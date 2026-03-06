@@ -1,210 +1,137 @@
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { Button } from "@/components/ui/button";
-import { ThemeSwitch } from "@/components/ThemeSwitch";
-import { NotificationCenter } from "@/components/NotificationCenter";
-import {
-  Package,
-  LayoutDashboard,
-  ShoppingCart,
-  RotateCcw,
-  BarChart3,
-  Upload,
-  Users,
-  Settings,
-  DollarSign,
-  TrendingUp,
-  Menu,
-  X,
-  LogOut,
-  Briefcase,
-  PieChart,
-  FileText,
-  MapPin
+import { useAuth } from "@/contexts/AuthContext";
+import { 
+  LogOut, Home, PieChart, Users, Settings, Briefcase, 
+  ShoppingCart, Package, BarChart3, Bell
 } from "lucide-react";
+import { useRouter } from "next/router";
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  role: "client" | "vendor" | "admin" | "bdm" | "investor" | "franchise_partner" | "super_admin";
+  role?: "investor" | "admin" | "vendor" | "client" | "bdm" | "franchise";
 }
 
-const roleConfig = {
-  client: {
-    title: "Client Dashboard",
-    nav: [
-      { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/client" },
-      { icon: Package, label: "My Orders", href: "/dashboard/client/orders" },
-      { icon: RotateCcw, label: "Returns", href: "/dashboard/client/returns" },
-      { icon: Settings, label: "Profile", href: "/dashboard/profile" }
-    ]
-  },
-  vendor: {
-    title: "Vendor Portal",
-    nav: [
-      { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/vendor" },
-      { icon: Package, label: "Orders", href: "/dashboard/vendor/orders" },
-      { icon: RotateCcw, label: "Returns", href: "/dashboard/vendor/returns" },
-      { icon: BarChart3, label: "Performance", href: "/dashboard/vendor/performance" },
-      { icon: Upload, label: "File Uploads", href: "/dashboard/vendor/uploads" },
-      { icon: Settings, label: "Profile", href: "/dashboard/profile" }
-    ]
-  },
-  investor: {
-    title: "Investor Dashboard",
-    nav: [
-      { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/investor" },
-      { icon: PieChart, label: "Portfolio", href: "/dashboard/investor/portfolio" },
-      { icon: TrendingUp, label: "Returns", href: "/dashboard/investor/returns" },
-      { icon: FileText, label: "Reports", href: "/dashboard/investor/reports" },
-      { icon: Settings, label: "Profile", href: "/dashboard/profile" }
-    ]
-  },
-  franchise_partner: {
-    title: "Franchise Partner Portal",
-    nav: [
-      { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/franchise" },
-      { icon: MapPin, label: "My Location", href: "/dashboard/franchise/location" },
-      { icon: DollarSign, label: "Earnings", href: "/dashboard/franchise/earnings" },
-      { icon: BarChart3, label: "Performance", href: "/dashboard/franchise/performance" },
-      { icon: Settings, label: "Profile", href: "/dashboard/profile" }
-    ]
-  },
-  admin: {
-    title: "Admin Control Panel",
-    nav: [
-      { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/admin" },
-      { icon: Users, label: "User Management", href: "/dashboard/admin/users" },
-      { icon: Users, label: "Vendors", href: "/dashboard/admin/vendors" },
-      { icon: DollarSign, label: "Settlements", href: "/dashboard/admin/settlements" },
-      { icon: BarChart3, label: "Analytics", href: "/dashboard/admin/analytics" },
-      { icon: Settings, label: "Profile", href: "/dashboard/profile" }
-    ]
-  },
-  super_admin: {
-    title: "Super Admin Panel",
-    nav: [
-      { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/admin" },
-      { icon: Users, label: "User Management", href: "/dashboard/admin/users" },
-      { icon: Users, label: "Vendors", href: "/dashboard/admin/vendors" },
-      { icon: DollarSign, label: "Settlements", href: "/dashboard/admin/settlements" },
-      { icon: BarChart3, label: "Analytics", href: "/dashboard/admin/analytics" },
-      { icon: Settings, label: "System Settings", href: "/dashboard/admin/settings" },
-      { icon: Settings, label: "Profile", href: "/dashboard/profile" }
-    ]
-  },
-  bdm: {
-    title: "BDM Dashboard",
-    nav: [
-      { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/bdm" },
-      { icon: Users, label: "Vendor Pipeline", href: "/dashboard/bdm/vendors" },
-      { icon: TrendingUp, label: "Performance", href: "/dashboard/bdm/performance" },
-      { icon: Settings, label: "Profile", href: "/dashboard/profile" }
-    ]
-  }
-};
-
-export function DashboardLayout({ children, role }: DashboardLayoutProps) {
+export function DashboardLayout({ children, role = "investor" }: DashboardLayoutProps) {
+  const { user, logout } = useAuth();
   const router = useRouter();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const config = roleConfig[role];
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/auth/login");
+  };
+
+  const getNavigation = () => {
+    switch (role) {
+      case "admin":
+        return [
+          { name: "Overview", href: "/dashboard/admin", icon: PieChart },
+          { name: "Users", href: "/dashboard/admin/users", icon: Users },
+          { name: "Vendors", href: "/dashboard/admin/vendors", icon: Briefcase },
+          { name: "Settlements", href: "/dashboard/admin/settlements", icon: BarChart3 },
+        ];
+      case "vendor":
+        return [
+          { name: "Overview", href: "/dashboard/vendor", icon: Home },
+          { name: "Orders", href: "/dashboard/vendor/orders", icon: ShoppingCart },
+          { name: "Products", href: "/dashboard/vendor/uploads", icon: Package },
+          { name: "Performance", href: "/dashboard/vendor/performance", icon: BarChart3 },
+        ];
+      default:
+        return [
+          { name: "Portfolio", href: "/dashboard/investor", icon: PieChart },
+          { name: "New Investment", href: "/invest", icon: Briefcase },
+          { name: "Settings", href: "/dashboard/profile", icon: Settings },
+        ];
+    }
+  };
+
+  const navItems = getNavigation();
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-50 flex items-center justify-between px-4 shadow-sm">
-        <div className="flex items-center gap-2">
-          <Package className="w-6 h-6 text-primary" />
-          <span className="font-bold text-slate-900 dark:text-white">Brave Ecom</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <NotificationCenter />
-          <ThemeSwitch />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="ml-2"
-          >
-            {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-        </div>
-      </div>
-
-      {/* Sidebar */}
-      <aside
-        className={`fixed top-0 left-0 bottom-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-40 transition-all duration-300 ease-in-out lg:translate-x-0 ${
-          sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
-        }`}
+    <div className="min-h-screen bg-slate-950 flex text-slate-200 font-sans selection:bg-purple-500/30">
+      {/* Sidebar - Glassmorphic */}
+      <motion.aside 
+        initial={{ x: -300, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="w-64 hidden md:flex flex-col bg-slate-900/50 backdrop-blur-2xl border-r border-white/5 relative z-20"
       >
-        <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="h-16 flex items-center gap-2 px-6 border-b border-slate-200 dark:border-slate-800">
-            <Package className="w-6 h-6 text-primary" />
-            <span className="font-bold text-slate-900 dark:text-white">Brave Ecom</span>
+        <div className="p-6 flex items-center gap-3 border-b border-white/5">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
+            <span className="font-bold text-white text-xl leading-none">B</span>
           </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1">
-            {config.nav.map((item) => {
-              const Icon = item.icon;
-              const isActive = router.pathname === item.href;
-              return (
-                <Link key={item.href} href={item.href}>
-                  <Button
-                    variant={isActive ? "secondary" : "ghost"}
-                    className={`w-full justify-start ${
-                      isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-slate-600 dark:text-slate-400"
-                    }`}
-                  >
-                    <Icon className="w-5 h-5 mr-3" />
-                    {item.label}
-                  </Button>
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* User Section */}
-          <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-slate-600 dark:text-slate-400"
-              onClick={() => router.push("/auth/login")}
-            >
-              <LogOut className="w-5 h-5 mr-3" />
-              Sign Out
-            </Button>
-          </div>
+          <span className="font-bold text-xl tracking-tight text-white">Brave Ecom</span>
         </div>
-      </aside>
+
+        <nav className="flex-1 p-4 space-y-2">
+          {navItems.map((item) => {
+            const isActive = router.pathname === item.href;
+            return (
+              <Link key={item.name} href={item.href}>
+                <span className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                  isActive 
+                    ? "bg-purple-500/10 text-purple-400 border border-purple-500/20 shadow-inner" 
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                }`}>
+                  <item.icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`} />
+                  <span className="font-medium text-sm">{item.name}</span>
+                </span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="p-4 border-t border-white/5">
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 w-full"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="font-medium text-sm">Sign Out</span>
+          </button>
+        </div>
+      </motion.aside>
 
       {/* Main Content */}
-      <div className="lg:ml-64 pt-16 lg:pt-0">
-        {/* Top Bar */}
-        <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6">
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-            {config.title}
-          </h1>
+      <main className="flex-1 flex flex-col min-w-0 relative overflow-hidden">
+        {/* Top Header */}
+        <header className="h-16 flex items-center justify-between px-8 bg-slate-900/30 backdrop-blur-xl border-b border-white/5 z-10 sticky top-0">
+          <h2 className="text-sm font-medium text-slate-400 capitalize">
+            {router.pathname.split('/').filter(Boolean).join(' / ') || 'Dashboard'}
+          </h2>
           <div className="flex items-center gap-4">
-            <NotificationCenter />
-            <ThemeSwitch />
+            <button className="relative p-2 text-slate-400 hover:text-white transition-colors">
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
+            </button>
+            <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 border border-white/20 p-0.5">
+              <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center">
+                <span className="text-xs font-bold text-white">
+                  {user?.email?.charAt(0).toUpperCase() || 'U'}
+                </span>
+              </div>
+            </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="p-6">{children}</main>
-      </div>
-
-      {/* Mobile Overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+        {/* Cinematic Page Transitions */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 perspective-1000">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={router.pathname}
+              initial={{ opacity: 0, rotateX: 5, y: 40, scale: 0.98 }}
+              animate={{ opacity: 1, rotateX: 0, y: 0, scale: 1 }}
+              exit={{ opacity: 0, rotateX: -5, y: -40, scale: 0.98 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="max-w-7xl mx-auto h-full"
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </main>
     </div>
   );
 }
