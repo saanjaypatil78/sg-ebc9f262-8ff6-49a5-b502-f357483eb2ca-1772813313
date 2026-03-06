@@ -17,12 +17,16 @@ import {
   TrendingUp,
   Menu,
   X,
-  LogOut
+  LogOut,
+  Briefcase,
+  PieChart,
+  FileText,
+  MapPin
 } from "lucide-react";
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  role: "client" | "vendor" | "admin" | "bdm";
+  role: "client" | "vendor" | "admin" | "bdm" | "investor" | "franchise_partner" | "super_admin";
 }
 
 const roleConfig = {
@@ -32,7 +36,7 @@ const roleConfig = {
       { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/client" },
       { icon: Package, label: "My Orders", href: "/dashboard/client/orders" },
       { icon: RotateCcw, label: "Returns", href: "/dashboard/client/returns" },
-      { icon: Settings, label: "Settings", href: "/dashboard/client/settings" }
+      { icon: Settings, label: "Profile", href: "/dashboard/profile" }
     ]
   },
   vendor: {
@@ -43,7 +47,27 @@ const roleConfig = {
       { icon: RotateCcw, label: "Returns", href: "/dashboard/vendor/returns" },
       { icon: BarChart3, label: "Performance", href: "/dashboard/vendor/performance" },
       { icon: Upload, label: "File Uploads", href: "/dashboard/vendor/uploads" },
-      { icon: Settings, label: "Settings", href: "/dashboard/vendor/settings" }
+      { icon: Settings, label: "Profile", href: "/dashboard/profile" }
+    ]
+  },
+  investor: {
+    title: "Investor Dashboard",
+    nav: [
+      { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/investor" },
+      { icon: PieChart, label: "Portfolio", href: "/dashboard/investor/portfolio" },
+      { icon: TrendingUp, label: "Returns", href: "/dashboard/investor/returns" },
+      { icon: FileText, label: "Reports", href: "/dashboard/investor/reports" },
+      { icon: Settings, label: "Profile", href: "/dashboard/profile" }
+    ]
+  },
+  franchise_partner: {
+    title: "Franchise Partner Portal",
+    nav: [
+      { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/franchise" },
+      { icon: MapPin, label: "My Location", href: "/dashboard/franchise/location" },
+      { icon: DollarSign, label: "Earnings", href: "/dashboard/franchise/earnings" },
+      { icon: BarChart3, label: "Performance", href: "/dashboard/franchise/performance" },
+      { icon: Settings, label: "Profile", href: "/dashboard/profile" }
     ]
   },
   admin: {
@@ -54,7 +78,19 @@ const roleConfig = {
       { icon: Users, label: "Vendors", href: "/dashboard/admin/vendors" },
       { icon: DollarSign, label: "Settlements", href: "/dashboard/admin/settlements" },
       { icon: BarChart3, label: "Analytics", href: "/dashboard/admin/analytics" },
-      { icon: Settings, label: "Settings", href: "/dashboard/admin/settings" }
+      { icon: Settings, label: "Profile", href: "/dashboard/profile" }
+    ]
+  },
+  super_admin: {
+    title: "Super Admin Panel",
+    nav: [
+      { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/admin" },
+      { icon: Users, label: "User Management", href: "/dashboard/admin/users" },
+      { icon: Users, label: "Vendors", href: "/dashboard/admin/vendors" },
+      { icon: DollarSign, label: "Settlements", href: "/dashboard/admin/settlements" },
+      { icon: BarChart3, label: "Analytics", href: "/dashboard/admin/analytics" },
+      { icon: Settings, label: "System Settings", href: "/dashboard/admin/settings" },
+      { icon: Settings, label: "Profile", href: "/dashboard/profile" }
     ]
   },
   bdm: {
@@ -63,7 +99,7 @@ const roleConfig = {
       { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/bdm" },
       { icon: Users, label: "Vendor Pipeline", href: "/dashboard/bdm/vendors" },
       { icon: TrendingUp, label: "Performance", href: "/dashboard/bdm/performance" },
-      { icon: Settings, label: "Settings", href: "/dashboard/bdm/settings" }
+      { icon: Settings, label: "Profile", href: "/dashboard/profile" }
     ]
   }
 };
@@ -78,8 +114,8 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-50 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
-          <Package className="w-6 h-6 text-cyan-500" />
-          <span className="font-bold text-slate-900 dark:text-white">DropSync</span>
+          <Package className="w-6 h-6 text-primary" />
+          <span className="font-bold text-slate-900 dark:text-white">Brave Ecom</span>
         </div>
         <Button
           variant="ghost"
@@ -99,8 +135,8 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="h-16 flex items-center gap-2 px-6 border-b border-slate-200 dark:border-slate-800">
-            <Package className="w-6 h-6 text-cyan-500" />
-            <span className="font-bold text-slate-900 dark:text-white">DropSync</span>
+            <Package className="w-6 h-6 text-primary" />
+            <span className="font-bold text-slate-900 dark:text-white">Brave Ecom</span>
           </div>
 
           {/* Navigation */}
@@ -114,7 +150,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
                     variant={isActive ? "secondary" : "ghost"}
                     className={`w-full justify-start ${
                       isActive
-                        ? "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
+                        ? "bg-primary/10 text-primary"
                         : "text-slate-600 dark:text-slate-400"
                     }`}
                   >
