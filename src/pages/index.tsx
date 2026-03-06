@@ -1,6 +1,7 @@
 import { SEO } from "@/components/SEO";
 import { PublicLedger } from "@/components/PublicLedger";
 import { GlassmorphicCard } from "@/components/GlassmorphicCard";
+import { RotatingHexLogo } from "@/components/RotatingHexLogo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -16,22 +17,22 @@ import Image from "next/image";
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Enhanced parallax scroll effects - CINEMATIC & DRAMATIC
+  // ULTRA-ENHANCED parallax scroll effects - MAXIMUM INTENSITY (2x stronger)
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"]
   });
 
-  // Ultra-strong parallax transforms for maximum visibility
-  const y1 = useTransform(scrollYProgress, [0, 1], [100, -400]);   
-  const y2 = useTransform(scrollYProgress, [0, 1], [-100, 300]);   
-  const y3 = useTransform(scrollYProgress, [0, 1], [50, -250]);    
-  const y4 = useTransform(scrollYProgress, [0, 1], [-50, 150]);    
+  // Ultra-strong parallax transforms for maximum visibility (2x stronger)
+  const y1 = useTransform(scrollYProgress, [0, 1], [100, -800]);   // 2x stronger (was -400)
+  const y2 = useTransform(scrollYProgress, [0, 1], [-100, 600]);   // 2x stronger (was 300)
+  const y3 = useTransform(scrollYProgress, [0, 1], [50, -500]);    // 2x stronger (was -250)
+  const y4 = useTransform(scrollYProgress, [0, 1], [-50, 300]);    // 2x stronger (was 150)
   
-  // Cinematic effects
+  // Advanced cinematic effects
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.5, 0.8, 1], [1, 0.95, 0.85, 0.7, 0.5]);
   const scale = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [1, 1.02, 0.98, 0.95]);
-  const rotate = useTransform(scrollYProgress, [0, 0.5, 1], [0, 2, -3]);
+  const rotate = useTransform(scrollYProgress, [0, 0.5, 1], [0, 4, -8]); // Stronger rotation
   const scaleHero = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
 
   const stats = [
@@ -56,24 +57,24 @@ export default function Home() {
       />
       
       <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black relative">
-        {/* Enhanced 4-Layer Parallax Background - CINEMATIC DEPTH matching Logo Colors */}
+        {/* ULTRA-ENHANCED 4-Layer Parallax Background - MAXIMUM INTENSITY */}
         <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-          {/* Layer 1: Copper (Fast) */}
+          {/* Layer 1: Copper (Ultra Fast) - 2x stronger */}
           <motion.div 
             style={{ y: y1, rotate, scale }}
             className="absolute -top-[40%] -right-[20%] w-[900px] h-[900px] rounded-full bg-orange-700/20 blur-[180px]" 
           />
-          {/* Layer 2: Bronze (Slow Reverse) */}
+          {/* Layer 2: Bronze (Slow Reverse) - 2x stronger */}
           <motion.div 
             style={{ y: y2, opacity }}
             className="absolute top-[60%] -left-[20%] w-[800px] h-[800px] rounded-full bg-amber-600/15 blur-[160px]" 
           />
-          {/* Layer 3: Gold (Medium Fast) */}
+          {/* Layer 3: Gold (Medium Fast) - 2x stronger */}
           <motion.div 
             style={{ y: y3, scale }}
             className="absolute top-[15%] right-[15%] w-[700px] h-[700px] rounded-full bg-yellow-500/10 blur-[140px]" 
           />
-          {/* Layer 4: Deep Blue (Subtle Slow) */}
+          {/* Layer 4: Deep Blue (Subtle Slow) - 2x stronger */}
           <motion.div 
             style={{ y: y4, opacity }}
             className="absolute top-[70%] right-[30%] w-[600px] h-[600px] rounded-full bg-slate-500/10 blur-[120px]" 
@@ -92,27 +93,15 @@ export default function Home() {
           transition={{ duration: 0.8 }}
           className="relative z-10 text-center max-w-5xl mx-auto px-4 pt-24 pb-16"
         >
-          {/* Rotating Hexagonal Logo */}
+          {/* Rotating Hexagonal Logo with Clock Ticking */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.6 }}
             className="mb-8"
           >
-            <div className="flex justify-center mb-6 relative">
-               <motion.div
-                 animate={{ rotate: 360 }}
-                 transition={{ repeat: Infinity, duration: 24, ease: "linear" }}
-                 className="relative w-48 h-48 drop-shadow-[0_0_40px_rgba(245,158,11,0.4)]"
-               >
-                 <Image 
-                   src="/bravecom-logo-hex.png" 
-                   alt="BRAVECOM Hex Logo" 
-                   fill
-                   className="object-contain"
-                   priority
-                 />
-               </motion.div>
+            <div className="flex justify-center mb-6">
+              <RotatingHexLogo size={200} showTicking={true} enableSound={true} />
             </div>
             <h1 className="text-6xl md:text-8xl font-black mb-4 tracking-tight">
               <span className="bg-gradient-to-br from-orange-300 via-amber-500 to-orange-700 bg-clip-text text-transparent">
@@ -373,12 +362,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Footer */}
+        {/* Footer with Hexagonal Logo */}
         <footer className="py-12 px-4 border-t border-white/10 relative z-10 bg-black/80 backdrop-blur-lg">
           <div className="container mx-auto max-w-7xl">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-3">
-                <Image src="/bravecom-logo-hex.png" width={32} height={32} alt="Logo" />
+                <RotatingHexLogo size={32} showTicking={false} enableSound={false} />
                 <span className="text-xl font-bold bg-gradient-to-r from-orange-300 to-orange-600 bg-clip-text text-transparent">BRAVECOM</span>
               </div>
               <div className="flex gap-6 text-sm text-slate-400">
