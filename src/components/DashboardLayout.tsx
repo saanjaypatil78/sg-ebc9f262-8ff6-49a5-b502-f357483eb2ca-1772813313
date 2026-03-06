@@ -7,6 +7,7 @@ import {
   ShoppingCart, Package, BarChart3, Bell
 } from "lucide-react";
 import { useRouter } from "next/router";
+import { MobileMenu } from "./MobileMenu";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -102,7 +103,12 @@ export function DashboardLayout({ children, role = "investor" }: DashboardLayout
             {router.pathname.split('/').filter(Boolean).join(' / ') || 'Dashboard'}
           </h2>
           <div className="flex items-center gap-4">
-            <button className="relative p-2 text-slate-400 hover:text-white transition-colors">
+            {/* Mobile Menu */}
+            <div className="md:hidden">
+              <MobileMenu role={role} />
+            </div>
+            
+            <button className="relative p-2 text-slate-400 hover:text-white transition-colors hidden md:block">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
             </button>
