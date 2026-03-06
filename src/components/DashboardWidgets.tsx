@@ -1,174 +1,195 @@
-import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { 
-  Package, 
-  TrendingUp, 
-  DollarSign, 
-  AlertCircle, 
-  Clock, 
-  CheckCircle,
-  RotateCcw,
-  Users,
-  FileText,
-  Target,
-  Settings,
-  GripVertical
-} from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-interface WidgetConfig {
-  id: string;
-  name: string;
-  icon: any;
-  enabled: boolean;
-  role: string[];
-}
-
-const availableWidgets: WidgetConfig[] = [
-  { id: "total-orders", name: "Total Orders", icon: Package, enabled: true, role: ["client", "vendor", "admin"] },
-  { id: "revenue", name: "Revenue", icon: DollarSign, enabled: true, role: ["vendor", "admin"] },
-  { id: "on-time", name: "On-Time Delivery", icon: Clock, enabled: true, role: ["vendor", "admin"] },
-  { id: "return-rate", name: "Return Rate", icon: RotateCcw, enabled: true, role: ["vendor", "admin"] },
-  { id: "pending-actions", name: "Pending Actions", icon: AlertCircle, enabled: true, role: ["all"] },
-  { id: "performance", name: "Performance Score", icon: Target, enabled: true, role: ["vendor", "admin"] },
-  { id: "active-vendors", name: "Active Vendors", icon: Users, enabled: true, role: ["admin", "bdm"] },
-  { id: "monthly-growth", name: "Monthly Growth", icon: TrendingUp, enabled: true, role: ["admin", "bdm"] },
+// Sample data - Replace with real API data
+const revenueData = [
+  { month: 'Jan', revenue: 4000000, orders: 240 },
+  { month: 'Feb', revenue: 5200000, orders: 310 },
+  { month: 'Mar', revenue: 7800000, orders: 450 },
+  { month: 'Apr', revenue: 9100000, orders: 520 },
+  { month: 'May', revenue: 11500000, orders: 680 },
+  { month: 'Jun', revenue: 12000000, orders: 750 }
 ];
 
-interface DashboardWidgetsProps {
-  role: "client" | "vendor" | "admin" | "bdm";
-  data?: any;
+const userGrowthData = [
+  { month: 'Jan', investors: 15, franchises: 3, vendors: 8 },
+  { month: 'Feb', investors: 28, franchises: 5, vendors: 12 },
+  { month: 'Mar', investors: 42, franchises: 8, vendors: 18 },
+  { month: 'Apr', investors: 65, franchises: 12, vendors: 25 },
+  { month: 'May', investors: 88, franchises: 15, vendors: 32 },
+  { month: 'Jun', investors: 120, franchises: 20, vendors: 45 }
+];
+
+const orderStatusData = [
+  { name: 'Delivered', value: 650, color: '#10b981' },
+  { name: 'In Transit', value: 120, color: '#f59e0b' },
+  { name: 'Processing', value: 80, color: '#3b82f6' },
+  { name: 'Cancelled', value: 25, color: '#ef4444' }
+];
+
+const vendorPerformanceData = [
+  { name: 'Vendor A', sales: 2400000, orders: 145, rating: 4.8 },
+  { name: 'Vendor B', sales: 1800000, orders: 98, rating: 4.6 },
+  { name: 'Vendor C', sales: 3200000, orders: 210, rating: 4.9 },
+  { name: 'Vendor D', sales: 1500000, orders: 75, rating: 4.5 },
+  { name: 'Vendor E', sales: 2900000, orders: 165, rating: 4.7 }
+];
+
+const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'];
+
+interface RevenueChartProps {
+  title?: string;
+  description?: string;
 }
 
-export function DashboardWidgets({ role, data = {} }: DashboardWidgetsProps) {
-  const [widgets, setWidgets] = useState(availableWidgets);
-  const [isDragging, setIsDragging] = useState(false);
-
-  const toggleWidget = (id: string) => {
-    setWidgets(widgets.map(w => 
-      w.id === id ? { ...w, enabled: !w.enabled } : w
-    ));
-  };
-
-  const enabledWidgets = widgets.filter(w => 
-    w.enabled && (w.role.includes(role) || w.role.includes("all"))
-  );
-
+export function RevenueChart({ title = "Revenue Overview", description = "Monthly revenue and order trends" }: RevenueChartProps) {
   return (
-    <div className="space-y-6">
-      {/* Widget Customization Button */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-          Dashboard Overview
-        </h3>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Settings className="w-4 h-4 mr-2" />
-              Customize Widgets
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Customize Your Dashboard</DialogTitle>
-              <DialogDescription>
-                Select which widgets to display on your dashboard
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              {availableWidgets
-                .filter(w => w.role.includes(role) || w.role.includes("all"))
-                .map((widget) => (
-                  <div key={widget.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={widget.id}
-                      checked={widget.enabled}
-                      onCheckedChange={() => toggleWidget(widget.id)}
-                    />
-                    <Label htmlFor={widget.id} className="flex items-center gap-2 cursor-pointer">
-                      <widget.icon className="w-4 h-4" />
-                      {widget.name}
-                    </Label>
-                  </div>
-                ))}
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Widget Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {enabledWidgets.map((widget) => (
-          <Card 
-            key={widget.id}
-            className="hover:shadow-lg transition-shadow cursor-move"
-            draggable
-            onDragStart={() => setIsDragging(true)}
-            onDragEnd={() => setIsDragging(false)}
-          >
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <GripVertical className="w-4 h-4 text-slate-400" />
-                  <widget.icon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                </div>
-                <span className="text-xs text-slate-500">Live</span>
-              </div>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
-                {widget.name}
-              </p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                {getWidgetValue(widget.id, data)}
-              </p>
-              {getWidgetTrend(widget.id, data) && (
-                <div className="flex items-center gap-1 mt-2">
-                  <TrendingUp className="w-3 h-3 text-green-600" />
-                  <span className="text-xs text-green-600 font-medium">
-                    {getWidgetTrend(widget.id, data)}
-                  </span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ResponsiveContainer width="100%" height={300}>
+          <AreaChart data={revenueData}>
+            <defs>
+              <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#f97316" stopOpacity={0.8}/>
+                <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="month" stroke="#9ca3af" />
+            <YAxis stroke="#9ca3af" />
+            <Tooltip 
+              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+              labelStyle={{ color: '#f3f4f6' }}
+            />
+            <Area type="monotone" dataKey="revenue" stroke="#f97316" fillOpacity={1} fill="url(#colorRevenue)" />
+          </AreaChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
   );
 }
 
-function getWidgetValue(widgetId: string, data: any): string {
-  const defaults: { [key: string]: string } = {
-    "total-orders": "1,247",
-    "revenue": "$156,780",
-    "on-time": "94.8%",
-    "return-rate": "6.2%",
-    "pending-actions": "12",
-    "performance": "92/100",
-    "active-vendors": "147",
-    "monthly-growth": "+18.5%"
-  };
-  
-  return data[widgetId] || defaults[widgetId] || "N/A";
+export function UserGrowthChart({ title = "User Growth", description = "Platform user acquisition by role" }: RevenueChartProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={userGrowthData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="month" stroke="#9ca3af" />
+            <YAxis stroke="#9ca3af" />
+            <Tooltip 
+              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+              labelStyle={{ color: '#f3f4f6' }}
+            />
+            <Legend />
+            <Line type="monotone" dataKey="investors" stroke="#f97316" strokeWidth={2} />
+            <Line type="monotone" dataKey="franchises" stroke="#10b981" strokeWidth={2} />
+            <Line type="monotone" dataKey="vendors" stroke="#3b82f6" strokeWidth={2} />
+          </LineChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+  );
 }
 
-function getWidgetTrend(widgetId: string, data: any): string | null {
-  const trends: { [key: string]: string } = {
-    "total-orders": "+12.5%",
-    "revenue": "+8.3%",
-    "on-time": "+2.1%",
-    "performance": "+5.2%",
-    "monthly-growth": "+18.5%"
-  };
-  
-  return data[`${widgetId}-trend`] || trends[widgetId] || null;
+export function OrderStatusChart({ title = "Order Status Distribution", description = "Current order status breakdown" }: RevenueChartProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={orderStatusData}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+              outerRadius={80}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {orderStatusData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip 
+              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+              labelStyle={{ color: '#f3f4f6' }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function VendorPerformanceChart({ title = "Top Vendors", description = "Vendor sales performance" }: RevenueChartProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={vendorPerformanceData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="name" stroke="#9ca3af" />
+            <YAxis stroke="#9ca3af" />
+            <Tooltip 
+              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+              labelStyle={{ color: '#f3f4f6' }}
+            />
+            <Bar dataKey="sales" fill="#f97316" />
+          </BarChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface StatsCardProps {
+  title: string;
+  value: string | number;
+  change?: string;
+  trend?: 'up' | 'down';
+  icon?: React.ReactNode;
+}
+
+export function StatsCard({ title, value, change, trend, icon }: StatsCardProps) {
+  return (
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">{title}</p>
+            <p className="text-2xl font-bold">{value}</p>
+            {change && (
+              <p className={`text-xs ${trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
+                {trend === 'up' ? '↑' : '↓'} {change}
+              </p>
+            )}
+          </div>
+          {icon && (
+            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+              {icon}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 }

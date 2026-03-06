@@ -1,72 +1,69 @@
 import { Button } from "@/components/ui/button";
-import { Download, FileText, FileSpreadsheet } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Download, FileSpreadsheet, FileText } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface ExportToolsProps {
-  data: any[];
-  filename: string;
-  type?: "orders" | "vendors" | "settlements" | "performance";
+  data?: any[];
+  filename?: string;
 }
 
-export function ExportTools({ data, filename, type = "orders" }: ExportToolsProps) {
-  const exportToCSV = () => {
+export function ExportTools({ data = [], filename = "export" }: ExportToolsProps) {
+  const { toast } = useToast();
+
+  const handleExportCSV = () => {
     if (data.length === 0) {
-      alert("No data to export");
+      toast({
+        title: "No Data",
+        description: "There is no data to export",
+        variant: "destructive"
+      });
       return;
     }
 
-    const headers = Object.keys(data[0]).join(",");
-    const rows = data.map(row => 
-      Object.values(row).map(val => 
-        typeof val === "string" && val.includes(",") ? `"${val}"` : val
-      ).join(",")
-    );
-    
-    const csv = [headers, ...rows].join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${filename}-${new Date().toISOString().split("T")[0]}.csv`;
-    link.click();
-    window.URL.revokeObjectURL(url);
+    try {
+      const headers = Object.keys(data[0]).join(",");
+      const rows = data.map(row => Object.values(row).join(",")).join("\n");
+      const csv = `${headers}\n${rows}`;
+      
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${filename}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Export Successful",
+        description: `${filename}.csv has been downloaded`
+      });
+    } catch (error) {
+      console.error("Export error:", error);
+      toast({
+        title: "Export Failed",
+        description: "Could not export data",
+        variant: "destructive"
+      });
+    }
   };
 
-  const exportToPDF = () => {
-    alert(`PDF export for ${filename} would be generated here.\n\nIn production, this would create a formatted PDF report with:\n- Company branding\n- Date range\n- Filtered data\n- Summary statistics\n- Charts and graphs`);
-  };
-
-  const exportToExcel = () => {
-    alert(`Excel export for ${filename} would be generated here.\n\nIn production, this would create an XLSX file with:\n- Multiple sheets\n- Formatted tables\n- Formulas\n- Charts\n- Pivot tables`);
+  const handleExportPDF = () => {
+    toast({
+      title: "PDF Export",
+      description: "PDF export will be available soon"
+    });
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Download className="w-4 h-4 mr-2" />
-          Export
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={exportToCSV}>
-          <FileSpreadsheet className="w-4 h-4 mr-2" />
-          Export as CSV
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={exportToExcel}>
-          <FileSpreadsheet className="w-4 h-4 mr-2" />
-          Export as Excel
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={exportToPDF}>
-          <FileText className="w-4 h-4 mr-2" />
-          Export as PDF
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex gap-2">
+      <Button variant="outline" size="sm" onClick={handleExportCSV}>
+        <FileSpreadsheet className="h-4 w-4 mr-2" />
+        Export CSV
+      </Button>
+      <Button variant="outline" size="sm" onClick={handleExportPDF}>
+        <FileText className="h-4 w-4 mr-2" />
+        Export PDF
+      </Button>
+    </div>
   );
 }

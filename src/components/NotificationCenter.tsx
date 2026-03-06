@@ -1,173 +1,150 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Bell, Package, AlertCircle, CheckCircle, TrendingDown, Users } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Bell, CheckCircle, AlertCircle, Info, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Notification {
   id: string;
-  type: "order" | "alert" | "success" | "warning" | "info";
+  type: 'success' | 'error' | 'info';
   title: string;
   message: string;
   time: string;
   read: boolean;
 }
 
-const sampleNotifications: Notification[] = [
+const mockNotifications: Notification[] = [
   {
-    id: "1",
-    type: "alert",
-    title: "SLA Breach Alert",
-    message: "Vendor XYZ has fallen below 90% on-time delivery",
-    time: "5 min ago",
+    id: '1',
+    type: 'success',
+    title: 'Order Delivered',
+    message: 'Order #12345 has been successfully delivered',
+    time: '5 minutes ago',
     read: false
   },
   {
-    id: "2",
-    type: "order",
-    title: "New Order Received",
-    message: "Order #ORD-1248 has been assigned to you",
-    time: "15 min ago",
+    id: '2',
+    type: 'info',
+    title: 'New Vendor Application',
+    message: 'A new vendor has applied for verification',
+    time: '1 hour ago',
     read: false
   },
   {
-    id: "3",
-    type: "success",
-    title: "Settlement Processed",
-    message: "February settlement of $45,670 completed",
-    time: "2 hours ago",
+    id: '3',
+    type: 'error',
+    title: 'Payment Failed',
+    message: 'Payment for order #67890 could not be processed',
+    time: '2 hours ago',
     read: true
   },
   {
-    id: "4",
-    type: "warning",
-    title: "Return Rate Threshold",
-    message: "Return rate approaching 10% limit for Electronics category",
-    time: "3 hours ago",
-    read: true
-  },
-  {
-    id: "5",
-    type: "info",
-    title: "New Vendor Approved",
-    message: "TechHub Solutions has completed onboarding",
-    time: "5 hours ago",
+    id: '4',
+    type: 'success',
+    title: 'KYC Approved',
+    message: 'Your KYC verification has been approved',
+    time: '1 day ago',
     read: true
   }
 ];
 
 export function NotificationCenter() {
-  const [notifications, setNotifications] = useState(sampleNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const markAsRead = (id: string) => {
-    setNotifications(notifications.map(n =>
-      n.id === id ? { ...n, read: true } : n
-    ));
+    setNotifications(prev => 
+      prev.map(n => n.id === id ? { ...n, read: true } : n)
+    );
   };
 
-  const markAllAsRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, read: true })));
+  const clearNotification = (id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
-  const getIcon = (type: string) => {
+  const getIcon = (type: Notification['type']) => {
     switch (type) {
-      case "order": return Package;
-      case "alert": return AlertCircle;
-      case "success": return CheckCircle;
-      case "warning": return TrendingDown;
-      case "info": return Users;
-      default: return Bell;
-    }
-  };
-
-  const getIconColor = (type: string) => {
-    switch (type) {
-      case "order": return "text-blue-600";
-      case "alert": return "text-red-600";
-      case "success": return "text-green-600";
-      case "warning": return "text-orange-600";
-      case "info": return "text-purple-600";
-      default: return "text-slate-600";
+      case 'success':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'error':
+        return <AlertCircle className="h-4 w-4 text-red-500" />;
+      case 'info':
+        return <Info className="h-4 w-4 text-blue-500" />;
     }
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+    <Popover>
+      <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-5 h-5" />
+          <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <Badge 
-              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-600"
-              variant="destructive"
+              variant="destructive" 
+              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
             >
               {unreadCount}
             </Badge>
           )}
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-96">
-        <div className="flex items-center justify-between p-3 border-b border-slate-200 dark:border-slate-800">
-          <h3 className="font-semibold text-slate-900 dark:text-white">
-            Notifications
-          </h3>
+      </PopoverTrigger>
+      <PopoverContent className="w-80 p-0" align="end">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h3 className="font-semibold">Notifications</h3>
           {unreadCount > 0 && (
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={markAllAsRead}
-              className="text-xs"
-            >
-              Mark all as read
-            </Button>
+            <Badge variant="secondary">{unreadCount} new</Badge>
           )}
         </div>
-        <ScrollArea className="h-96">
-          {notifications.map((notification) => {
-            const Icon = getIcon(notification.type);
-            return (
-              <div key={notification.id}>
-                <DropdownMenuItem
-                  className={`flex items-start gap-3 p-3 cursor-pointer ${
-                    !notification.read ? "bg-blue-50 dark:bg-blue-950/20" : ""
+        <ScrollArea className="h-[400px]">
+          {notifications.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground">
+              <Bell className="h-12 w-12 mx-auto mb-2 opacity-20" />
+              <p>No notifications</p>
+            </div>
+          ) : (
+            <div className="divide-y">
+              {notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  className={`p-4 hover:bg-accent/50 transition-colors ${
+                    !notification.read ? 'bg-accent/20' : ''
                   }`}
                   onClick={() => markAsRead(notification.id)}
                 >
-                  <Icon className={`w-5 h-5 mt-0.5 ${getIconColor(notification.type)}`} />
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium text-slate-900 dark:text-white">
-                      {notification.title}
-                    </p>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">
-                      {notification.message}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {notification.time}
-                    </p>
+                  <div className="flex items-start gap-3">
+                    {getIcon(notification.type)}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{notification.title}</p>
+                      <p className="text-sm text-muted-foreground truncate">
+                        {notification.message}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {notification.time}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        clearNotification(notification.id);
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
-                  {!notification.read && (
-                    <div className="w-2 h-2 bg-blue-600 rounded-full mt-2" />
-                  )}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-              </div>
-            );
-          })}
+                </div>
+              ))}
+            </div>
+          )}
         </ScrollArea>
-        <div className="p-3 border-t border-slate-200 dark:border-slate-800">
-          <Button variant="ghost" className="w-full" size="sm">
-            View All Notifications
-          </Button>
-        </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </PopoverContent>
+    </Popover>
   );
 }
