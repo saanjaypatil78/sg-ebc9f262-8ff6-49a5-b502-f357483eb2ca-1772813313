@@ -35,10 +35,15 @@ export function PublicLedger() {
   const [selectedInvestor, setSelectedInvestor] = useState<LedgerInvestor | null>(null);
   const [rankFilter, setRankFilter] = useState<string>("ALL");
   const [userTypeFilter, setUserTypeFilter] = useState<string>("ALL");
+  const [isMounted, setIsMounted] = useState(false);
   const itemsPerPage = 12;
 
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Load data on mount
   useEffect(() => {
@@ -126,6 +131,14 @@ export function PublicLedger() {
     };
     return labels[type] || type;
   };
+
+  if (!isMounted) {
+    return (
+      <section className="py-20 px-4 bg-slate-950 min-h-screen flex items-center justify-center">
+        <div className="text-cyan-500 animate-pulse">Loading Live Ledger Data...</div>
+      </section>
+    );
+  }
 
   return (
     <section
