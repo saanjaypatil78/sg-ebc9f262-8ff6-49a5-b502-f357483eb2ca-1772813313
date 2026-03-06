@@ -17,7 +17,7 @@ import {
   Filter,
   X
 } from "lucide-react";
-import { MOCK_INVESTORS, INVESTOR_STATS, type InvestorData, type PayoutRecord } from "@/lib/mock-data/investors";
+import { MOCK_INVESTORS, INVESTOR_STATS, type InvestorData } from "@/lib/mock-data/investors";
 import { formatCurrency } from "@/lib/utils";
 
 export function PublicLedger() {
