@@ -1,658 +1,302 @@
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/router";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, ShieldCheck, Banknote, UserPlus, TrendingUp, Mail, Shield, Building2, CreditCard, Users, AlertCircle, Lock, User, Phone, MapPin } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/services/authService";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { UserPlus, Mail, Lock, User, ArrowRight, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
+import dynamic from "next/dynamic";
 
-type UserRole = "investor" | "franchise_partner" | "admin" | "super_admin";
+const Confetti = dynamic(() => import("@/components/Confetti").then(mod => ({ default: mod.Confetti })), { ssr: false });
 
-export default function Register() {
+export default function RegisterPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [step, setStep] = useState(1);
+  const { toast } = useToast();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   
-  // Role from URL or default
-  const [role, setRole] = useState<UserRole>("investor");
-  
-  // Form data
   const [formData, setFormData] = useState({
-    // Personal Info
-    firstName: "",
-    lastName: "",
     email: "",
-    phone: "",
     password: "",
     confirmPassword: "",
-    
-    // Address
-    address: "",
-    city: "",
-    state: "",
-    pincode: "",
-    
-    // KYC Documents
-    aadhaarNumber: "",
-    panNumber: "",
-    
-    // Bank Details
-    bankName: "",
-    accountNumber: "",
-    ifscCode: "",
-    accountHolderName: "",
-    
-    // Investment Details (for investors)
-    investmentAmount: "",
-    investmentTier: "",
-    
-    // Franchise Details (for franchise partners)
-    franchiseLocation: "",
-    franchiseType: "",
-    
-    // Referral
+    fullName: "",
     referralCode: "",
-    
-    // Terms
-    agreeTerms: false,
-    agreeKYC: false
   });
 
-  useEffect(() => {
-    const urlRole = router.query.role as UserRole;
-    if (urlRole && ["investor", "franchise_partner", "admin", "super_admin"].includes(urlRole)) {
-      setRole(urlRole);
-    }
-  }, [router.query.role]);
+  // Parallax effects
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
 
-  const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    setError("");
-    
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?role=${role}`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
-        }
-      });
-
-      if (error) throw error;
-    } catch (err: any) {
-      setError(err.message || "Failed to sign in with Google");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const y1 = useTransform(scrollYProgress, [0, 1], [100, -100]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [-50, 50]);
+  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (step < 3) {
-      // Validate current step
-      if (step === 1) {
-        if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.password) {
-          setError("Please fill in all required fields");
-          return;
-        }
-        if (formData.password !== formData.confirmPassword) {
-          setError("Passwords do not match");
-          return;
-        }
-        if (formData.password.length < 8) {
-          setError("Password must be at least 8 characters");
-          return;
-        }
-      }
-      
-      if (step === 2) {
-        if (!formData.address || !formData.city || !formData.state || !formData.pincode) {
-          setError("Please fill in all address fields");
-          return;
-        }
-        if (!formData.aadhaarNumber || !formData.panNumber) {
-          setError("Please provide KYC documents");
-          return;
-        }
-      }
-      
-      setError("");
-      setStep(step + 1);
+
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        variant: "destructive",
+        title: "Password Mismatch",
+        description: "Passwords do not match. Please try again.",
+      });
       return;
     }
 
-    // Final validation
-    if (!formData.agreeTerms || !formData.agreeKYC) {
-      setError("Please accept all terms and conditions");
+    if (formData.password.length < 8) {
+      toast({
+        variant: "destructive",
+        title: "Weak Password",
+        description: "Password must be at least 8 characters long.",
+      });
       return;
     }
 
-    setLoading(true);
-    setError("");
+    setIsLoading(true);
 
     try {
-      // 1. Create auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            role: role,
-            phone: formData.phone
-          }
+      const result = await authService.signUp(
+        formData.email,
+        formData.password,
+        {
+          full_name: formData.fullName,
+          referral_code: formData.referralCode || null,
         }
-      });
+      );
 
-      if (authError) throw authError;
+      if (result.user) {
+        setShowConfetti(true);
+        
+        toast({
+          title: "🎉 Account Created Successfully!",
+          description: "Please check your email to verify your account. Redirecting...",
+        });
 
-      if (authData.user) {
-        // 2. Create profile record with all details
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .insert({
-            id: authData.user.id,
-            email: formData.email,
-            role: role,
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            phone: formData.phone,
-            address: formData.address,
-            city: formData.city,
-            state: formData.state,
-            pincode: formData.pincode,
-            aadhaar_number: formData.aadhaarNumber,
-            pan_number: formData.panNumber,
-            bank_name: formData.bankName,
-            account_number: formData.accountNumber,
-            ifsc_code: formData.ifscCode,
-            account_holder_name: formData.accountHolderName,
-            investment_amount: formData.investmentAmount ? parseFloat(formData.investmentAmount) : null,
-            investment_tier: formData.investmentTier || null,
-            franchise_location: formData.franchiseLocation || null,
-            franchise_type: formData.franchiseType || null,
-            referral_code: formData.referralCode || null,
-            kyc_status: "pending",
-            onboarding_completed: false
-          });
-
-        if (profileError) throw profileError;
-
-        // 3. Redirect to verification page
-        router.push("/auth/verify-email");
+        setTimeout(() => {
+          router.push("/auth/onboarding");
+        }, 3000);
       }
-    } catch (err: any) {
-      console.error("Registration error:", err);
-      setError(err.message || "Registration failed");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Registration Failed",
+        description: error.message || "An error occurred during registration.",
+      });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const investmentTiers = [
-    { value: "tier_a", label: "Tier A - ₹51,111 (15% monthly)" },
-    { value: "tier_l1", label: "Tier L1 - ₹10,60,000 (15% monthly)" },
-    { value: "tier_l2", label: "Tier L2 - ₹27,00,000 (15% monthly)" },
-    { value: "tier_l3", label: "Tier L3 - ₹53,00,000 (15% monthly)" },
-  ];
-
-  const franchiseTypes = [
-    { value: "logistics", label: "Logistics Hub" },
-    { value: "warehouse", label: "Warehouse Partner" },
-    { value: "regional", label: "Regional Distribution" },
-  ];
-
   return (
     <>
-      <SEO title={`Register as ${role === "investor" ? "Investor" : "Franchise Partner"} - Brave Ecom`} />
-      
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-2xl">
-          {/* Logo */}
-          <div className="flex items-center justify-center gap-2 mb-8">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-primary" />
-            </div>
-            <span className="text-2xl font-bold">BRAVE ECOM</span>
-          </div>
+      <SEO title="Create Account | Brave Ecom" description="Join our investment platform" />
+      <Confetti trigger={showConfetti} duration={5000} />
 
-          <Card className="border-border/50">
-            <CardHeader>
-              <CardTitle className="text-2xl">
-                {role === "investor" ? "Investor Registration" : 
-                 role === "franchise_partner" ? "Franchise Partner Registration" :
-                 "Admin Registration"}
-              </CardTitle>
-              <CardDescription>
-                Step {step} of 3 - {step === 1 ? "Personal Information" : step === 2 ? "KYC & Address" : "Financial Details"}
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent>
-              {error && (
-                <Alert variant="destructive" className="mb-4">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
-              {/* Google Sign In Option */}
-              {step === 1 && (
-                <div className="mb-6">
-                  <Button 
-                    type="button"
-                    variant="outline" 
-                    className="w-full"
-                    onClick={handleGoogleSignIn}
-                    disabled={loading}
-                  >
-                    <Mail className="w-4 h-4 mr-2" />
-                    Continue with Google
-                  </Button>
-                  <div className="relative my-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-border" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">
-                        Or register with email
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Step 1: Personal Information */}
-                {step === 1 && (
-                  <>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="firstName">First Name *</Label>
-                        <Input
-                          id="firstName"
-                          type="text"
-                          value={formData.firstName}
-                          onChange={(e) => handleInputChange("firstName", e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="lastName">Last Name *</Label>
-                        <Input
-                          id="lastName"
-                          type="text"
-                          value={formData.lastName}
-                          onChange={(e) => handleInputChange("lastName", e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => handleInputChange("email", e.target.value)}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number *</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="+91"
-                        value={formData.phone}
-                        onChange={(e) => handleInputChange("phone", e.target.value)}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Password *</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={(e) => handleInputChange("password", e.target.value)}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirm Password *</Label>
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        value={formData.confirmPassword}
-                        onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-                        required
-                      />
-                    </div>
-                  </>
-                )}
-
-                {/* Step 2: KYC & Address */}
-                {step === 2 && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="address">Address *</Label>
-                      <Input
-                        id="address"
-                        type="text"
-                        value={formData.address}
-                        onChange={(e) => handleInputChange("address", e.target.value)}
-                        required
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="city">City *</Label>
-                        <Input
-                          id="city"
-                          type="text"
-                          value={formData.city}
-                          onChange={(e) => handleInputChange("city", e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="state">State *</Label>
-                        <Input
-                          id="state"
-                          type="text"
-                          value={formData.state}
-                          onChange={(e) => handleInputChange("state", e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="pincode">Pincode *</Label>
-                      <Input
-                        id="pincode"
-                        type="text"
-                        value={formData.pincode}
-                        onChange={(e) => handleInputChange("pincode", e.target.value)}
-                        required
-                      />
-                    </div>
-
-                    <div className="border-t border-border pt-4 mt-4">
-                      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <Shield className="w-5 h-5 text-primary" />
-                        KYC Documents
-                      </h3>
-
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="aadhaarNumber">Aadhaar Number *</Label>
-                          <Input
-                            id="aadhaarNumber"
-                            type="text"
-                            placeholder="12 digit Aadhaar number"
-                            maxLength={12}
-                            value={formData.aadhaarNumber}
-                            onChange={(e) => handleInputChange("aadhaarNumber", e.target.value)}
-                            required
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="panNumber">PAN Number *</Label>
-                          <Input
-                            id="panNumber"
-                            type="text"
-                            placeholder="ABCDE1234F"
-                            maxLength={10}
-                            value={formData.panNumber}
-                            onChange={(e) => handleInputChange("panNumber", e.target.value.toUpperCase())}
-                            required
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {/* Step 3: Financial Details */}
-                {step === 3 && (
-                  <>
-                    <div className="border-t border-border pt-4">
-                      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <Building2 className="w-5 h-5 text-primary" />
-                        Bank Account Details
-                      </h3>
-
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="bankName">Bank Name</Label>
-                          <Input
-                            id="bankName"
-                            type="text"
-                            value={formData.bankName}
-                            onChange={(e) => handleInputChange("bankName", e.target.value)}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="accountNumber">Account Number</Label>
-                          <Input
-                            id="accountNumber"
-                            type="text"
-                            value={formData.accountNumber}
-                            onChange={(e) => handleInputChange("accountNumber", e.target.value)}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="ifscCode">IFSC Code</Label>
-                          <Input
-                            id="ifscCode"
-                            type="text"
-                            value={formData.ifscCode}
-                            onChange={(e) => handleInputChange("ifscCode", e.target.value.toUpperCase())}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="accountHolderName">Account Holder Name</Label>
-                          <Input
-                            id="accountHolderName"
-                            type="text"
-                            value={formData.accountHolderName}
-                            onChange={(e) => handleInputChange("accountHolderName", e.target.value)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {role === "investor" && (
-                      <div className="border-t border-border pt-4">
-                        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                          <CreditCard className="w-5 h-5 text-primary" />
-                          Investment Details
-                        </h3>
-
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="investmentTier">Investment Tier</Label>
-                            <Select
-                              value={formData.investmentTier}
-                              onValueChange={(value) => handleInputChange("investmentTier", value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select investment tier" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {investmentTiers.map(tier => (
-                                  <SelectItem key={tier.value} value={tier.value}>
-                                    {tier.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="investmentAmount">Investment Amount (₹)</Label>
-                            <Input
-                              id="investmentAmount"
-                              type="number"
-                              min="51111"
-                              value={formData.investmentAmount}
-                              onChange={(e) => handleInputChange("investmentAmount", e.target.value)}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {role === "franchise_partner" && (
-                      <div className="border-t border-border pt-4">
-                        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                          <Users className="w-5 h-5 text-primary" />
-                          Franchise Details
-                        </h3>
-
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="franchiseType">Franchise Type</Label>
-                            <Select
-                              value={formData.franchiseType}
-                              onValueChange={(value) => handleInputChange("franchiseType", value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select franchise type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {franchiseTypes.map(type => (
-                                  <SelectItem key={type.value} value={type.value}>
-                                    {type.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="franchiseLocation">Preferred Location</Label>
-                            <Input
-                              id="franchiseLocation"
-                              type="text"
-                              placeholder="City or region"
-                              value={formData.franchiseLocation}
-                              onChange={(e) => handleInputChange("franchiseLocation", e.target.value)}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="border-t border-border pt-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="referralCode">Referral Code (Optional)</Label>
-                        <Input
-                          id="referralCode"
-                          type="text"
-                          value={formData.referralCode}
-                          onChange={(e) => handleInputChange("referralCode", e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-4 pt-4">
-                      <div className="flex items-start space-x-2">
-                        <Checkbox
-                          id="agreeTerms"
-                          checked={formData.agreeTerms}
-                          onCheckedChange={(checked) => handleInputChange("agreeTerms", checked as boolean)}
-                        />
-                        <label htmlFor="agreeTerms" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          I agree to the <Link href="/terms" className="text-primary hover:underline">Terms & Conditions</Link> and <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
-                        </label>
-                      </div>
-
-                      <div className="flex items-start space-x-2">
-                        <Checkbox
-                          id="agreeKYC"
-                          checked={formData.agreeKYC}
-                          onCheckedChange={(checked) => handleInputChange("agreeKYC", checked as boolean)}
-                        />
-                        <label htmlFor="agreeKYC" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          I consent to KYC verification via Didit.me and understand my data will be securely processed
-                        </label>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                <div className="flex gap-4 pt-4">
-                  {step > 1 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setStep(step - 1)}
-                      disabled={loading}
-                      className="flex-1"
-                    >
-                      Back
-                    </Button>
-                  )}
-                  <Button
-                    type="submit"
-                    disabled={loading}
-                    className="flex-1 bg-primary hover:bg-primary/90"
-                  >
-                    {loading ? "Processing..." : step < 3 ? "Continue" : "Complete Registration"}
-                  </Button>
-                </div>
-              </form>
-
-              <div className="mt-6 text-center text-sm text-muted-foreground">
-                Already have an account?{" "}
-                <Link href="/auth/login" className="text-primary hover:underline">
-                  Sign in
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+      <div className="min-h-screen bg-slate-950 text-white overflow-hidden">
+        {/* Animated Background */}
+        <div className="fixed inset-0 pointer-events-none">
+          <motion.div 
+            style={{ y: y1 }}
+            className="absolute top-20 left-10 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl"
+          />
+          <motion.div 
+            style={{ y: y2 }}
+            className="absolute bottom-20 right-10 w-96 h-96 bg-cyan-600/20 rounded-full blur-3xl"
+          />
         </div>
+
+        <motion.div
+          ref={containerRef}
+          style={{ opacity }}
+          className="relative z-10 min-h-screen flex items-center justify-center px-4 py-12"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-md"
+          >
+            <Card className="bg-slate-900/60 backdrop-blur-xl border-white/10 shadow-2xl">
+              <CardHeader className="text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                  className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center"
+                >
+                  <UserPlus className="w-8 h-8 text-white" />
+                </motion.div>
+                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+                  Create Account
+                </CardTitle>
+                <CardDescription className="text-slate-400">
+                  Join thousands of investors growing their wealth
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <Label className="text-slate-300">Full Name</Label>
+                    <div className="relative mt-2">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <Input
+                        type="text"
+                        required
+                        value={formData.fullName}
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                        className="pl-10 bg-white/5 border-white/10 text-white"
+                        placeholder="John Doe"
+                      />
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    <Label className="text-slate-300">Email Address</Label>
+                    <div className="relative mt-2">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <Input
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="pl-10 bg-white/5 border-white/10 text-white"
+                        placeholder="john@example.com"
+                      />
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    <Label className="text-slate-300">Password</Label>
+                    <div className="relative mt-2">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <Input
+                        type="password"
+                        required
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        className="pl-10 bg-white/5 border-white/10 text-white"
+                        placeholder="••••••••"
+                      />
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    <Label className="text-slate-300">Confirm Password</Label>
+                    <div className="relative mt-2">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <Input
+                        type="password"
+                        required
+                        value={formData.confirmPassword}
+                        onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                        className="pl-10 bg-white/5 border-white/10 text-white"
+                        placeholder="••••••••"
+                      />
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7 }}
+                  >
+                    <Label className="text-slate-300">Referral Code (Optional)</Label>
+                    <Input
+                      type="text"
+                      value={formData.referralCode}
+                      onChange={(e) => setFormData({ ...formData, referralCode: e.target.value })}
+                      className="mt-2 bg-white/5 border-white/10 text-white"
+                      placeholder="Enter referral code"
+                    />
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8 }}
+                  >
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full h-12 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-semibold"
+                    >
+                      {isLoading ? (
+                        <span className="flex items-center gap-2">
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                            className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                          />
+                          Creating Account...
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          Create Account
+                          <ArrowRight className="w-5 h-5" />
+                        </span>
+                      )}
+                    </Button>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.9 }}
+                    className="text-center text-sm text-slate-400"
+                  >
+                    Already have an account?{" "}
+                    <Link href="/auth/login" className="text-cyan-400 hover:text-cyan-300 font-semibold">
+                      Sign In
+                    </Link>
+                  </motion.div>
+                </form>
+              </CardContent>
+            </Card>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 }}
+              className="mt-8 text-center"
+            >
+              <div className="flex items-center justify-center gap-4 text-sm text-slate-400">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-400" />
+                  <span>Secure Registration</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-400" />
+                  <span>Email Verification</span>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
       </div>
     </>
   );
