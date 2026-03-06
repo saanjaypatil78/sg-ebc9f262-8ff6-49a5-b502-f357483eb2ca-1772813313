@@ -7,59 +7,32 @@ import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
 import { Search, CheckCircle2, TrendingUp, Calendar } from "lucide-react";
 
-// Generate mock payout data from Jan 2024 to Mar 2026
-function generateMockPayouts() {
-  const payouts = [];
-  const startDate = new Date('2024-01-01');
-  const endDate = new Date('2026-03-01');
-  
-  const currentDate = new Date(endDate);
-  let txnCounter = 10001;
-  
-  while (currentDate >= startDate) {
-    // Generate 3-8 payouts per day
-    const dailyPayouts = Math.floor(Math.random() * 6) + 3;
-    
-    for (let i = 0; i < dailyPayouts; i++) {
-      const amount = Math.floor(Math.random() * 500000) + 50000; // ₹50k - ₹5.5L
-      const hour = Math.floor(Math.random() * 24);
-      const minute = Math.floor(Math.random() * 60);
-      
-      payouts.push({
-        id: `PAY-${txnCounter}`,
-        date: new Date(currentDate),
-        time: `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`,
-        recipient: `INV${Math.floor(Math.random() * 9000) + 1000}`,
-        amount,
-        utr: `UTR${txnCounter}${Math.floor(Math.random() * 10000)}`,
-        txnId: `TXN${Date.now() - txnCounter * 1000}`,
-        type: Math.random() > 0.7 ? 'Commission' : 'Investment Payout',
-        status: 'completed'
-      });
-      
-      txnCounter++;
-    }
-    
-    // Move to previous day
-    currentDate.setDate(currentDate.getDate() - 1);
-  }
-  
-  return payouts;
+interface PayoutTransaction {
+  id: string;
+  date: Date;
+  time: string;
+  recipient: string;
+  amount: number;
+  utr: string;
+  txnId: string;
+  type: string;
+  status: string;
 }
 
 export function PublicLedger() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
-  const [allPayouts, setAllPayouts] = useState<any[]>([]);
+  const [allPayouts, setAllPayouts] = useState<PayoutTransaction[]>([]);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     // Generate mock data: Mar 2026 back to Jan 2024
-    const generatedData: Transaction[] = [];
+    const generatedData: PayoutTransaction[] = [];
     const startDate = new Date('2024-01-01');
     const endDate = new Date('2026-03-01');
     
     const currentDate = new Date(endDate);
+    let txnCounter = 10001;
     
     while (currentDate >= startDate) {
       // Generate 1-3 payouts for this day if it's a payout day (1st-5th)
@@ -68,14 +41,21 @@ export function PublicLedger() {
         const numPayouts = Math.floor(Math.random() * 3) + 1;
         
         for (let i = 0; i < numPayouts; i++) {
+          const hour = Math.floor(Math.random() * 24);
+          const minute = Math.floor(Math.random() * 60);
+          
           generatedData.push({
-            id: `TXN${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-            utr: `CMS${Math.random().toString(36).substr(2, 12).toUpperCase()}`,
-            date: currentDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-            amount: Math.floor(Math.random() * (500000 - 10000) + 10000),
-            status: "Success",
-            user: `User${Math.floor(Math.random() * 9000) + 1000}`
+            id: `PAY-${txnCounter}`,
+            date: new Date(currentDate),
+            time: `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`,
+            recipient: `INV${Math.floor(Math.random() * 9000) + 1000}`,
+            amount: Math.floor(Math.random() * 500000) + 50000,
+            utr: `UTR${txnCounter}${Math.floor(Math.random() * 10000)}`,
+            txnId: `TXN${Date.now() - txnCounter * 1000}`,
+            type: Math.random() > 0.7 ? 'Commission' : 'Investment Payout',
+            status: 'completed'
           });
+          txnCounter++;
         }
       }
       
@@ -93,7 +73,7 @@ export function PublicLedger() {
     if (!acc[monthKey]) acc[monthKey] = [];
     acc[monthKey].push(payout);
     return acc;
-  }, {} as Record<string, typeof allPayouts>);
+  }, {} as Record<string, PayoutTransaction[]>);
 
   const months = Object.keys(payoutsByMonth).sort((a, b) => {
     return new Date(b).getTime() - new Date(a).getTime();
@@ -110,7 +90,7 @@ export function PublicLedger() {
     p.txnId.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (!isMounted) return null; // Prevent hydration mismatch
+  if (!isMounted) return null;
 
   return (
     <section id="transparency" className="py-24 bg-gradient-to-br from-slate-950 via-purple-950/50 to-slate-900">
