@@ -2,11 +2,11 @@ import { SEO } from "@/components/SEO";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useState } from "react";
 import { DashboardFilters, FilterValues } from "@/components/DashboardFilters";
-import { StatsCard, RevenueChart, OrderStatusChart } from "@/components/DashboardWidgets";
+import { StatsCard, RevenueChart, UserGrowthChart } from "@/components/DashboardWidgets";
 import { ExportTools } from "@/components/ExportTools";
-import { Package, TrendingUp, ShoppingCart, Clock } from "lucide-react";
+import { DollarSign, TrendingUp, PieChart, Wallet } from "lucide-react";
 
-export default function ClientDashboard() {
+export default function InvestorDashboard() {
   const [filters, setFilters] = useState<FilterValues>({
     search: "",
     dateFrom: undefined,
@@ -17,24 +17,24 @@ export default function ClientDashboard() {
 
   const handleFilterChange = (newFilters: FilterValues) => {
     setFilters(newFilters);
-    console.log("Client filters updated:", newFilters);
+    console.log("Investor filters updated:", newFilters);
     // TODO: Fetch data with filters
   };
 
   return (
     <>
-      <SEO title="Client Dashboard - Brave Ecom" />
-      <DashboardLayout role="client">
+      <SEO title="Investor Dashboard - Brave Ecom" />
+      <DashboardLayout role="investor">
         <div className="space-y-6">
           {/* Page Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold">My Dashboard</h1>
+              <h1 className="text-3xl font-bold">Investment Portfolio</h1>
               <p className="text-muted-foreground mt-1">
-                Track your orders and manage your account
+                Track your investments and returns
               </p>
             </div>
-            <ExportTools data={[]} filename="my-orders" />
+            <ExportTools data={[]} filename="portfolio-statement" />
           </div>
 
           {/* Filters */}
@@ -42,7 +42,6 @@ export default function ClientDashboard() {
             config={{
               search: true,
               dateRange: true,
-              status: true,
             }}
             onFilterChange={handleFilterChange}
           />
@@ -50,41 +49,44 @@ export default function ClientDashboard() {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatsCard
-              title="Total Orders"
-              value="24"
-              change="+4 this month"
-              trend="up"
-              icon={<Package className="h-5 w-5" />}
+              title="Total Investment"
+              value="₹1.5 Cr"
+              change="Active"
+              icon={<Wallet className="h-5 w-5" />}
             />
             <StatsCard
-              title="Active Orders"
-              value="8"
-              change="3 in transit"
+              title="Current Value"
+              value="₹1.82 Cr"
+              change="+21.3%"
               trend="up"
-              icon={<ShoppingCart className="h-5 w-5" />}
+              icon={<PieChart className="h-5 w-5" />}
             />
             <StatsCard
-              title="Delivered"
-              value="16"
-              change="66% success rate"
+              title="Monthly Returns"
+              value="₹22.5 L"
+              change="15% ROI"
               trend="up"
               icon={<TrendingUp className="h-5 w-5" />}
             />
             <StatsCard
-              title="Pending"
-              value="2"
-              change="Awaiting confirmation"
-              icon={<Clock className="h-5 w-5" />}
+              title="Total Profit"
+              value="₹32 L"
+              change="+18.7%"
+              trend="up"
+              icon={<DollarSign className="h-5 w-5" />}
             />
           </div>
 
           {/* Charts Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <RevenueChart 
-              title="Order History" 
-              description="Your order trends over time"
+              title="Investment Growth" 
+              description="Portfolio value over time"
             />
-            <OrderStatusChart />
+            <UserGrowthChart 
+              title="Returns Distribution" 
+              description="Monthly returns breakdown"
+            />
           </div>
         </div>
       </DashboardLayout>

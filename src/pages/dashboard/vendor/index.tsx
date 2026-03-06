@@ -1,162 +1,110 @@
 import { SEO } from "@/components/SEO";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { DashboardFilters, FilterValues } from "@/components/DashboardFilters";
+import { 
+  StatsCard, 
+  RevenueChart, 
+  OrderStatusChart, 
+  VendorPerformanceChart 
+} from "@/components/DashboardWidgets";
+import { ExportTools } from "@/components/ExportTools";
+import { DollarSign, Package, TrendingUp, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Package, TrendingUp, AlertCircle, CheckCircle, QrCode, Upload, ShieldCheck } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
-import { useRouter } from "next/navigation";
-
-const pendingOrders = [
-  { id: "ORD-105", product: "Wireless Mouse", customer: "John D.", deadline: "2026-03-02", priority: "High" },
-  { id: "ORD-106", product: "Keyboard", customer: "Sarah M.", deadline: "2026-03-02", priority: "Medium" },
-  { id: "ORD-107", product: "Monitor Stand", customer: "Mike R.", deadline: "2026-03-03", priority: "Low" }
-];
-
-const stats = [
-  { label: "Pending Orders", value: "12", icon: Package, color: "text-orange-600", change: "+3 today" },
-  { label: "On-Time Delivery", value: "94%", icon: TrendingUp, color: "text-green-600", change: "Above target" },
-  { label: "Return Rate", value: "6.2%", icon: CheckCircle, color: "text-blue-600", change: "Within limit" },
-  { label: "QR Compliance", value: "100%", icon: QrCode, color: "text-purple-600", change: "Perfect" }
-];
+import Link from "next/link";
 
 export default function VendorDashboard() {
-  const router = useRouter();
+  const [filters, setFilters] = useState<FilterValues>({
+    search: "",
+    dateFrom: undefined,
+    dateTo: undefined,
+    status: "all",
+    role: "all",
+  });
+
+  const handleFilterChange = (newFilters: FilterValues) => {
+    setFilters(newFilters);
+    console.log("Vendor filters updated:", newFilters);
+    // TODO: Fetch data with filters
+  };
+
   return (
     <>
-      <SEO title="Vendor Dashboard - DropSync" />
+      <SEO title="Vendor Dashboard - Brave Ecom" />
       <DashboardLayout role="vendor">
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
+          {/* Page Header */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Vendor Portal</h2>
-              <p className="text-slate-600 dark:text-slate-400 mt-1">Manage orders and track performance</p>
+              <h1 className="text-3xl font-bold">Vendor Portal</h1>
+              <p className="text-muted-foreground mt-1">
+                Manage your products and fulfill orders
+              </p>
             </div>
-            <Button className="bg-cyan-500 hover:bg-cyan-600">
-              <Upload className="w-4 h-4 mr-2" />
-              Upload Reports
-            </Button>
+            <div className="flex gap-2">
+              <Link href="/dashboard/vendor/verification">
+                <Button variant="outline" className="gap-2">
+                  <AlertCircle className="h-4 w-4" />
+                  Complete KYC
+                </Button>
+              </Link>
+              <ExportTools data={[]} filename="vendor-report" />
+            </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat) => {
-              const Icon = stat.icon;
-              return (
-                <Card key={stat.label}>
-                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                      {stat.label}
-                    </CardTitle>
-                    <Icon className={`w-5 h-5 ${stat.color}`} />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{stat.value}</div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">{stat.change}</p>
-                  </CardContent>
-                </Card>
-              );
-            })}
+          {/* Filters */}
+          <DashboardFilters
+            config={{
+              search: true,
+              dateRange: true,
+              status: true,
+            }}
+            onFilterChange={handleFilterChange}
+          />
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatsCard
+              title="Total Revenue"
+              value="₹2.4 Cr"
+              change="+12.5%"
+              trend="up"
+              icon={<DollarSign className="h-5 w-5" />}
+            />
+            <StatsCard
+              title="Orders Fulfilled"
+              value="1,234"
+              change="+8.2%"
+              trend="up"
+              icon={<Package className="h-5 w-5" />}
+            />
+            <StatsCard
+              title="On-Time Delivery"
+              value="94.5%"
+              change="+2.1%"
+              trend="up"
+              icon={<TrendingUp className="h-5 w-5" />}
+            />
+            <StatsCard
+              title="Return Rate"
+              value="4.2%"
+              change="-0.8%"
+              trend="up"
+              icon={<AlertCircle className="h-5 w-5" />}
+            />
           </div>
 
-          {/* Performance Metrics */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>SLA Compliance</CardTitle>
-                <CardDescription>90% minimum required</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-slate-900 dark:text-white">On-Time Delivery</span>
-                    <span className="text-sm font-bold text-green-600">94%</span>
-                  </div>
-                  <Progress value={94} className="h-2" />
-                </div>
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-slate-900 dark:text-white">Packaging Quality</span>
-                    <span className="text-sm font-bold text-blue-600">97%</span>
-                  </div>
-                  <Progress value={97} className="h-2" />
-                </div>
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-slate-900 dark:text-white">QR Compliance</span>
-                    <span className="text-sm font-bold text-purple-600">100%</span>
-                  </div>
-                  <Progress value={100} className="h-2" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Return Management</CardTitle>
-                <CardDescription>10% maximum allowed</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600 dark:text-slate-400">Current Return Rate</span>
-                    <span className="text-2xl font-bold text-blue-600">6.2%</span>
-                  </div>
-                  <Progress value={62} className="h-2" />
-                  <div className="flex items-center gap-2 text-sm text-green-600">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Within acceptable range</span>
-                  </div>
-                  <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-600 dark:text-slate-400">Pending Replacements</span>
-                      <span className="font-medium text-slate-900 dark:text-white">3 items</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Charts Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <RevenueChart 
+              title="Sales Performance" 
+              description="Monthly revenue and order trends"
+            />
+            <OrderStatusChart 
+              title="Order Fulfillment" 
+              description="Current order status breakdown"
+            />
           </div>
-
-          {/* Pending Orders */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Pending Fulfillment</CardTitle>
-                  <CardDescription>Orders requiring immediate action</CardDescription>
-                </div>
-                <Button variant="outline" size="sm">View All</Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {pendingOrders.map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-4 border border-slate-200 dark:border-slate-800 rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-2 h-2 rounded-full ${
-                        order.priority === "High" ? "bg-red-500" :
-                        order.priority === "Medium" ? "bg-orange-500" : "bg-green-500"
-                      }`}></div>
-                      <div>
-                        <p className="font-medium text-slate-900 dark:text-white">{order.id}</p>
-                        <p className="text-sm text-slate-600 dark:text-slate-400">{order.product} • {order.customer}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <p className="text-sm text-slate-600 dark:text-slate-400">Due by</p>
-                        <p className="text-sm font-medium text-slate-900 dark:text-white">{order.deadline}</p>
-                      </div>
-                      <Button size="sm" className="bg-cyan-500 hover:bg-cyan-600">
-                        <QrCode className="w-4 h-4 mr-2" />
-                        Print QR
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </DashboardLayout>
     </>

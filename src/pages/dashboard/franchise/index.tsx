@@ -4,9 +4,9 @@ import { useState } from "react";
 import { DashboardFilters, FilterValues } from "@/components/DashboardFilters";
 import { StatsCard, RevenueChart, OrderStatusChart } from "@/components/DashboardWidgets";
 import { ExportTools } from "@/components/ExportTools";
-import { Package, TrendingUp, ShoppingCart, Clock } from "lucide-react";
+import { MapPin, DollarSign, TrendingUp, Users } from "lucide-react";
 
-export default function ClientDashboard() {
+export default function FranchiseDashboard() {
   const [filters, setFilters] = useState<FilterValues>({
     search: "",
     dateFrom: undefined,
@@ -17,24 +17,24 @@ export default function ClientDashboard() {
 
   const handleFilterChange = (newFilters: FilterValues) => {
     setFilters(newFilters);
-    console.log("Client filters updated:", newFilters);
+    console.log("Franchise filters updated:", newFilters);
     // TODO: Fetch data with filters
   };
 
   return (
     <>
-      <SEO title="Client Dashboard - Brave Ecom" />
-      <DashboardLayout role="client">
+      <SEO title="Franchise Dashboard - Brave Ecom" />
+      <DashboardLayout role="franchise_partner">
         <div className="space-y-6">
           {/* Page Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold">My Dashboard</h1>
+              <h1 className="text-3xl font-bold">Franchise Overview</h1>
               <p className="text-muted-foreground mt-1">
-                Track your orders and manage your account
+                Manage your franchise operations and earnings
               </p>
             </div>
-            <ExportTools data={[]} filename="my-orders" />
+            <ExportTools data={[]} filename="franchise-report" />
           </div>
 
           {/* Filters */}
@@ -50,41 +50,43 @@ export default function ClientDashboard() {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatsCard
-              title="Total Orders"
-              value="24"
-              change="+4 this month"
+              title="Total Earnings"
+              value="₹8.5 L"
+              change="+12.5%"
               trend="up"
-              icon={<Package className="h-5 w-5" />}
+              icon={<DollarSign className="h-5 w-5" />}
             />
             <StatsCard
-              title="Active Orders"
-              value="8"
-              change="3 in transit"
+              title="Active Customers"
+              value="342"
+              change="+28 this month"
               trend="up"
-              icon={<ShoppingCart className="h-5 w-5" />}
+              icon={<Users className="h-5 w-5" />}
             />
             <StatsCard
-              title="Delivered"
-              value="16"
-              change="66% success rate"
+              title="Territory Growth"
+              value="23.5%"
+              change="+5.2%"
               trend="up"
               icon={<TrendingUp className="h-5 w-5" />}
             />
             <StatsCard
-              title="Pending"
-              value="2"
-              change="Awaiting confirmation"
-              icon={<Clock className="h-5 w-5" />}
+              title="Location"
+              value="NAVI MUMBAI"
+              icon={<MapPin className="h-5 w-5" />}
             />
           </div>
 
           {/* Charts Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <RevenueChart 
-              title="Order History" 
-              description="Your order trends over time"
+              title="Monthly Earnings" 
+              description="Franchise revenue trends"
             />
-            <OrderStatusChart />
+            <OrderStatusChart 
+              title="Territory Performance" 
+              description="Customer acquisition and retention"
+            />
           </div>
         </div>
       </DashboardLayout>
