@@ -15,6 +15,73 @@ export type Database = {
   }
   public: {
     Tables: {
+      commission_ledger: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          base_amount: number
+          commission_amount: number
+          commission_rate: number
+          commission_type: string
+          created_at: string | null
+          id: string
+          paid_at: string | null
+          source_payout_id: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          base_amount: number
+          commission_amount: number
+          commission_rate: number
+          commission_type: string
+          created_at?: string | null
+          id?: string
+          paid_at?: string | null
+          source_payout_id?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          base_amount?: number
+          commission_amount?: number
+          commission_rate?: number
+          commission_type?: string
+          created_at?: string | null
+          id?: string
+          paid_at?: string | null
+          source_payout_id?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commission_ledger_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_ledger_source_payout_id_fkey"
+            columns: ["source_payout_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_payouts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_ledger_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       file_uploads: {
         Row: {
           created_at: string | null
@@ -71,6 +138,196 @@ export type Database = {
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fundraising_adjustments: {
+        Row: {
+          adjusted_by: string | null
+          adjustment_type: string
+          created_at: string | null
+          entity_id: string
+          id: string
+          new_value: Json | null
+          old_value: Json | null
+          reason: string
+        }
+        Insert: {
+          adjusted_by?: string | null
+          adjustment_type: string
+          created_at?: string | null
+          entity_id: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          reason: string
+        }
+        Update: {
+          adjusted_by?: string | null
+          adjustment_type?: string
+          created_at?: string | null
+          entity_id?: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fundraising_adjustments_adjusted_by_fkey"
+            columns: ["adjusted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      investment_agreements: {
+        Row: {
+          agreement_number: number
+          agreement_value: number
+          created_at: string | null
+          id: string
+          investment_date: string
+          investor_id: string | null
+          maturity_date: string
+          monthly_payout_rate: number
+          next_payout_date: string | null
+          status: string
+          total_paid_out: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          agreement_number: number
+          agreement_value?: number
+          created_at?: string | null
+          id?: string
+          investment_date?: string
+          investor_id?: string | null
+          maturity_date: string
+          monthly_payout_rate?: number
+          next_payout_date?: string | null
+          status?: string
+          total_paid_out?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          agreement_number?: number
+          agreement_value?: number
+          created_at?: string | null
+          id?: string
+          investment_date?: string
+          investor_id?: string | null
+          maturity_date?: string
+          monthly_payout_rate?: number
+          next_payout_date?: string | null
+          status?: string
+          total_paid_out?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investment_agreements_investor_id_fkey"
+            columns: ["investor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ipo_milestones: {
+        Row: {
+          completion_date: string | null
+          created_at: string | null
+          criteria_met: Json | null
+          id: string
+          milestone_stage: string
+          notes: string | null
+          status: string
+          target_date: string
+          updated_at: string | null
+        }
+        Insert: {
+          completion_date?: string | null
+          created_at?: string | null
+          criteria_met?: Json | null
+          id?: string
+          milestone_stage: string
+          notes?: string | null
+          status?: string
+          target_date: string
+          updated_at?: string | null
+        }
+        Update: {
+          completion_date?: string | null
+          created_at?: string | null
+          criteria_met?: Json | null
+          id?: string
+          milestone_stage?: string
+          notes?: string | null
+          status?: string
+          target_date?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      monthly_payouts: {
+        Row: {
+          agreement_id: string | null
+          created_at: string | null
+          id: string
+          investor_id: string | null
+          payment_method: string | null
+          payout_amount: number
+          payout_month: string
+          payout_percentage: number
+          principal_amount: number
+          processed_at: string | null
+          status: string
+          transaction_id: string | null
+        }
+        Insert: {
+          agreement_id?: string | null
+          created_at?: string | null
+          id?: string
+          investor_id?: string | null
+          payment_method?: string | null
+          payout_amount: number
+          payout_month: string
+          payout_percentage: number
+          principal_amount: number
+          processed_at?: string | null
+          status?: string
+          transaction_id?: string | null
+        }
+        Update: {
+          agreement_id?: string | null
+          created_at?: string | null
+          id?: string
+          investor_id?: string | null
+          payment_method?: string | null
+          payout_amount?: number
+          payout_month?: string
+          payout_percentage?: number
+          principal_amount?: number
+          processed_at?: string | null
+          status?: string
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_payouts_agreement_id_fkey"
+            columns: ["agreement_id"]
+            isOneToOne: false
+            referencedRelation: "investment_agreements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "monthly_payouts_investor_id_fkey"
+            columns: ["investor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -265,6 +522,56 @@ export type Database = {
           },
         ]
       }
+      phonepe_transactions: {
+        Row: {
+          amount: number
+          callback_data: Json | null
+          completed_at: string | null
+          id: string
+          initiated_at: string | null
+          phonepe_order_id: string | null
+          phonepe_transaction_id: string | null
+          status: string
+          transaction_id: string
+          transaction_type: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          callback_data?: Json | null
+          completed_at?: string | null
+          id?: string
+          initiated_at?: string | null
+          phonepe_order_id?: string | null
+          phonepe_transaction_id?: string | null
+          status: string
+          transaction_id: string
+          transaction_type: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          callback_data?: Json | null
+          completed_at?: string | null
+          id?: string
+          initiated_at?: string | null
+          phonepe_order_id?: string | null
+          phonepe_transaction_id?: string | null
+          status?: string
+          transaction_id?: string
+          transaction_type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phonepe_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string | null
@@ -426,6 +733,39 @@ export type Database = {
           state?: string | null
           tax_id?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      public_payout_ledger: {
+        Row: {
+          average_payout: number | null
+          created_at: string | null
+          id: string
+          payout_date: string
+          payout_month: string
+          status: string
+          total_investors: number
+          total_payout_amount: number
+        }
+        Insert: {
+          average_payout?: number | null
+          created_at?: string | null
+          id?: string
+          payout_date: string
+          payout_month: string
+          status?: string
+          total_investors: number
+          total_payout_amount: number
+        }
+        Update: {
+          average_payout?: number | null
+          created_at?: string | null
+          id?: string
+          payout_date?: string
+          payout_month?: string
+          status?: string
+          total_investors?: number
+          total_payout_amount?: number
         }
         Relationships: []
       }
@@ -595,6 +935,71 @@ export type Database = {
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_rankings: {
+        Row: {
+          bronze_countdown_end: string | null
+          bronze_countdown_start: string | null
+          created_at: string | null
+          current_rank: string
+          direct_referrals: number | null
+          id: string
+          investment_count: number | null
+          is_active_investor: boolean | null
+          is_team_leader: boolean | null
+          payout_months_received: number | null
+          rank_color: string
+          rank_upgraded_at: string | null
+          total_network_commission: number | null
+          total_team_size: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          bronze_countdown_end?: string | null
+          bronze_countdown_start?: string | null
+          created_at?: string | null
+          current_rank?: string
+          direct_referrals?: number | null
+          id?: string
+          investment_count?: number | null
+          is_active_investor?: boolean | null
+          is_team_leader?: boolean | null
+          payout_months_received?: number | null
+          rank_color?: string
+          rank_upgraded_at?: string | null
+          total_network_commission?: number | null
+          total_team_size?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          bronze_countdown_end?: string | null
+          bronze_countdown_start?: string | null
+          created_at?: string | null
+          current_rank?: string
+          direct_referrals?: number | null
+          id?: string
+          investment_count?: number | null
+          is_active_investor?: boolean | null
+          is_team_leader?: boolean | null
+          payout_months_received?: number | null
+          rank_color?: string
+          rank_upgraded_at?: string | null
+          total_network_commission?: number | null
+          total_team_size?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_rankings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
