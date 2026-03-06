@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { emailService } from "@/lib/email/notifications";
 
 export interface CommissionRecord {
   id: string;
@@ -298,5 +299,45 @@ export const commissionService = {
         ? Math.ceil((new Date(ranking.bronze_countdown_end).getTime() - Date.now()) / (24 * 60 * 60 * 1000))
         : null
     };
+  },
+
+  /**
+   * Upgrade to Dark Green rank (2+ years of active payouts)
+   */
+  async checkDarkGreenEligibility(userId: string) {
+    const { data: ranking } = await supabase
+      .from('user_rankings')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (!ranking || ranking.current_rank === 'dark_green') return;
+
+    // Check if user has 24+ consecutive monthly payouts
+    const { data: payouts } = await supabase
+      .from('monthly_payouts')
+      .select('*')
+      .eq('investor_id', userId)
+      .eq('status', 'completed')
+      .order('payout_month', { ascending: false });
+
+    if (payouts && payouts.length >= 24) {
+      const oldRank = ranking.current_rank;
+      
+      await supabase
+        .from('user_rankings')
+        .update({ 
+          current_rank: 'dark_green',
+          previous_rank: oldRank,
+          rank_upgraded_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', userId);
+
+      console.log(`User ${userId} upgraded to Dark Green rank`);
+
+      // Send email notifications
+      await emailService.sendRankUpgradeNotification(userId, 'dark_green', oldRank);
+    }
   }
 };
