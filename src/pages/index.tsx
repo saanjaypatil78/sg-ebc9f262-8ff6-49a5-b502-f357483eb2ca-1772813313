@@ -57,52 +57,81 @@ export default function Home() {
     { label: "Commission Rate", value: "45%", icon: Award }
   ];
 
-  // Countdown timer - TARGET: November 1, 2025
+  // Countdown timer - TARGET: November 1, 2025 00:00:00 IST
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
     minutes: 0,
     seconds: 0
   });
+  const [countdownEnded, setCountdownEnded] = useState(false);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
-      // Target date: November 1, 2025 at 00:00:00 IST
-      const targetDate = new Date('2025-11-01T00:00:00+05:30').getTime();
+      // Target date: November 1, 2025 at 00:00:00 IST (UTC+5:30)
+      // Convert to UTC for accurate calculation
+      const targetDate = new Date('2025-11-01T00:00:00+05:30');
+      const targetUTC = targetDate.getTime();
+      
+      // Current time in UTC
       const now = new Date().getTime();
-      const difference = targetDate - now; // Decreasing difference
+      
+      // Calculate difference (should be DECREASING)
+      const difference = targetUTC - now;
+
+      console.log('Countdown Debug:', {
+        targetDate: targetDate.toISOString(),
+        targetUTC,
+        now,
+        difference,
+        differenceInDays: Math.floor(difference / (1000 * 60 * 60 * 24))
+      });
 
       if (difference > 0) {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((difference % (1000 * 60)) / 1000)
-        });
+        // Calculate remaining time
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+        setTimeLeft({ days, hours, minutes, seconds });
+        setCountdownEnded(false);
       } else {
-        // Countdown finished
+        // Countdown has ended
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        if (!countdownEnded) {
+          setCountdownEnded(true);
+          // Trigger celebration (confetti already implemented)
+        }
       }
     };
 
+    // Calculate immediately
     calculateTimeLeft();
+    
+    // Update every second
     const interval = setInterval(calculateTimeLeft, 1000);
+    
     return () => clearInterval(interval);
-  }, []);
+  }, [countdownEnded]);
 
-  // Enhanced parallax scroll effects
+  // Enhanced parallax scroll effects - CINEMATIC & DRAMATIC
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"]
   });
 
-  // Stronger parallax transforms for better visibility
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, -300]); 
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, 200]);  
-  const y3 = useTransform(scrollYProgress, [0, 1], [0, -150]); 
-  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [1, 0.9, 0.7, 0.5]);
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
-  const rotate = useTransform(scrollYProgress, [0, 1], [0, 5]);
+  // Ultra-strong parallax transforms for maximum visibility
+  const y1 = useTransform(scrollYProgress, [0, 1], [100, -400]);   // Primary layer - Fast upward
+  const y2 = useTransform(scrollYProgress, [0, 1], [-100, 300]);   // Secondary layer - Slow downward
+  const y3 = useTransform(scrollYProgress, [0, 1], [50, -250]);    // Tertiary layer - Medium upward
+  const y4 = useTransform(scrollYProgress, [0, 1], [-50, 150]);    // Quaternary layer - Subtle downward
+  
+  // Advanced cinematic effects
+  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.5, 0.8, 1], [1, 0.95, 0.85, 0.7, 0.5]);
+  const scale = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [1, 1.02, 0.98, 0.95]);
+  const rotate = useTransform(scrollYProgress, [0, 0.5, 1], [0, 2, -3]);
+  const blur = useTransform(scrollYProgress, [0, 0.5, 1], [0, 2, 5]);
 
   return (
     <>
@@ -112,28 +141,34 @@ export default function Home() {
       />
       
       <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 relative">
-        {/* Enhanced Ambient background effects with stronger motion */}
+        {/* Enhanced 4-Layer Parallax Background - CINEMATIC DEPTH */}
         <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-          {/* Primary BRAVECOM Purple Orb - Fast layer */}
+          {/* Layer 1: Primary BRAVECOM Purple Orb - Ultra Fast */}
           <motion.div 
-            style={{ y: y1, rotate }}
-            className="absolute -top-[30%] -right-[15%] w-[700px] h-[700px] rounded-full bg-purple-600/20 blur-[150px]" 
+            style={{ y: y1, rotate, scale }}
+            className="absolute -top-[40%] -right-[20%] w-[900px] h-[900px] rounded-full bg-purple-600/25 blur-[180px]" 
           />
           
-          {/* Secondary BRAVECOM Cyan Orb - Medium layer */}
+          {/* Layer 2: Secondary BRAVECOM Cyan Orb - Slow Reverse */}
           <motion.div 
-            style={{ y: y2 }}
-            className="absolute top-[50%] -left-[15%] w-[600px] h-[600px] rounded-full bg-cyan-600/15 blur-[130px]" 
+            style={{ y: y2, opacity }}
+            className="absolute top-[60%] -left-[20%] w-[800px] h-[800px] rounded-full bg-cyan-600/20 blur-[160px]" 
           />
           
-          {/* Tertiary Accent Orb - Slow layer */}
+          {/* Layer 3: Tertiary Purple Accent - Medium Fast */}
           <motion.div 
-            style={{ y: y3, opacity }}
-            className="absolute top-[20%] right-[20%] w-[500px] h-[500px] rounded-full bg-purple-400/10 blur-[120px]" 
+            style={{ y: y3, scale }}
+            className="absolute top-[15%] right-[15%] w-[700px] h-[700px] rounded-full bg-purple-400/15 blur-[140px]" 
           />
           
-          {/* BRAVECOM brand accent - Static subtle glow */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-gradient-to-t from-purple-600/10 to-transparent blur-[100px]" />
+          {/* Layer 4: Quaternary Cyan Accent - Subtle Slow */}
+          <motion.div 
+            style={{ y: y4, opacity }}
+            className="absolute top-[70%] right-[30%] w-[600px] h-[600px] rounded-full bg-cyan-400/10 blur-[120px]" 
+          />
+          
+          {/* Static BRAVECOM Brand Glow - Bottom */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] rounded-full bg-gradient-to-t from-purple-600/15 via-cyan-600/10 to-transparent blur-[120px]" />
         </div>
 
         {/* Hero Section */}
@@ -190,30 +225,58 @@ export default function Home() {
             transition={{ delay: 0.8, duration: 0.6 }}
             className="mb-12"
           >
-            <GlassmorphicCard className="inline-block px-8 py-6 border-purple-500/30">
-              <p className="text-sm text-purple-400 mb-4 tracking-wider uppercase">
-                🚀 Limited Time Opportunity Ends In:
-              </p>
-              <div className="flex gap-6 justify-center">
-                {[
-                  { label: 'Days', value: timeLeft.days },
-                  { label: 'Hours', value: timeLeft.hours },
-                  { label: 'Minutes', value: timeLeft.minutes },
-                  { label: 'Seconds', value: timeLeft.seconds }
-                ].map((unit, index) => (
-                  <div key={index} className="text-center w-20">
-                    <div className="text-4xl md:text-5xl font-bold text-white mb-2 tabular-nums">
-                      {String(unit.value).padStart(2, '0')}
-                    </div>
-                    <div className="text-xs text-slate-400 uppercase tracking-wider">
-                      {unit.label}
-                    </div>
+            <GlassmorphicCard className={`inline-block px-8 py-6 ${countdownEnded ? 'border-yellow-500/50' : 'border-purple-500/30'}`}>
+              {!countdownEnded ? (
+                <>
+                  <p className="text-sm text-purple-400 mb-4 tracking-wider uppercase">
+                    🚀 Limited Time Opportunity Ends In:
+                  </p>
+                  <div className="flex gap-6 justify-center">
+                    {[
+                      { label: 'Days', value: timeLeft.days },
+                      { label: 'Hours', value: timeLeft.hours },
+                      { label: 'Minutes', value: timeLeft.minutes },
+                      { label: 'Seconds', value: timeLeft.seconds }
+                    ].map((unit, index) => (
+                      <motion.div 
+                        key={index} 
+                        className="text-center w-20"
+                        animate={{ 
+                          scale: unit.label === 'Seconds' ? [1, 1.05, 1] : 1 
+                        }}
+                        transition={{ 
+                          duration: 1, 
+                          repeat: unit.label === 'Seconds' ? Infinity : 0 
+                        }}
+                      >
+                        <div className="text-4xl md:text-5xl font-bold text-white mb-2 tabular-nums">
+                          {String(unit.value).padStart(2, '0')}
+                        </div>
+                        <div className="text-xs text-slate-400 uppercase tracking-wider">
+                          {unit.label}
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              <p className="text-xs text-slate-500 mt-4">
-                Target Date: November 1, 2025 • Countdown is LIVE
-              </p>
+                  <p className="text-xs text-slate-500 mt-4">
+                    Target Date: November 1, 2025 • Countdown is LIVE ⏱️
+                  </p>
+                </>
+              ) : (
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.6 }}
+                  className="text-center"
+                >
+                  <p className="text-3xl font-bold text-yellow-400 mb-2">
+                    🎉 Opportunity is LIVE!
+                  </p>
+                  <p className="text-sm text-slate-400">
+                    Register now to secure your slot
+                  </p>
+                </motion.div>
+              )}
             </GlassmorphicCard>
           </motion.div>
         </motion.div>
