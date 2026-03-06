@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { 
   Shield, TrendingUp, Users, DollarSign, Award, Zap,
-  BarChart3, Lock, Globe, Key, CheckCircle, Network, ArrowUpRight
+  BarChart3, Lock, Globe, Key, CheckCircle, Network, ArrowUpRight, ArrowRight
 } from "lucide-react";
 import { useRef } from "react";
 import { useScroll, useTransform, motion } from "framer-motion";
@@ -111,13 +111,39 @@ export default function Home() {
           </motion.h2>
 
           <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="text-xl text-slate-400 mb-12 max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="text-slate-300 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed"
           >
-            Join the revolution in e-commerce investment. Secure your slot for exclusive 15% monthly returns, operating on a 100% transparent public ledger.
+            Join 1,200+ investors earning guaranteed 15% monthly returns through our transparent, 
+            blockchain-verified investment ecosystem. Every transaction publicly auditable.
           </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
+          >
+            <a 
+              href="/invest"
+              className="group relative px-8 py-4 bg-gradient-to-r from-orange-600 to-yellow-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105"
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                Start Investing Today
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity -z-10" />
+            </a>
+            
+            <a 
+              href="#transparency"
+              className="px-8 py-4 bg-white/5 backdrop-blur-sm border border-white/10 text-white font-semibold rounded-lg hover:bg-white/10 transition-all duration-300"
+            >
+              View Public Ledger
+            </a>
+          </motion.div>
 
           {/* Demo Credentials Access */}
           <motion.div

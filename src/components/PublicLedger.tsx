@@ -347,11 +347,16 @@ export function PublicLedger() {
                   className="grid grid-cols-6 gap-4 py-4 border-b border-white/5 hover:bg-white/5 transition-colors rounded-lg px-2 cursor-pointer"
                   onClick={() => setSelectedInvestor(investor)}
                 >
-                  <div className="col-span-2">
-                    <div className="font-semibold text-white text-sm">{investor.name}</div>
-                    <div className="text-xs text-slate-500 flex items-center gap-1 mt-1">
-                      <MapPin className="w-3 h-3" />
-                      {investor.city}, {investor.state}
+                  <div className="col-span-2 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-yellow-500 flex items-center justify-center text-white font-bold">
+                      {investor.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-white text-sm">{investor.name}</div>
+                      <div className="text-xs text-slate-500 flex items-center gap-1 mt-1">
+                        <MapPin className="w-3 h-3" />
+                        {investor.city}, {investor.state}
+                      </div>
                     </div>
                   </div>
                   <div className="text-sm">
@@ -369,15 +374,21 @@ export function PublicLedger() {
                     <Badge className={`${getRankColor(investor.rank)} text-xs`}>
                       {investor.rank}
                     </Badge>
+                    <div className="text-xs text-slate-500 mt-1">
+                      {((investor.total_payouts / investor.investment_amount) * 100).toFixed(1)}% ROI
+                    </div>
                   </div>
                   <div className="flex justify-end items-center">
                     <Button 
                       size="sm" 
                       variant="ghost" 
                       className="text-orange-400 hover:text-orange-300 hover:bg-orange-500/10"
-                      onClick={() => setSelectedInvestor(investor)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedInvestor(investor);
+                      }}
                     >
-                      View
+                      Details
                       <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
