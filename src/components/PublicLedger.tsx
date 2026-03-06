@@ -24,6 +24,7 @@ export function PublicLedger() {
   
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedInvestor, setSelectedInvestor] = useState<InvestorData | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
   const itemsPerPage = 10;
   
   // Parallax effect
@@ -37,6 +38,7 @@ export function PublicLedger() {
   
   // Auto-scroll through pages
   useEffect(() => {
+    setIsMounted(true);
     if (!isInView) return;
     
     const interval = setInterval(() => {
@@ -65,6 +67,8 @@ export function PublicLedger() {
     return colors[rank] || colors["Grey"];
   };
   
+  if (!isMounted) return null;
+
   return (
     <section 
       ref={containerRef}

@@ -1,59 +1,38 @@
 import { SEO } from "@/components/SEO";
-import { ParallaxHero } from "@/components/ParallaxHero";
 import { PublicLedger } from "@/components/PublicLedger";
 import { GlassmorphicCard } from "@/components/GlassmorphicCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { 
-  Shield, 
-  TrendingUp, 
-  Users, 
-  DollarSign, 
-  Award,
-  Zap,
-  BarChart3,
-  Lock,
-  Clock,
-  Globe
+  Shield, TrendingUp, Users, DollarSign, Award, Zap,
+  BarChart3, Lock, Globe, Key, CheckCircle, Network, ArrowUpRight
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useScroll, useTransform, motion } from "framer-motion";
-import { SparklingCountdown } from "@/components/SparklingCountdown";
-import { useDailySound } from "@/hooks/use-daily-sound";
-import { Confetti } from "@/components/Confetti";
 import { ScrollProgressIndicator } from "@/components/ScrollProgressIndicator";
 import Image from "next/image";
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const features = [
-    {
-      icon: Shield,
-      title: "100% Transparent",
-      description: "Every transaction publicly verifiable with UTR and TXN IDs",
-      gradient: "from-blue-500 to-cyan-500"
-    },
-    {
-      icon: TrendingUp,
-      title: "15% Monthly Returns",
-      description: "Guaranteed returns backed by ₹12 Crore corpus fund",
-      gradient: "from-purple-500 to-pink-500"
-    },
-    {
-      icon: Users,
-      title: "Referral Commissions",
-      description: "Earn up to 45% commission on your network's investments",
-      gradient: "from-orange-500 to-red-500"
-    },
-    {
-      icon: DollarSign,
-      title: "28 Exclusive Slots",
-      description: "Limited opportunity - ₹43 Lakh per contract unit",
-      gradient: "from-green-500 to-emerald-500"
-    }
-  ];
+  // Enhanced parallax scroll effects - CINEMATIC & DRAMATIC
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  });
+
+  // Ultra-strong parallax transforms for maximum visibility
+  const y1 = useTransform(scrollYProgress, [0, 1], [100, -400]);   
+  const y2 = useTransform(scrollYProgress, [0, 1], [-100, 300]);   
+  const y3 = useTransform(scrollYProgress, [0, 1], [50, -250]);    
+  const y4 = useTransform(scrollYProgress, [0, 1], [-50, 150]);    
+  
+  // Cinematic effects
+  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.5, 0.8, 1], [1, 0.95, 0.85, 0.7, 0.5]);
+  const scale = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [1, 1.02, 0.98, 0.95]);
+  const rotate = useTransform(scrollYProgress, [0, 0.5, 1], [0, 2, -3]);
+  const scaleHero = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
 
   const stats = [
     { label: "Total Corpus", value: "₹12 Cr", icon: BarChart3 },
@@ -62,92 +41,12 @@ export default function Home() {
     { label: "Commission Rate", value: "45%", icon: Award }
   ];
 
-  // Countdown timer - TARGET: November 1, 2025 00:00:00 IST
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0
-  });
-  const [countdownEnded, setCountdownEnded] = useState(false);
-
-  useEffect(() => {
-    const calculateTimeLeft = () => {
-      // Target date: November 1, 2025 at 00:00:00 IST (UTC+5:30)
-      // Convert to UTC for accurate calculation
-      const targetDate = new Date('2025-11-01T00:00:00+05:30');
-      const targetUTC = targetDate.getTime();
-      
-      // Current time in UTC
-      const now = new Date().getTime();
-      
-      // Calculate difference (should be DECREASING)
-      const difference = targetUTC - now;
-
-      console.log('Countdown Debug:', {
-        targetDate: targetDate.toISOString(),
-        targetUTC,
-        now,
-        difference,
-        differenceInDays: Math.floor(difference / (1000 * 60 * 60 * 24))
-      });
-
-      if (difference > 0) {
-        // Calculate remaining time
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-        setTimeLeft({ days, hours, minutes, seconds });
-        setCountdownEnded(false);
-      } else {
-        // Countdown has ended
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        if (!countdownEnded) {
-          setCountdownEnded(true);
-        }
-      }
-    };
-
-    // Calculate immediately
-    calculateTimeLeft();
-    
-    // Update every second
-    const interval = setInterval(calculateTimeLeft, 1000);
-    
-    return () => clearInterval(interval);
-  }, [countdownEnded]);
-
-  // ULTRA-ENHANCED parallax scroll effects - MAXIMUM INTENSITY (2x stronger)
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"]
-  });
-
-  // Ultra-strong parallax transforms for maximum visibility
-  const y1 = useTransform(scrollYProgress, [0, 1], [100, -400]);   // Primary layer - Fast upward
-  const y2 = useTransform(scrollYProgress, [0, 1], [-100, 300]);   // Secondary layer - Slow downward
-  const y3 = useTransform(scrollYProgress, [0, 1], [50, -250]);    // Tertiary layer - Medium upward
-  const y4 = useTransform(scrollYProgress, [0, 1], [-50, 150]);    // Quaternary layer - Subtle downward
-  
-  // Advanced cinematic effects
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.5, 0.8, 1], [1, 0.95, 0.85, 0.7, 0.5]);
-  const scale = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [1, 1.02, 0.98, 0.95]);
-  const rotate = useTransform(scrollYProgress, [0, 0.5, 1], [0, 2, -3]);
-  const blur = useTransform(scrollYProgress, [0, 0.5, 1], [0, 2, 5]);
-
-  // ULTRA-ENHANCED parallax scroll effects - MAXIMUM INTENSITY (2x stronger)
-  const rotateHero = useTransform(scrollYProgress, [0, 1], [0, 8]); // Stronger rotation
-  const scaleHero = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
-
-  const { playSound } = useDailySound();
-
-  useEffect(() => {
-    if (countdownEnded) {
-      playSound('/sounds/success.mp3'); // Example path, will degrade gracefully if missing
-    }
-  }, [countdownEnded, playSound]);
+  const demoRoles = [
+    { role: "Super Admin", email: "admin@sunray.eco" },
+    { role: "Finance Head", email: "finance@sunray.eco" },
+    { role: "Elite Vendor", email: "vendor@sunray.eco" },
+    { role: "Active Investor", email: "investor@sunray.eco" }
+  ];
 
   return (
     <>
@@ -156,35 +55,31 @@ export default function Home() {
         description="Join the exclusive ₹12 Crore investment opportunity. 15% monthly returns with full transparency. Only 28 slots available."
       />
       
-      <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 relative">
-        {/* ULTRA-ENHANCED 4-Layer Parallax Background - MAXIMUM INTENSITY */}
+      <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black relative">
+        {/* Enhanced 4-Layer Parallax Background - CINEMATIC DEPTH matching Logo Colors */}
         <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-          {/* Layer 1: Primary Copper/Bronze Orb (BRAVECOM Logo Colors) - Ultra Fast */}
+          {/* Layer 1: Copper (Fast) */}
           <motion.div 
             style={{ y: y1, rotate, scale }}
-            className="absolute -top-[40%] -right-[20%] w-[900px] h-[900px] rounded-full bg-copper-600/80 blur-[180px]" 
+            className="absolute -top-[40%] -right-[20%] w-[900px] h-[900px] rounded-full bg-orange-700/20 blur-[180px]" 
           />
-          
-          {/* Layer 2: Secondary BRAVECOM Cyan Orb - Slow Reverse */}
+          {/* Layer 2: Bronze (Slow Reverse) */}
           <motion.div 
             style={{ y: y2, opacity }}
-            className="absolute top-[60%] -left-[20%] w-[800px] h-[800px] rounded-full bg-cyan-600/20 blur-[160px]" 
+            className="absolute top-[60%] -left-[20%] w-[800px] h-[800px] rounded-full bg-amber-600/15 blur-[160px]" 
           />
-          
-          {/* Layer 3: Tertiary Purple Accent - Medium Fast */}
+          {/* Layer 3: Gold (Medium Fast) */}
           <motion.div 
             style={{ y: y3, scale }}
-            className="absolute top-[15%] right-[15%] w-[700px] h-[700px] rounded-full bg-purple-400/15 blur-[140px]" 
+            className="absolute top-[15%] right-[15%] w-[700px] h-[700px] rounded-full bg-yellow-500/10 blur-[140px]" 
           />
-          
-          {/* Layer 4: Quaternary Cyan Accent - Subtle Slow */}
+          {/* Layer 4: Deep Blue (Subtle Slow) */}
           <motion.div 
             style={{ y: y4, opacity }}
-            className="absolute top-[70%] right-[30%] w-[600px] h-[600px] rounded-full bg-cyan-400/10 blur-[120px]" 
+            className="absolute top-[70%] right-[30%] w-[600px] h-[600px] rounded-full bg-slate-500/10 blur-[120px]" 
           />
-          
-          {/* Static BRAVECOM Brand Glow - Bottom */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] rounded-full bg-gradient-to-t from-purple-600/15 via-cyan-600/10 to-transparent blur-[120px]" />
+          {/* Static Floor Glow */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] rounded-full bg-gradient-to-t from-orange-900/20 via-slate-800/20 to-transparent blur-[120px]" />
         </div>
 
         <ScrollProgressIndicator />
@@ -195,47 +90,48 @@ export default function Home() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="relative z-10 text-center max-w-5xl mx-auto px-4 pt-24"
+          className="relative z-10 text-center max-w-5xl mx-auto px-4 pt-24 pb-16"
         >
-          {/* BRAVECOM Logo/Brand */}
+          {/* Rotating Hexagonal Logo */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.6 }}
             className="mb-8"
           >
-            <div className="flex justify-center mb-8">
-               <Image 
-                 src="/bravecom-logo.jpg" 
-                 alt="BRAVECOM Logo" 
-                 width={180} 
-                 height={180} 
-                 className="rounded-2xl shadow-2xl shadow-orange-500/20"
-                 priority
-               />
+            <div className="flex justify-center mb-6 relative">
+               <motion.div
+                 animate={{ rotate: 360 }}
+                 transition={{ repeat: Infinity, duration: 24, ease: "linear" }}
+                 className="relative w-48 h-48 drop-shadow-[0_0_40px_rgba(245,158,11,0.4)]"
+               >
+                 <Image 
+                   src="/bravecom-logo-hex.png" 
+                   alt="BRAVECOM Hex Logo" 
+                   fill
+                   className="object-contain"
+                   priority
+                 />
+               </motion.div>
             </div>
-            <h1 className="text-7xl md:text-8xl font-black mb-4">
-              <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400 bg-clip-text text-transparent">
+            <h1 className="text-6xl md:text-8xl font-black mb-4 tracking-tight">
+              <span className="bg-gradient-to-br from-orange-300 via-amber-500 to-orange-700 bg-clip-text text-transparent">
                 BRAVECOM
               </span>
             </h1>
-            <p className="text-xl md:text-2xl text-slate-300 font-light tracking-wider">
+            <p className="text-xl md:text-2xl text-slate-300 font-light tracking-[0.3em]">
               SUNRAY ECOSYSTEM
             </p>
           </motion.div>
 
           <motion.h2
-            style={{ scale }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="text-4xl md:text-6xl font-bold mb-6 leading-tight"
+            className="text-4xl md:text-6xl font-bold mb-6 leading-tight text-white"
           >
-            <span className="bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
-              You'll never get a second chance
-            </span>
-            <br />
-            <span className="text-purple-400">to be early.</span>
+            The Future of Frictionless <br/>
+            <span className="text-orange-500">Dropshipping.</span>
           </motion.h2>
 
           <motion.p
@@ -244,106 +140,184 @@ export default function Home() {
             transition={{ delay: 0.6, duration: 0.6 }}
             className="text-xl text-slate-400 mb-12 max-w-3xl mx-auto"
           >
-            Join the revolution in e-commerce investment. 15% monthly returns, transparent operations, and a community of successful investors.
+            Join the revolution in e-commerce investment. Secure your slot for exclusive 15% monthly returns, operating on a 100% transparent public ledger.
           </motion.p>
 
-          {/* FOMO Countdown Timer - DECREASING to Nov 1, 2025 */}
+          {/* Demo Credentials Access */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.6 }}
-            className="mb-12 relative"
+            className="max-w-4xl mx-auto"
           >
-            <div className="absolute inset-0">
-               <SparklingCountdown active={countdownEnded} />
+            <Badge className="mb-4 bg-orange-500/20 text-orange-400 border-orange-500/30 px-4 py-1 text-sm">
+              <Key className="w-4 h-4 mr-2" /> System Dashboard Access
+            </Badge>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-left">
+              {demoRoles.map((demo, i) => (
+                <Link href="/auth/login" key={i}>
+                  <GlassmorphicCard className="p-4 hover:-translate-y-1 transition-transform cursor-pointer border-white/5 bg-slate-900/50 group" glow>
+                    <div className="font-semibold text-white mb-2 group-hover:text-orange-400 transition-colors flex justify-between items-center">
+                      {demo.role}
+                      <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="text-xs text-slate-400 font-mono mb-1">ID: {demo.email}</div>
+                    <div className="text-xs text-slate-500 font-mono">Pass: Password@123</div>
+                  </GlassmorphicCard>
+                </Link>
+              ))}
             </div>
-            <GlassmorphicCard className={`inline-block px-8 py-6 relative z-10 ${countdownEnded ? 'border-yellow-500/50' : 'border-purple-500/30'}`}>
-              {!countdownEnded ? (
-                <>
-                  <p className="text-sm text-purple-400 mb-4 tracking-wider uppercase">
-                    🚀 Limited Time Opportunity Ends In:
-                  </p>
-                  <div className="flex gap-6 justify-center">
-                    {[
-                      { label: 'Days', value: timeLeft.days },
-                      { label: 'Hours', value: timeLeft.hours },
-                      { label: 'Minutes', value: timeLeft.minutes },
-                      { label: 'Seconds', value: timeLeft.seconds }
-                    ].map((unit, index) => (
-                      <motion.div 
-                        key={index} 
-                        className="text-center w-20"
-                        animate={{ 
-                          scale: unit.label === 'Seconds' ? [1, 1.05, 1] : 1 
-                        }}
-                        transition={{ 
-                          duration: 1, 
-                          repeat: unit.label === 'Seconds' ? Infinity : 0 
-                        }}
-                      >
-                        <div className="text-4xl md:text-5xl font-bold text-white mb-2 tabular-nums">
-                          {String(unit.value).padStart(2, '0')}
-                        </div>
-                        <div className="text-xs text-slate-400 uppercase tracking-wider">
-                          {unit.label}
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-slate-500 mt-4">
-                    Target Date: November 1, 2025 • Countdown is LIVE ⏱️
-                  </p>
-                </>
-              ) : (
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.6 }}
-                  className="text-center"
-                >
-                  <p className="text-3xl font-bold text-yellow-400 mb-2">
-                    🎉 Opportunity is LIVE!
-                  </p>
-                  <p className="text-sm text-slate-400">
-                    Register now to secure your slot
-                  </p>
-                </motion.div>
-              )}
-            </GlassmorphicCard>
           </motion.div>
-          
-          <Confetti trigger={countdownEnded} duration={5000} />
         </motion.div>
 
-        {/* Features Section */}
-        <section className="py-24 px-4 relative z-10">
-          <div className="container mx-auto max-w-7xl">
+        {/* Pre-IPO vs IPO Market Growth */}
+        <section className="py-24 px-4 relative z-10 bg-slate-950/50 backdrop-blur-sm border-y border-white/5">
+          <div className="container mx-auto max-w-6xl">
             <div className="text-center mb-16">
-              <Badge className="mb-4 bg-purple-500/20 text-purple-300 border-purple-500/30">
-                Why Choose Brave Ecom
+              <Badge className="mb-4 bg-blue-500/20 text-blue-300 border-blue-500/30">
+                Market Analysis
               </Badge>
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                Built On <span className="text-purple-400">Trust</span> & <span className="text-cyan-400">Transparency</span>
+                Where True Wealth is Generated
               </h2>
               <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-                India's first fully transparent investment platform with public ledger and verifiable transactions
+                Discover why institutional money focuses strictly on Pre-IPO rounds. 
+                We are democratizing this access.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {features.map((feature, i) => (
-                <GlassmorphicCard 
-                  key={i} 
-                  className="p-6 group hover:-translate-y-2 transition-transform duration-300"
-                  glow
-                >
-                  <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                    <feature.icon className="w-6 h-6 text-white" />
+            <div className="grid md:grid-cols-2 gap-8">
+              <GlassmorphicCard className="p-10 border-orange-500/30 relative overflow-hidden group" glow>
+                <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:scale-110 transition-transform">
+                  <TrendingUp className="w-32 h-32 text-orange-500" />
+                </div>
+                <Badge className="bg-orange-500/20 text-orange-400 mb-6">Sunray Pre-IPO Phase</Badge>
+                <h3 className="text-3xl font-bold text-white mb-4">Early Stage Access</h3>
+                <p className="text-slate-300 mb-8 leading-relaxed">
+                  High-growth potential phase before public listing. Capital deployed directly into infrastructure, marketing, and expansion driving explosive valuation multiples.
+                </p>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-end border-b border-white/10 pb-2">
+                    <span className="text-slate-400">Target Multiplier</span>
+                    <span className="text-3xl font-black text-orange-400">10x - 50x</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                  <p className="text-sm text-slate-400">{feature.description}</p>
-                </GlassmorphicCard>
-              ))}
+                  <div className="flex justify-between items-end border-b border-white/10 pb-2">
+                    <span className="text-slate-400">Monthly Yield</span>
+                    <span className="text-xl font-bold text-white">15% Fixed</span>
+                  </div>
+                  <div className="flex justify-between items-end border-b border-white/10 pb-2">
+                    <span className="text-slate-400">Accessibility</span>
+                    <span className="text-xl font-bold text-white">Limited to 28 Slots</span>
+                  </div>
+                </div>
+              </GlassmorphicCard>
+
+              <GlassmorphicCard className="p-10 border-slate-700/50 relative overflow-hidden" glow>
+                <div className="absolute top-0 right-0 p-6 opacity-10">
+                  <BarChart3 className="w-32 h-32 text-slate-400" />
+                </div>
+                <Badge className="bg-slate-700/50 text-slate-300 mb-6">Standard Public IPO</Badge>
+                <h3 className="text-3xl font-bold text-white mb-4">Public Markets</h3>
+                <p className="text-slate-400 mb-8 leading-relaxed">
+                  Mature stage where retail investors typically enter. The massive valuation jumps have already been extracted by institutional early backers.
+                </p>
+                <div className="space-y-4 opacity-70">
+                  <div className="flex justify-between items-end border-b border-white/10 pb-2">
+                    <span className="text-slate-500">Historical Avg Growth</span>
+                    <span className="text-2xl font-bold text-slate-300">12% - 20% / yr</span>
+                  </div>
+                  <div className="flex justify-between items-end border-b border-white/10 pb-2">
+                    <span className="text-slate-500">Volatility Risk</span>
+                    <span className="text-xl font-bold text-slate-300">High (Market Dependent)</span>
+                  </div>
+                  <div className="flex justify-between items-end border-b border-white/10 pb-2">
+                    <span className="text-slate-500">Value Extraction</span>
+                    <span className="text-xl font-bold text-slate-300">Fully Priced In</span>
+                  </div>
+                </div>
+              </GlassmorphicCard>
+            </div>
+          </div>
+        </section>
+
+        {/* Global Dropshipping Reach Map */}
+        <section className="py-24 px-4 relative z-10">
+          <div className="container mx-auto max-w-6xl">
+            <div className="text-center mb-16">
+              <Badge className="mb-4 bg-green-500/20 text-green-400 border-green-500/30">
+                International Logistics
+              </Badge>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                Our Global Dropshipping Hub
+              </h2>
+              <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+                Connecting Indian manufacturing excellence directly to global consumers across North America, Europe, Middle East, and Oceania.
+              </p>
+            </div>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="relative rounded-2xl overflow-hidden bg-white/5 border border-white/10 p-4 md:p-8 backdrop-blur-sm"
+            >
+              <Image 
+                src="/global-reach-map.png" 
+                alt="Global Dropshipping Reach" 
+                width={1200} 
+                height={600} 
+                className="w-full h-auto object-cover rounded-xl"
+              />
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Strategic Sponsors & Case Studies */}
+        <section className="py-20 px-4 relative z-10 bg-gradient-to-b from-slate-950 to-slate-900 border-y border-white/5">
+          <div className="container mx-auto max-w-7xl">
+            <div className="text-center mb-16">
+              <Badge className="mb-4 bg-purple-500/20 text-purple-300 border-purple-500/30">
+                Backed by Industry Leaders
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Strategic Technology Sponsors
+              </h2>
+              <p className="text-slate-400 max-w-2xl mx-auto">
+                Our infrastructure scales securely alongside the world's most powerful platforms, driving our massive marketing and growth efforts.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <GlassmorphicCard className="p-8 text-center hover:border-white/30 transition-colors bg-black/40">
+                <div className="h-16 flex items-center justify-center mb-6">
+                  <Network className="w-12 h-12 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Vercel Infrastructure</h3>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  Powering our global edge network, ensuring sub-100ms load times worldwide for maximum conversion rates and seamless e-commerce transactions.
+                </p>
+              </GlassmorphicCard>
+
+              <GlassmorphicCard className="p-8 text-center hover:border-blue-500/30 transition-colors bg-black/40">
+                <div className="h-16 flex items-center justify-center mb-6">
+                  <Zap className="w-12 h-12 text-blue-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Google Gemini AI</h3>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  Our strategic AI partner for predictive analytics, optimizing product trend spotting and automating customer support at global scale.
+                </p>
+              </GlassmorphicCard>
+
+              <GlassmorphicCard className="p-8 text-center hover:border-purple-500/30 transition-colors bg-black/40">
+                <div className="h-16 flex items-center justify-center mb-6">
+                  <Shield className="w-12 h-12 text-purple-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">GitHub Enterprise</h3>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  Securing our codebase and smart contracts, providing verifiable audit trails, and enabling rapid continuous deployment of new features.
+                </p>
+              </GlassmorphicCard>
             </div>
           </div>
         </section>
@@ -351,11 +325,11 @@ export default function Home() {
         {/* Stats Section */}
         <section className="py-16 px-4 relative z-10">
           <div className="container mx-auto max-w-7xl">
-            <GlassmorphicCard className="p-8">
+            <GlassmorphicCard className="p-8 border-orange-500/20">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                 {stats.map((stat, i) => (
                   <div key={i} className="text-center">
-                    <stat.icon className="w-8 h-8 mx-auto mb-3 text-purple-400" />
+                    <stat.icon className="w-8 h-8 mx-auto mb-3 text-orange-400" />
                     <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
                     <div className="text-sm text-slate-400">{stat.label}</div>
                   </div>
@@ -370,74 +344,28 @@ export default function Home() {
           <PublicLedger />
         </div>
 
-        {/* How It Works */}
-        <section className="py-24 px-4 relative z-10">
-          <div className="container mx-auto max-w-7xl">
-            <div className="text-center mb-16">
-              <Badge className="mb-4 bg-cyan-500/20 text-cyan-300 border-cyan-500/30">
-                Simple Process
-              </Badge>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                Get Started in <span className="text-cyan-400">3 Easy Steps</span>
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                {
-                  step: "1",
-                  title: "Register & KYC",
-                  description: "Complete quick registration with secure KYC verification",
-                  icon: Lock
-                },
-                {
-                  step: "2",
-                  title: "Invest",
-                  description: "Choose your investment tier and secure your slot",
-                  icon: DollarSign
-                },
-                {
-                  step: "3",
-                  title: "Earn",
-                  description: "Receive 15% monthly returns + referral commissions",
-                  icon: TrendingUp
-                }
-              ].map((item, i) => (
-                <GlassmorphicCard key={i} className="p-8 text-center hover:-translate-y-2 transition-transform duration-300" glow>
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl font-bold text-white">{item.step}</span>
-                  </div>
-                  <item.icon className="w-8 h-8 mx-auto mb-4 text-purple-400" />
-                  <h3 className="text-xl font-semibold text-white mb-2">{item.title}</h3>
-                  <p className="text-slate-400">{item.description}</p>
-                </GlassmorphicCard>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* Final CTA */}
         <section className="py-24 px-4 relative z-10">
           <div className="container mx-auto max-w-4xl">
-            <GlassmorphicCard className="p-12 text-center" glow>
-              <Zap className="w-16 h-16 mx-auto mb-6 text-yellow-400 animate-pulse" />
+            <GlassmorphicCard className="p-12 text-center border-orange-500/30" glow>
+              <CheckCircle className="w-16 h-16 mx-auto mb-6 text-orange-400" />
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                Don't Miss This <span className="text-yellow-400">Limited Opportunity</span>
+                Secure Your Position <span className="text-orange-400">Before Pre-IPO Closes</span>
               </h2>
               <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-                Only 28 slots available. Once they're gone, they're gone forever.
+                Only 28 institutional-grade slots available for retail participation.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/auth/register?role=investor">
-                  <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg px-8 py-6 rounded-xl shadow-2xl">
+                  <Button size="lg" className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white text-lg px-8 py-6 rounded-xl shadow-[0_0_30px_rgba(249,115,22,0.3)]">
                     <TrendingUp className="mr-2 h-5 w-5" />
-                    Secure Your Slot Now
+                    Enter Ecosystem
                   </Button>
                 </Link>
                 <Link href="#transparency">
                   <Button size="lg" variant="outline" className="border-2 border-white/20 backdrop-blur-xl bg-white/5 hover:bg-white/10 text-white text-lg px-8 py-6 rounded-xl">
                     <Globe className="mr-2 h-5 w-5" />
-                    View Public Ledger
+                    View Live Ledger
                   </Button>
                 </Link>
               </div>
@@ -446,14 +374,12 @@ export default function Home() {
         </section>
 
         {/* Footer */}
-        <footer className="py-12 px-4 border-t border-white/10 relative z-10 bg-slate-950/80 backdrop-blur-lg">
+        <footer className="py-12 px-4 border-t border-white/10 relative z-10 bg-black/80 backdrop-blur-lg">
           <div className="container mx-auto max-w-7xl">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
-                  <TrendingUp className="w-5 h-5 text-purple-400" />
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">BRAVECOM</span>
+              <div className="flex items-center gap-3">
+                <Image src="/bravecom-logo-hex.png" width={32} height={32} alt="Logo" />
+                <span className="text-xl font-bold bg-gradient-to-r from-orange-300 to-orange-600 bg-clip-text text-transparent">BRAVECOM</span>
               </div>
               <div className="flex gap-6 text-sm text-slate-400">
                 <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>

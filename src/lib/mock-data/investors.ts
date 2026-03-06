@@ -98,10 +98,12 @@ const investmentTiers = [
 
 // Generate realistic UTR (Unique Transaction Reference) - 12-22 digits
 function generateUTR(): string {
-  const prefix = Math.random() > 0.5 ? 'HDFC' : Math.random() > 0.5 ? 'ICIC' : 'SBIN';
-  const timestamp = Date.now().toString().slice(-10);
-  const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-  return `${prefix}${timestamp}${random}`;
+  const banks = ['HDFC', 'ICIC', 'SBIN', 'KKBK', 'UTIB', 'PUNB', 'BARB', 'CNRB'];
+  const prefix = banks[Math.floor(Math.random() * banks.length)];
+  // Create a realistic bank date trace format
+  const dateStr = new Date(Date.now() - Math.random() * 10000000000).toISOString().slice(2,10).replace(/-/g, '');
+  const uniqueNum = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+  return `${prefix}${dateStr}${uniqueNum}`;
 }
 
 // Generate realistic TXN ID - Format: TXN<YYYYMMDD><6-digit-random>
