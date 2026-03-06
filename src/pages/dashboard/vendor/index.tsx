@@ -1,109 +1,91 @@
 import { SEO } from "@/components/SEO";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { DashboardFilters, FilterState } from "@/components/DashboardFilters";
+import { DashboardWidgets } from "@/components/DashboardWidgets";
 import { useState } from "react";
-import { DashboardFilters, FilterValues } from "@/components/DashboardFilters";
-import { 
-  StatsCard, 
-  RevenueChart, 
-  OrderStatusChart, 
-  VendorPerformanceChart 
-} from "@/components/DashboardWidgets";
-import { ExportTools } from "@/components/ExportTools";
-import { DollarSign, Package, TrendingUp, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { motion } from "framer-motion";
+import { Sparkles, Package } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { QRGenerator } from "@/components/QRGenerator";
 
 export default function VendorDashboard() {
-  const [filters, setFilters] = useState<FilterValues>({
+  const [filters, setFilters] = useState<FilterState>({
     search: "",
-    dateFrom: undefined,
-    dateTo: undefined,
     status: "all",
     role: "all",
+    dateFrom: undefined,
+    dateTo: undefined,
   });
 
-  const handleFilterChange = (newFilters: FilterValues) => {
+  const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
-    console.log("Vendor filters updated:", newFilters);
-    // TODO: Fetch data with filters
+    console.log("Filters updated:", newFilters);
+  };
+
+  // Mock metrics for vendor
+  const metrics = {
+    totalRevenue: 450000,
+    totalOrders: 85,
+    pendingSettlements: 4
   };
 
   return (
     <>
-      <SEO title="Vendor Dashboard - Brave Ecom" />
+      <SEO title="Vendor Dashboard | Brave Ecom" />
       <DashboardLayout role="vendor">
-        <div className="space-y-6">
-          {/* Page Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-bold">Vendor Portal</h1>
-              <p className="text-muted-foreground mt-1">
-                Manage your products and fulfill orders
+        <div className="space-y-8">
+          {/* Header Section */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-900/20 via-slate-900/40 to-pink-900/20 backdrop-blur-xl border border-white/10 p-8"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-transparent to-pink-500/10 animate-pulse" />
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-2">
+                <Package className="w-5 h-5 text-pink-400 animate-pulse" />
+                <span className="text-sm font-semibold text-pink-400">Vendor Portal</span>
+              </div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+                Vendor Dashboard
+              </h1>
+              <p className="text-slate-400 mt-2">
+                Manage your products, orders, and settlements.
               </p>
             </div>
-            <div className="flex gap-2">
-              <Link href="/dashboard/vendor/verification">
-                <Button variant="outline" className="gap-2">
-                  <AlertCircle className="h-4 w-4" />
-                  Complete KYC
-                </Button>
-              </Link>
-              <ExportTools data={[]} filename="vendor-report" />
+          </motion.div>
+
+          {/* Widgets Grid */}
+          <DashboardWidgets metrics={metrics} />
+
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="md:col-span-2 space-y-6">
+              {/* Filters */}
+              <DashboardFilters 
+                onFilterChange={handleFilterChange}
+                showDateRange={true}
+                showStatus={true}
+                showRole={false}
+                showSearch={true}
+              />
+
+              {/* Recent Orders Placeholder */}
+              <Card className="bg-gradient-to-br from-slate-900/40 via-purple-900/20 to-slate-900/40 backdrop-blur-xl border-white/10">
+                <CardHeader>
+                  <CardTitle className="text-white">Recent Orders</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8 text-slate-400">
+                    No recent orders matching filters.
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </div>
 
-          {/* Filters */}
-          <DashboardFilters
-            config={{
-              search: true,
-              dateRange: true,
-              status: true,
-            }}
-            onFilterChange={handleFilterChange}
-          />
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatsCard
-              title="Total Revenue"
-              value="₹2.4 Cr"
-              change="+12.5%"
-              trend="up"
-              icon={<DollarSign className="h-5 w-5" />}
-            />
-            <StatsCard
-              title="Orders Fulfilled"
-              value="1,234"
-              change="+8.2%"
-              trend="up"
-              icon={<Package className="h-5 w-5" />}
-            />
-            <StatsCard
-              title="On-Time Delivery"
-              value="94.5%"
-              change="+2.1%"
-              trend="up"
-              icon={<TrendingUp className="h-5 w-5" />}
-            />
-            <StatsCard
-              title="Return Rate"
-              value="4.2%"
-              change="-0.8%"
-              trend="up"
-              icon={<AlertCircle className="h-5 w-5" />}
-            />
-          </div>
-
-          {/* Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <RevenueChart 
-              title="Sales Performance" 
-              description="Monthly revenue and order trends"
-            />
-            <OrderStatusChart 
-              title="Order Fulfillment" 
-              description="Current order status breakdown"
-            />
+            {/* Side Panel */}
+            <div className="space-y-6">
+              <QRGenerator />
+            </div>
           </div>
         </div>
       </DashboardLayout>

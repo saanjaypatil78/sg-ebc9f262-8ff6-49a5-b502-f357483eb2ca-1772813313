@@ -1,13 +1,14 @@
 import { SEO } from "@/components/SEO";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useState } from "react";
-import { DashboardFilters, FilterValues } from "@/components/DashboardFilters";
-import { StatsCard, RevenueChart, OrderStatusChart } from "@/components/DashboardWidgets";
+import { DashboardFilters, FilterState } from "@/components/DashboardFilters";
+import { DashboardWidgets } from "@/components/DashboardWidgets";
 import { ExportTools } from "@/components/ExportTools";
-import { Package, TrendingUp, ShoppingCart, Clock } from "lucide-react";
+import { motion } from "framer-motion";
+import { ShoppingCart, Sparkles } from "lucide-react";
 
 export default function ClientDashboard() {
-  const [filters, setFilters] = useState<FilterValues>({
+  const [filters, setFilters] = useState<FilterState>({
     search: "",
     dateFrom: undefined,
     dateTo: undefined,
@@ -15,77 +16,59 @@ export default function ClientDashboard() {
     role: "all",
   });
 
-  const handleFilterChange = (newFilters: FilterValues) => {
+  const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
     console.log("Client filters updated:", newFilters);
-    // TODO: Fetch data with filters
+  };
+
+  const metrics = {
+    totalOrders: 24,
+    totalRevenue: 185000,
+    pendingSettlements: 2,
   };
 
   return (
     <>
       <SEO title="Client Dashboard - Brave Ecom" />
       <DashboardLayout role="client">
-        <div className="space-y-6">
-          {/* Page Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-bold">My Dashboard</h1>
-              <p className="text-muted-foreground mt-1">
-                Track your orders and manage your account
-              </p>
+        <div className="space-y-8">
+          {/* Header Section */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-900/20 via-slate-900/40 to-emerald-900/20 backdrop-blur-xl border border-white/10 p-8"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 via-transparent to-emerald-500/10 animate-pulse" />
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-2">
+                <ShoppingCart className="w-5 h-5 text-emerald-400 animate-pulse" />
+                <span className="text-sm font-semibold text-emerald-400">Shopping Portal</span>
+              </div>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-green-200 to-emerald-200 bg-clip-text text-transparent">
+                    My Dashboard
+                  </h1>
+                  <p className="text-slate-400 mt-2">
+                    Track your orders and manage your account
+                  </p>
+                </div>
+                <ExportTools data={[]} filename="my-orders" />
+              </div>
             </div>
-            <ExportTools data={[]} filename="my-orders" />
-          </div>
+          </motion.div>
+
+          {/* Widgets Grid */}
+          <DashboardWidgets metrics={metrics} />
 
           {/* Filters */}
           <DashboardFilters
-            config={{
-              search: true,
-              dateRange: true,
-              status: true,
-            }}
             onFilterChange={handleFilterChange}
+            showSearch={true}
+            showDateRange={true}
+            showStatus={true}
+            showRole={false}
           />
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatsCard
-              title="Total Orders"
-              value="24"
-              change="+4 this month"
-              trend="up"
-              icon={<Package className="h-5 w-5" />}
-            />
-            <StatsCard
-              title="Active Orders"
-              value="8"
-              change="3 in transit"
-              trend="up"
-              icon={<ShoppingCart className="h-5 w-5" />}
-            />
-            <StatsCard
-              title="Delivered"
-              value="16"
-              change="66% success rate"
-              trend="up"
-              icon={<TrendingUp className="h-5 w-5" />}
-            />
-            <StatsCard
-              title="Pending"
-              value="2"
-              change="Awaiting confirmation"
-              icon={<Clock className="h-5 w-5" />}
-            />
-          </div>
-
-          {/* Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <RevenueChart 
-              title="Order History" 
-              description="Your order trends over time"
-            />
-            <OrderStatusChart />
-          </div>
         </div>
       </DashboardLayout>
     </>

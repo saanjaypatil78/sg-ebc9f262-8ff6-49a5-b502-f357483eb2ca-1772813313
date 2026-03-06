@@ -1,97 +1,77 @@
 import { SEO } from "@/components/SEO";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { DashboardFilters, FilterState } from "@/components/DashboardFilters";
+import { DashboardWidgets } from "@/components/DashboardWidgets";
 import { useState } from "react";
-import { DashboardFilters, FilterValues } from "@/components/DashboardFilters";
-import { 
-  RevenueChart, 
-  UserGrowthChart, 
-  OrderStatusChart, 
-  VendorPerformanceChart,
-  StatsCard 
-} from "@/components/DashboardWidgets";
-import { ExportTools } from "@/components/ExportTools";
-import { Users, TrendingUp, ShoppingCart, DollarSign } from "lucide-react";
+import { motion } from "framer-motion";
+import { Sparkles } from "lucide-react";
+import { CommissionReports } from "@/components/CommissionReports";
 
 export default function AdminDashboard() {
-  const [filters, setFilters] = useState<FilterValues>({
+  const [filters, setFilters] = useState<FilterState>({
     search: "",
-    dateFrom: undefined,
-    dateTo: undefined,
     status: "all",
     role: "all",
+    dateFrom: undefined,
+    dateTo: undefined,
   });
 
-  const handleFilterChange = (newFilters: FilterValues) => {
+  const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
-    console.log("Admin filters updated:", newFilters);
-    // TODO: Fetch data with filters
+    console.log("Filters updated:", newFilters);
+  };
+
+  // Mock metrics for the dashboard
+  const metrics = {
+    totalRevenue: 12500000,
+    totalOrders: 1245,
+    activeVendors: 48,
+    totalInvestments: 120000000,
+    totalCommissions: 5000000,
+    pendingSettlements: 12
   };
 
   return (
     <>
-      <SEO title="Admin Dashboard - Brave Ecom" />
+      <SEO title="Admin Dashboard | Brave Ecom" />
       <DashboardLayout role="admin">
-        <div className="space-y-6">
-          {/* Page Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-              <p className="text-muted-foreground mt-1">
-                Platform overview and analytics
+        <div className="space-y-8">
+          {/* Header Section */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-900/20 via-slate-900/40 to-orange-900/20 backdrop-blur-xl border border-white/10 p-8"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-transparent to-orange-500/10 animate-pulse" />
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-5 h-5 text-orange-400 animate-pulse" />
+                <span className="text-sm font-semibold text-orange-400">System Overview</span>
+              </div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-orange-200 bg-clip-text text-transparent">
+                Admin Dashboard
+              </h1>
+              <p className="text-slate-400 mt-2">
+                Monitor platform performance, commissions, and system health.
               </p>
             </div>
-            <ExportTools data={[]} filename="admin-report" />
-          </div>
+          </motion.div>
+
+          {/* Widgets Grid */}
+          <DashboardWidgets metrics={metrics} />
 
           {/* Filters */}
-          <DashboardFilters
-            config={{
-              search: true,
-              dateRange: true,
-              status: true,
-              role: true,
-            }}
+          <DashboardFilters 
             onFilterChange={handleFilterChange}
+            showDateRange={true}
+            showStatus={true}
+            showRole={true}
+            showSearch={true}
           />
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatsCard
-              title="Total Users"
-              value="1,234"
-              change="+12.5%"
-              trend="up"
-              icon={<Users className="h-5 w-5" />}
-            />
-            <StatsCard
-              title="Total Revenue"
-              value="₹12.5 Cr"
-              change="+8.2%"
-              trend="up"
-              icon={<DollarSign className="h-5 w-5" />}
-            />
-            <StatsCard
-              title="Active Orders"
-              value="856"
-              change="+5.1%"
-              trend="up"
-              icon={<ShoppingCart className="h-5 w-5" />}
-            />
-            <StatsCard
-              title="Growth Rate"
-              value="23.5%"
-              change="+2.3%"
-              trend="up"
-              icon={<TrendingUp className="h-5 w-5" />}
-            />
-          </div>
-
-          {/* Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <RevenueChart />
-            <UserGrowthChart />
-            <OrderStatusChart />
-            <VendorPerformanceChart />
+          {/* Reports Section */}
+          <div className="grid gap-6">
+            <CommissionReports />
           </div>
         </div>
       </DashboardLayout>

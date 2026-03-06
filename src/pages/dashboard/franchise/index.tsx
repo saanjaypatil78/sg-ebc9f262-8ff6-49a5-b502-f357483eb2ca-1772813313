@@ -1,13 +1,14 @@
 import { SEO } from "@/components/SEO";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useState } from "react";
-import { DashboardFilters, FilterValues } from "@/components/DashboardFilters";
-import { StatsCard, RevenueChart, OrderStatusChart } from "@/components/DashboardWidgets";
+import { DashboardFilters, FilterState } from "@/components/DashboardFilters";
+import { DashboardWidgets } from "@/components/DashboardWidgets";
 import { ExportTools } from "@/components/ExportTools";
-import { MapPin, DollarSign, TrendingUp, Users } from "lucide-react";
+import { motion } from "framer-motion";
+import { MapPin, Sparkles } from "lucide-react";
 
 export default function FranchiseDashboard() {
-  const [filters, setFilters] = useState<FilterValues>({
+  const [filters, setFilters] = useState<FilterState>({
     search: "",
     dateFrom: undefined,
     dateTo: undefined,
@@ -15,79 +16,59 @@ export default function FranchiseDashboard() {
     role: "all",
   });
 
-  const handleFilterChange = (newFilters: FilterValues) => {
+  const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
     console.log("Franchise filters updated:", newFilters);
-    // TODO: Fetch data with filters
+  };
+
+  const metrics = {
+    totalRevenue: 850000,
+    totalOrders: 342,
+    activeVendors: 23,
   };
 
   return (
     <>
       <SEO title="Franchise Dashboard - Brave Ecom" />
       <DashboardLayout role="franchise_partner">
-        <div className="space-y-6">
-          {/* Page Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-bold">Franchise Overview</h1>
-              <p className="text-muted-foreground mt-1">
-                Manage your franchise operations and earnings
-              </p>
+        <div className="space-y-8">
+          {/* Header Section */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-900/20 via-slate-900/40 to-orange-900/20 backdrop-blur-xl border border-white/10 p-8"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-transparent to-orange-500/10 animate-pulse" />
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-2">
+                <MapPin className="w-5 h-5 text-orange-400 animate-pulse" />
+                <span className="text-sm font-semibold text-orange-400">Territory Management</span>
+              </div>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-amber-200 to-orange-200 bg-clip-text text-transparent">
+                    Franchise Overview
+                  </h1>
+                  <p className="text-slate-400 mt-2">
+                    Manage your franchise operations and earnings
+                  </p>
+                </div>
+                <ExportTools data={[]} filename="franchise-report" />
+              </div>
             </div>
-            <ExportTools data={[]} filename="franchise-report" />
-          </div>
+          </motion.div>
+
+          {/* Widgets Grid */}
+          <DashboardWidgets metrics={metrics} />
 
           {/* Filters */}
           <DashboardFilters
-            config={{
-              search: true,
-              dateRange: true,
-              status: true,
-            }}
             onFilterChange={handleFilterChange}
+            showSearch={true}
+            showDateRange={true}
+            showStatus={true}
+            showRole={false}
           />
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatsCard
-              title="Total Earnings"
-              value="₹8.5 L"
-              change="+12.5%"
-              trend="up"
-              icon={<DollarSign className="h-5 w-5" />}
-            />
-            <StatsCard
-              title="Active Customers"
-              value="342"
-              change="+28 this month"
-              trend="up"
-              icon={<Users className="h-5 w-5" />}
-            />
-            <StatsCard
-              title="Territory Growth"
-              value="23.5%"
-              change="+5.2%"
-              trend="up"
-              icon={<TrendingUp className="h-5 w-5" />}
-            />
-            <StatsCard
-              title="Location"
-              value="NAVI MUMBAI"
-              icon={<MapPin className="h-5 w-5" />}
-            />
-          </div>
-
-          {/* Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <RevenueChart 
-              title="Monthly Earnings" 
-              description="Franchise revenue trends"
-            />
-            <OrderStatusChart 
-              title="Territory Performance" 
-              description="Customer acquisition and retention"
-            />
-          </div>
         </div>
       </DashboardLayout>
     </>

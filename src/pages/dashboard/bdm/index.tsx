@@ -1,17 +1,14 @@
 import { SEO } from "@/components/SEO";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useState } from "react";
-import { DashboardFilters, FilterValues } from "@/components/DashboardFilters";
-import { 
-  StatsCard, 
-  UserGrowthChart, 
-  VendorPerformanceChart 
-} from "@/components/DashboardWidgets";
+import { DashboardFilters, FilterState } from "@/components/DashboardFilters";
+import { DashboardWidgets } from "@/components/DashboardWidgets";
 import { ExportTools } from "@/components/ExportTools";
-import { Users, TrendingUp, Target, Award } from "lucide-react";
+import { motion } from "framer-motion";
+import { Users, Sparkles } from "lucide-react";
 
 export default function BDMDashboard() {
-  const [filters, setFilters] = useState<FilterValues>({
+  const [filters, setFilters] = useState<FilterState>({
     search: "",
     dateFrom: undefined,
     dateTo: undefined,
@@ -19,80 +16,59 @@ export default function BDMDashboard() {
     role: "all",
   });
 
-  const handleFilterChange = (newFilters: FilterValues) => {
+  const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
     console.log("BDM filters updated:", newFilters);
-    // TODO: Fetch data with filters
+  };
+
+  const metrics = {
+    activeVendors: 45,
+    totalOrders: 1240,
+    totalRevenue: 8500000,
   };
 
   return (
     <>
       <SEO title="BDM Dashboard - Brave Ecom" />
       <DashboardLayout role="bdm">
-        <div className="space-y-6">
-          {/* Page Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-bold">BDM Dashboard</h1>
-              <p className="text-muted-foreground mt-1">
-                Manage vendor pipeline and track performance
-              </p>
+        <div className="space-y-8">
+          {/* Header Section */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-900/20 via-slate-900/40 to-cyan-900/20 backdrop-blur-xl border border-white/10 p-8"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-transparent to-cyan-500/10 animate-pulse" />
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="w-5 h-5 text-cyan-400 animate-pulse" />
+                <span className="text-sm font-semibold text-cyan-400">Business Development</span>
+              </div>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-blue-200 to-cyan-200 bg-clip-text text-transparent">
+                    BDM Dashboard
+                  </h1>
+                  <p className="text-slate-400 mt-2">
+                    Manage vendor pipeline and track performance
+                  </p>
+                </div>
+                <ExportTools data={[]} filename="bdm-report" />
+              </div>
             </div>
-            <ExportTools data={[]} filename="bdm-report" />
-          </div>
+          </motion.div>
+
+          {/* Widgets Grid */}
+          <DashboardWidgets metrics={metrics} />
 
           {/* Filters */}
           <DashboardFilters
-            config={{
-              search: true,
-              dateRange: true,
-              status: true,
-            }}
             onFilterChange={handleFilterChange}
+            showSearch={true}
+            showDateRange={true}
+            showStatus={true}
+            showRole={false}
           />
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatsCard
-              title="Active Vendors"
-              value="45"
-              change="+8 this month"
-              trend="up"
-              icon={<Users className="h-5 w-5" />}
-            />
-            <StatsCard
-              title="Onboarding Pipeline"
-              value="12"
-              change="3 pending approval"
-              icon={<Target className="h-5 w-5" />}
-            />
-            <StatsCard
-              title="Conversion Rate"
-              value="78.5%"
-              change="+5.2%"
-              trend="up"
-              icon={<TrendingUp className="h-5 w-5" />}
-            />
-            <StatsCard
-              title="Performance Score"
-              value="92/100"
-              change="Excellent"
-              trend="up"
-              icon={<Award className="h-5 w-5" />}
-            />
-          </div>
-
-          {/* Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <UserGrowthChart 
-              title="Vendor Acquisition" 
-              description="Monthly vendor onboarding trends"
-            />
-            <VendorPerformanceChart 
-              title="Top Performing Vendors" 
-              description="Vendor sales leaderboard"
-            />
-          </div>
         </div>
       </DashboardLayout>
     </>
