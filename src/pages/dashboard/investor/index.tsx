@@ -12,10 +12,13 @@ import { formatCurrency } from "@/lib/utils";
 import { 
   TrendingUp, Wallet, Calendar, Award, 
   ArrowUpRight, DollarSign, Users, Target,
-  Download, ExternalLink, Clock
+  Download, ExternalLink, Clock, Shield, AlertCircle
 } from "lucide-react";
 import { getNextPayoutDate } from "@/lib/calendar/payout-exclusions";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Lazy load heavy components
 const DashboardWidgets = dynamic(() => import("@/components/DashboardWidgets").then(mod => ({ default: mod.DashboardWidgets })), { ssr: false });
@@ -23,6 +26,7 @@ const CommissionReports = dynamic(() => import("@/components/CommissionReports")
 
 export default function InvestorDashboard() {
   const { user } = useAuth();
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   
   // State
@@ -122,6 +126,9 @@ export default function InvestorDashboard() {
     }
   ];
 
+  // Check if investor needs device binding
+  const requiresDeviceBinding = totalInvested >= 50000000; // 5 Cr
+
   if (loading) {
     return (
       <>
@@ -178,6 +185,20 @@ export default function InvestorDashboard() {
               </Button>
             </div>
           </motion.div>
+
+          {/* Device Binding Alert for >5 Cr Investors */}
+          {requiresDeviceBinding && (
+            <Alert className="border-amber-500/20 bg-amber-500/5">
+              <Shield className="w-5 h-5 text-amber-400" />
+              <AlertDescription className="text-amber-400">
+                <strong>Enhanced Security Required:</strong> Your investment exceeds ₹5 Crore. 
+                Please register trusted devices for secure transactions.{" "}
+                <Link href="/dashboard/security/trusted-devices" className="underline">
+                  Manage Devices
+                </Link>
+              </AlertDescription>
+            </Alert>
+          )}
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

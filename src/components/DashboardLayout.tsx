@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
   LogOut, Home, PieChart, Users, Settings, Briefcase, 
-  ShoppingCart, Package, BarChart3, Bell
+  ShoppingCart, Package, BarChart3, Bell, Shield
 } from "lucide-react";
 import { useRouter } from "next/router";
 import { MobileMenu } from "./MobileMenu";
@@ -49,6 +49,25 @@ export function DashboardLayout({ children, role = "investor" }: DashboardLayout
   };
 
   const navItems = getNavigation();
+
+  const menuItems = [
+    { icon: LayoutDashboard, label: "Dashboard", href: getDashboardRoute() },
+    { icon: Package, label: "Orders", href: `${getDashboardRoute()}/orders` },
+    
+    // Security submenu for all users
+    {
+      icon: Shield,
+      label: "Security",
+      submenu: [
+        { label: "Active Sessions", href: "/dashboard/security/active-sessions" },
+        { label: "Login History", href: "/dashboard/security/login-history" },
+        { label: "Trusted Devices", href: "/dashboard/security/trusted-devices" },
+      ],
+    },
+    
+    { icon: User, label: "Profile", href: "/dashboard/profile" },
+    { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+  ];
 
   return (
     <div className="min-h-screen bg-slate-950 flex text-slate-200 font-sans selection:bg-purple-500/30">
