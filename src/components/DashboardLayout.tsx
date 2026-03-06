@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
   LogOut, Home, PieChart, Users, Settings, Briefcase, 
-  ShoppingCart, Package, BarChart3, Bell, Shield
+  ShoppingCart, Package, BarChart3, Bell, Shield, Key, History
 } from "lucide-react";
 import { useRouter } from "next/router";
 import { MobileMenu } from "./MobileMenu";
@@ -24,50 +24,43 @@ export function DashboardLayout({ children, role = "investor" }: DashboardLayout
   };
 
   const getNavigation = () => {
+    let baseNav = [];
     switch (role) {
       case "admin":
-        return [
+        baseNav = [
           { name: "Overview", href: "/dashboard/admin", icon: PieChart },
           { name: "Users", href: "/dashboard/admin/users", icon: Users },
           { name: "Vendors", href: "/dashboard/admin/vendors", icon: Briefcase },
           { name: "Settlements", href: "/dashboard/admin/settlements", icon: BarChart3 },
+          { name: "Security Monitor", href: "/dashboard/admin/security", icon: Shield },
         ];
+        break;
       case "vendor":
-        return [
+        baseNav = [
           { name: "Overview", href: "/dashboard/vendor", icon: Home },
           { name: "Orders", href: "/dashboard/vendor/orders", icon: ShoppingCart },
           { name: "Products", href: "/dashboard/vendor/uploads", icon: Package },
           { name: "Performance", href: "/dashboard/vendor/performance", icon: BarChart3 },
         ];
+        break;
       default:
-        return [
+        baseNav = [
           { name: "Portfolio", href: "/dashboard/investor", icon: PieChart },
           { name: "New Investment", href: "/invest", icon: Briefcase },
-          { name: "Settings", href: "/dashboard/profile", icon: Settings },
         ];
     }
+
+    // Combine base navigation with universal security/settings links
+    return [
+      ...baseNav,
+      { name: "Active Sessions", href: "/dashboard/security/active-sessions", icon: Key },
+      { name: "Login History", href: "/dashboard/security/login-history", icon: History },
+      { name: "Trusted Devices", href: "/dashboard/security/trusted-devices", icon: Shield },
+      { name: "Settings", href: "/dashboard/profile", icon: Settings },
+    ];
   };
 
   const navItems = getNavigation();
-
-  const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", href: getDashboardRoute() },
-    { icon: Package, label: "Orders", href: `${getDashboardRoute()}/orders` },
-    
-    // Security submenu for all users
-    {
-      icon: Shield,
-      label: "Security",
-      submenu: [
-        { label: "Active Sessions", href: "/dashboard/security/active-sessions" },
-        { label: "Login History", href: "/dashboard/security/login-history" },
-        { label: "Trusted Devices", href: "/dashboard/security/trusted-devices" },
-      ],
-    },
-    
-    { icon: User, label: "Profile", href: "/dashboard/profile" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-  ];
 
   return (
     <div className="min-h-screen bg-slate-950 flex text-slate-200 font-sans selection:bg-purple-500/30">
@@ -85,7 +78,7 @@ export function DashboardLayout({ children, role = "investor" }: DashboardLayout
           <span className="font-bold text-xl tracking-tight text-white">Brave Ecom</span>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar">
           {navItems.map((item) => {
             const isActive = router.pathname === item.href;
             return (
