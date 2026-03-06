@@ -1,195 +1,167 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+"use client";
 
-// Sample data - Replace with real API data
-const revenueData = [
-  { month: 'Jan', revenue: 4000000, orders: 240 },
-  { month: 'Feb', revenue: 5200000, orders: 310 },
-  { month: 'Mar', revenue: 7800000, orders: 450 },
-  { month: 'Apr', revenue: 9100000, orders: 520 },
-  { month: 'May', revenue: 11500000, orders: 680 },
-  { month: 'Jun', revenue: 12000000, orders: 750 }
-];
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TrendingUp, TrendingDown, DollarSign, Users, Package, ShoppingCart } from "lucide-react";
+import { motion } from "framer-motion";
 
-const userGrowthData = [
-  { month: 'Jan', investors: 15, franchises: 3, vendors: 8 },
-  { month: 'Feb', investors: 28, franchises: 5, vendors: 12 },
-  { month: 'Mar', investors: 42, franchises: 8, vendors: 18 },
-  { month: 'Apr', investors: 65, franchises: 12, vendors: 25 },
-  { month: 'May', investors: 88, franchises: 15, vendors: 32 },
-  { month: 'Jun', investors: 120, franchises: 20, vendors: 45 }
-];
-
-const orderStatusData = [
-  { name: 'Delivered', value: 650, color: '#10b981' },
-  { name: 'In Transit', value: 120, color: '#f59e0b' },
-  { name: 'Processing', value: 80, color: '#3b82f6' },
-  { name: 'Cancelled', value: 25, color: '#ef4444' }
-];
-
-const vendorPerformanceData = [
-  { name: 'Vendor A', sales: 2400000, orders: 145, rating: 4.8 },
-  { name: 'Vendor B', sales: 1800000, orders: 98, rating: 4.6 },
-  { name: 'Vendor C', sales: 3200000, orders: 210, rating: 4.9 },
-  { name: 'Vendor D', sales: 1500000, orders: 75, rating: 4.5 },
-  { name: 'Vendor E', sales: 2900000, orders: 165, rating: 4.7 }
-];
-
-const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'];
-
-interface RevenueChartProps {
-  title?: string;
-  description?: string;
-}
-
-export function RevenueChart({ title = "Revenue Overview", description = "Monthly revenue and order trends" }: RevenueChartProps) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={revenueData}>
-            <defs>
-              <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f97316" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="month" stroke="#9ca3af" />
-            <YAxis stroke="#9ca3af" />
-            <Tooltip 
-              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-              labelStyle={{ color: '#f3f4f6' }}
-            />
-            <Area type="monotone" dataKey="revenue" stroke="#f97316" fillOpacity={1} fill="url(#colorRevenue)" />
-          </AreaChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
-  );
-}
-
-export function UserGrowthChart({ title = "User Growth", description = "Platform user acquisition by role" }: RevenueChartProps) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={userGrowthData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="month" stroke="#9ca3af" />
-            <YAxis stroke="#9ca3af" />
-            <Tooltip 
-              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-              labelStyle={{ color: '#f3f4f6' }}
-            />
-            <Legend />
-            <Line type="monotone" dataKey="investors" stroke="#f97316" strokeWidth={2} />
-            <Line type="monotone" dataKey="franchises" stroke="#10b981" strokeWidth={2} />
-            <Line type="monotone" dataKey="vendors" stroke="#3b82f6" strokeWidth={2} />
-          </LineChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
-  );
-}
-
-export function OrderStatusChart({ title = "Order Status Distribution", description = "Current order status breakdown" }: RevenueChartProps) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={orderStatusData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {orderStatusData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip 
-              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-              labelStyle={{ color: '#f3f4f6' }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
-  );
-}
-
-export function VendorPerformanceChart({ title = "Top Vendors", description = "Vendor sales performance" }: RevenueChartProps) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={vendorPerformanceData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="name" stroke="#9ca3af" />
-            <YAxis stroke="#9ca3af" />
-            <Tooltip 
-              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-              labelStyle={{ color: '#f3f4f6' }}
-            />
-            <Bar dataKey="sales" fill="#f97316" />
-          </BarChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
-  );
-}
-
-interface StatsCardProps {
+interface MetricCardProps {
   title: string;
   value: string | number;
-  change?: string;
-  trend?: 'up' | 'down';
-  icon?: React.ReactNode;
+  change?: number;
+  changeLabel?: string;
+  icon: React.ElementType;
+  gradient: string;
+  iconColor: string;
 }
 
-export function StatsCard({ title, value, change, trend, icon }: StatsCardProps) {
+function MetricCard({ title, value, change, changeLabel, icon: Icon, gradient, iconColor }: MetricCardProps) {
+  const isPositive = change !== undefined && change >= 0;
+  
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="text-2xl font-bold">{value}</p>
-            {change && (
-              <p className={`text-xs ${trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
-                {trend === 'up' ? '↑' : '↓'} {change}
-              </p>
+    <Card className={`relative overflow-hidden bg-gradient-to-br ${gradient} backdrop-blur-xl border-white/10 shadow-2xl hover:scale-105 transition-transform duration-300`}>
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+      <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium text-slate-300">{title}</CardTitle>
+        <Icon className={`h-5 w-5 ${iconColor}`} />
+      </CardHeader>
+      <CardContent className="relative">
+        <div className="text-3xl font-bold text-white mb-1">{value}</div>
+        {change !== undefined && (
+          <div className="flex items-center gap-1 text-xs">
+            {isPositive ? (
+              <TrendingUp className="h-3 w-3 text-green-400" />
+            ) : (
+              <TrendingDown className="h-3 w-3 text-red-400" />
             )}
+            <span className={isPositive ? "text-green-400" : "text-red-400"}>
+              {isPositive ? "+" : ""}{change}%
+            </span>
+            <span className="text-slate-400 ml-1">{changeLabel || "vs last month"}</span>
           </div>
-          {icon && (
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-              {icon}
-            </div>
-          )}
-        </div>
+        )}
       </CardContent>
     </Card>
+  );
+}
+
+interface DashboardWidgetsProps {
+  metrics: {
+    totalRevenue?: number;
+    totalOrders?: number;
+    activeVendors?: number;
+    totalInvestments?: number;
+    totalCommissions?: number;
+    pendingSettlements?: number;
+  };
+}
+
+export function DashboardWidgets({ metrics }: DashboardWidgetsProps) {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  return (
+    <motion.div 
+      className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {metrics.totalRevenue !== undefined && (
+        <motion.div variants={itemVariants}>
+          <MetricCard
+            title="Total Revenue"
+            value={`₹${(metrics.totalRevenue / 100000).toFixed(2)}L`}
+            change={12.5}
+            icon={DollarSign}
+            gradient="from-green-500/20 to-emerald-500/20"
+            iconColor="text-green-400"
+          />
+        </motion.div>
+      )}
+
+      {metrics.totalOrders !== undefined && (
+        <motion.div variants={itemVariants}>
+          <MetricCard
+            title="Total Orders"
+            value={metrics.totalOrders}
+            change={8.2}
+            icon={ShoppingCart}
+            gradient="from-blue-500/20 to-cyan-500/20"
+            iconColor="text-cyan-400"
+          />
+        </motion.div>
+      )}
+
+      {metrics.activeVendors !== undefined && (
+        <motion.div variants={itemVariants}>
+          <MetricCard
+            title="Active Vendors"
+            value={metrics.activeVendors}
+            change={5.1}
+            icon={Package}
+            gradient="from-purple-500/20 to-pink-500/20"
+            iconColor="text-purple-400"
+          />
+        </motion.div>
+      )}
+
+      {metrics.totalInvestments !== undefined && (
+        <motion.div variants={itemVariants}>
+          <MetricCard
+            title="Total Investments"
+            value={`₹${(metrics.totalInvestments / 10000000).toFixed(2)}Cr`}
+            change={15.3}
+            icon={TrendingUp}
+            gradient="from-orange-500/20 to-amber-500/20"
+            iconColor="text-orange-400"
+          />
+        </motion.div>
+      )}
+
+      {metrics.totalCommissions !== undefined && (
+        <motion.div variants={itemVariants}>
+          <MetricCard
+            title="Total Commissions"
+            value={`₹${(metrics.totalCommissions / 100000).toFixed(2)}L`}
+            change={22.8}
+            icon={Users}
+            gradient="from-cyan-500/20 to-blue-500/20"
+            iconColor="text-cyan-400"
+          />
+        </motion.div>
+      )}
+
+      {metrics.pendingSettlements !== undefined && (
+        <motion.div variants={itemVariants}>
+          <MetricCard
+            title="Pending Settlements"
+            value={metrics.pendingSettlements}
+            change={-3.5}
+            icon={Package}
+            gradient="from-yellow-500/20 to-orange-500/20"
+            iconColor="text-yellow-400"
+          />
+        </motion.div>
+      )}
+    </motion.div>
   );
 }

@@ -1,101 +1,97 @@
+"use client";
+
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { QrCode, Download, Printer } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { QrCode, Download, Copy, CheckCircle2 } from "lucide-react";
+import { motion } from "framer-motion";
 
-interface QRGeneratorProps {
-  orderId?: string;
-  productName?: string;
-}
+export function QRGenerator() {
+  const [orderId, setOrderId] = useState("");
+  const [qrGenerated, setQrGenerated] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-export function QRGenerator({ orderId = "", productName = "" }: QRGeneratorProps) {
-  const [qrOrderId, setQrOrderId] = useState(orderId);
-  const [qrProduct, setQrProduct] = useState(productName);
-  const [generatedQR, setGeneratedQR] = useState("");
-
-  const handleGenerateQR = () => {
-    if (qrOrderId) {
-      const qrCode = `QR-${qrOrderId}-${Date.now()}`;
-      setGeneratedQR(qrCode);
-      alert(`QR Code Generated:\n${qrCode}\n\nIn production, this would generate a scannable QR image.`);
+  const generateQR = () => {
+    if (orderId.trim()) {
+      setQrGenerated(true);
     }
   };
 
-  const handlePrint = () => {
-    alert("Opening print dialog...\nIn production, this would print a label with:\n- QR Code\n- Order ID\n- Product name\n- Vendor info");
+  const downloadQR = () => {
+    // In production, this would generate and download actual QR code
+    alert("QR Code download functionality would be implemented here");
+  };
+
+  const copyOrderId = () => {
+    navigator.clipboard.writeText(orderId);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <Card>
+    <Card className="bg-gradient-to-br from-slate-900/40 via-purple-900/20 to-slate-900/40 backdrop-blur-xl border-white/10">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <QrCode className="w-5 h-5" />
+        <CardTitle className="text-white flex items-center gap-2">
+          <QrCode className="w-5 h-5 text-purple-400" />
           QR Code Generator
         </CardTitle>
-        <CardDescription>
-          Generate vendor-printed QR codes for shipments
-        </CardDescription>
+        <CardDescription>Generate QR codes for package tracking</CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>Order ID</Label>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="orderId" className="text-slate-300">Order ID</Label>
+          <div className="flex gap-2">
             <Input
-              placeholder="ORD-001"
-              value={qrOrderId}
-              onChange={(e) => setQrOrderId(e.target.value)}
+              id="orderId"
+              placeholder="Enter order ID..."
+              value={orderId}
+              onChange={(e) => setOrderId(e.target.value)}
+              className="bg-slate-800/50 border-white/10 text-white placeholder:text-slate-500"
             />
+            <Button
+              onClick={copyOrderId}
+              variant="outline"
+              size="icon"
+              className="bg-slate-800/50 border-white/10 hover:bg-slate-800/70"
+            >
+              {copied ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+            </Button>
           </div>
-          <div className="space-y-2">
-            <Label>Product Name (Optional)</Label>
-            <Input
-              placeholder="Product description"
-              value={qrProduct}
-              onChange={(e) => setQrProduct(e.target.value)}
-            />
-          </div>
-          <Button
-            onClick={handleGenerateQR}
-            className="w-full bg-cyan-500 hover:bg-cyan-600"
-            disabled={!qrOrderId}
+        </div>
+
+        <Button
+          onClick={generateQR}
+          disabled={!orderId.trim()}
+          className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700"
+        >
+          <QrCode className="w-4 h-4 mr-2" />
+          Generate QR Code
+        </Button>
+
+        {qrGenerated && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="space-y-4"
           >
-            <QrCode className="w-4 h-4 mr-2" />
-            Generate QR Code
-          </Button>
-          
-          {generatedQR && (
-            <div className="mt-4 p-4 bg-slate-100 dark:bg-slate-800 rounded-lg">
-              <div className="flex items-center justify-center mb-4">
-                <div className="w-48 h-48 bg-white dark:bg-slate-900 border-4 border-slate-300 dark:border-slate-700 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <QrCode className="w-32 h-32 mx-auto text-slate-400" />
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">
-                      QR Preview
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="text-center mb-4">
-                <p className="text-sm text-slate-600 dark:text-slate-400">Generated Code:</p>
-                <code className="text-lg font-mono bg-white dark:bg-slate-900 px-4 py-2 rounded inline-block mt-1">
-                  {generatedQR}
-                </code>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" onClick={handlePrint}>
-                  <Printer className="w-4 h-4 mr-2" />
-                  Print Label
-                </Button>
-                <Button variant="outline">
-                  <Download className="w-4 h-4 mr-2" />
-                  Download
-                </Button>
+            <div className="flex items-center justify-center p-8 bg-white rounded-lg">
+              <div className="w-48 h-48 bg-gradient-to-br from-purple-100 to-cyan-100 rounded-lg flex items-center justify-center">
+                <QrCode className="w-32 h-32 text-purple-600" />
               </div>
             </div>
-          )}
-        </div>
+
+            <Button
+              onClick={downloadQR}
+              variant="outline"
+              className="w-full bg-slate-800/50 border-white/10 hover:bg-slate-800/70"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download QR Code
+            </Button>
+          </motion.div>
+        )}
       </CardContent>
     </Card>
   );
