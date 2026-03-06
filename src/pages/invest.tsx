@@ -59,7 +59,7 @@ export default function InvestPage() {
 
     const pollInterval = setInterval(async () => {
       try {
-        const status = await diditService.checkPaymentStatus(transactionId);
+        const status = await diditService.checkVerificationStatus(transactionId);
         setPaymentStatus(status.status);
         setPollingProgress((prev) => Math.min(prev + 10, 90));
 
