@@ -139,7 +139,9 @@ export const commissionService = {
       if (!subPayouts) continue;
 
       for (const subPayout of subPayouts) {
-        const bonusAmount = parseFloat(subPayout.payout_amount) * COMMISSION_RATES.TEAM_LEADER_BONUS;
+        // Ensure explicit number conversion for calculation
+        const payoutVal = parseFloat(subPayout.payout_amount as string);
+        const bonusAmount = payoutVal * COMMISSION_RATES.TEAM_LEADER_BONUS;
 
         await supabase
           .from('commission_ledger')

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Trophy, TrendingUp, Award } from "lucide-react";
+import { Trophy, TrendingUp, Award } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
 export function CommissionReports() {
