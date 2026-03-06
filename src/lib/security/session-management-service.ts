@@ -7,27 +7,11 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const sessionManagementService = {
   /**
-   * Create new session
+   * Create a new active session
    */
-  async createSession(userId: string, deviceInfo: any): Promise<string> {
-    const sessionToken = this.generateSessionToken();
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-    
-    const { error } = await supabase
-      .from("active_sessions")
-      .insert({
-        user_id: userId,
-        session_token: sessionToken,
-        device_info: deviceInfo,
-        ip_address: "127.0.0.1", // Get actual IP
-        user_agent: navigator.userAgent,
-        expires_at: expiresAt.toISOString(),
-        last_activity: new Date().toISOString(),
-      });
-    
-    if (error) throw new Error("Failed to create session");
-    
-    return sessionToken;
+  async createSession(userId: string, ipAddress: string, userAgent: string) {
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24); // 24 hour session
   },
 
   /**

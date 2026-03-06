@@ -29,9 +29,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const sessionUser = authService.getSession();
       if (sessionUser) {
         setUser(sessionUser);
-      } else {
-        const refreshed = await authService.refreshUserData();
-        setUser(refreshed);
       }
     } catch (error) {
       console.error("Error loading user:", error);
