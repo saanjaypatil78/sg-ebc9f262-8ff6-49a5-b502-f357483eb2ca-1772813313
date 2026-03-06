@@ -175,14 +175,14 @@ export const commissionService = {
         .insert({
           user_id: userId,
           current_rank: 'grey',
-          rank_color: '#6B7280',
+          rank_color: 'grey',
           total_network_commission: additionalCommission.toString()
         });
       return;
     }
 
-    // Calculate new total - total_network_commission is numeric(15,2) which maps to number
-    const currentTotal = Number(ranking.total_network_commission) || 0;
+    // Calculate new total - total_network_commission is numeric(15,2) which maps to string in Supabase types
+    const currentTotal = parseFloat(ranking.total_network_commission || '0');
     const newTotal = currentTotal + additionalCommission;
 
     await supabase
@@ -286,8 +286,8 @@ export const commissionService = {
       .eq('user_id', userId)
       .single();
 
-    // total_network_commission is numeric(15,2) which maps to number
-    const totalEarned = Number(ranking?.total_network_commission) || 0;
+    // total_network_commission is stored as string in database (numeric type)
+    const totalEarned = parseFloat(ranking?.total_network_commission || '0');
     const bronzeProgress = (totalEarned / COMMISSION_RATES.BRONZE_THRESHOLD) * 100;
 
     return {
