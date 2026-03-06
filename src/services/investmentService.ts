@@ -73,7 +73,7 @@ export const investmentService = {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as InvestmentAgreement;
   },
 
   /**
@@ -117,7 +117,7 @@ export const investmentService = {
       .order('investment_date', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as unknown as InvestmentAgreement[];
   },
 
   /**
@@ -131,7 +131,7 @@ export const investmentService = {
       .order('payout_month', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as unknown as MonthlyPayout[];
   },
 
   /**
@@ -164,7 +164,7 @@ export const investmentService = {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as MonthlyPayout;
   },
 
   /**
