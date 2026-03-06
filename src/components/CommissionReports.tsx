@@ -2,11 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { formatCurrency } from "@/lib/utils";
 import { Trophy, TrendingUp, Users, Award } from "lucide-react";
 
-interface CommissionReportsProps {
-  // Props can be expanded as needed
-}
-
-export function CommissionReports({ }: CommissionReportsProps) {
+export function CommissionReports() {
   // In a real app, these would be fetched via commissionService
   // Mock data for display based on your "Public Ledger" requirement
   const topEarners = [

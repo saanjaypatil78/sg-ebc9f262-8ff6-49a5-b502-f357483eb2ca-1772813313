@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         status: status,
         callback_data: decodedData,
         completed_at: new Date().toISOString()
-      } as any)
+      } as any) // Explicit cast to bypass "excessively deep" type error
       .eq('merchant_transaction_id', merchantTransactionId)
       .select()
       .single();

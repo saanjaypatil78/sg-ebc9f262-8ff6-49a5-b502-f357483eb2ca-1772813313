@@ -191,9 +191,9 @@ export const commissionService = {
     await supabase
       .from('user_rankings')
       .update({ 
-        total_network_commission: newTotal, // Supabase client handles number -> numeric conversion
+        total_network_commission: newTotal.toString(), // Convert to string for database
         updated_at: new Date().toISOString()
-      } as any) // Bypass type check for partial update
+      })
       .eq('user_id', userId);
 
     // Check for Bronze qualification (₹1 Cr)
