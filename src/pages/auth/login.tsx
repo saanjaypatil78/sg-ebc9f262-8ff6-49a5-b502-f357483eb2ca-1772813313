@@ -60,7 +60,7 @@ export default function LoginPage() {
       const user = result.user!;
 
       // Step 2: Check if 2FA is enabled
-      const has2FA = await twoFactorService.is2FAEnabled(user.id);
+      const has2FA = await twoFactorService.isEnabled(user.id);
       
       if (has2FA) {
         setTempUserId(user.id);
@@ -80,10 +80,10 @@ export default function LoginPage() {
       };
 
       // Check if device binding is required (>5 Cr investors)
-      const deviceBindingPolicy = await abacPolicyEngine.evaluate(
-        'HIGH_VALUE_DEVICE_BINDING',
-        abacContext
-      );
+      const deviceBindingPolicy = await abacPolicyEngine.evaluate({
+        policyName: 'HIGH_VALUE_DEVICE_BINDING',
+        context: abacContext
+      });
 
       if (!deviceBindingPolicy.allowed) {
         setDeviceBindingRequired(true);
@@ -94,10 +94,10 @@ export default function LoginPage() {
       }
 
       // Step 4: Check time window policy
-      const timeWindowPolicy = await abacPolicyEngine.evaluate(
-        'BUSINESS_HOURS_ONLY',
-        abacContext
-      );
+      const timeWindowPolicy = await abacPolicyEngine.evaluate({
+        policyName: 'BUSINESS_HOURS_ONLY',
+        context: abacContext
+      });
 
       if (!timeWindowPolicy.allowed) {
         toast({
@@ -141,7 +141,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const isValid = await twoFactorService.verify2FA(tempUserId, twoFactorCode);
+      const isValid = await twoFactorService.verifyLoginToken(tempUserId, twoFactorCode);
 
       if (!isValid) {
         toast({
