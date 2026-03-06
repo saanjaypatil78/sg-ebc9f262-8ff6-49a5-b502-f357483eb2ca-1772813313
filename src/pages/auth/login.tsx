@@ -1,78 +1,352 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Mail, Lock, LogIn, Loader2, Shield } from "lucide-react";
+import { Mail, Lock, ArrowRight, Shield, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/authService";
+import { twoFactorService } from "@/lib/security/2fa-service";
+import { deviceFingerprintService } from "@/lib/security/device-fingerprint-service";
+import { abacPolicyEngine } from "@/lib/security/abac-policy-engine";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { toast } = useToast();
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // 2FA state
+  const [show2FA, setShow2FA] = useState(false);
+  const [twoFactorCode, setTwoFactorCode] = useState("");
+  const [tempUserId, setTempUserId] = useState("");
+  
+  // Device binding state
+  const [showDeviceWarning, setShowDeviceWarning] = useState(false);
+  const [deviceBindingRequired, setDeviceBindingRequired] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+    
+    if (!email || !password) {
+      toast({
+        title: "Missing Credentials",
+        description: "Please enter email and password",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
-      // OPTIMIZED LOGIN - Instant redirect
+      // Step 1: Authenticate
       const result = await authService.login(email, password);
 
-      if (result.success && result.redirectTo) {
-        // Instant redirect (no delay)
-        router.push(result.redirectTo);
-      } else {
-        setError(result.error || "Login failed");
-        setLoading(false);
+      if (!result.success) {
+        toast({
+          title: "Login Failed",
+          description: result.error || "Invalid credentials",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
       }
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-      setLoading(false);
+
+      const user = result.user!;
+
+      // Step 2: Check if 2FA is enabled
+      const has2FA = await twoFactorService.is2FAEnabled(user.id);
+      
+      if (has2FA) {
+        setTempUserId(user.id);
+        setShow2FA(true);
+        setIsLoading(false);
+        return;
+      }
+
+      // Step 3: ABAC Policy Checks (Investment-based)
+      const abacContext = {
+        userId: user.id,
+        role: user.role,
+        investmentAmount: 60000000, // TODO: Get from database
+        deviceFingerprint: await deviceFingerprintService.generateFingerprint(),
+        ipAddress: 'user-ip', // TODO: Get from request
+        timestamp: new Date(),
+      };
+
+      // Check if device binding is required (>5 Cr investors)
+      const deviceBindingPolicy = await abacPolicyEngine.evaluate(
+        'HIGH_VALUE_DEVICE_BINDING',
+        abacContext
+      );
+
+      if (!deviceBindingPolicy.allowed) {
+        setDeviceBindingRequired(true);
+        setShowDeviceWarning(true);
+        setTempUserId(user.id);
+        setIsLoading(false);
+        return;
+      }
+
+      // Step 4: Check time window policy
+      const timeWindowPolicy = await abacPolicyEngine.evaluate(
+        'BUSINESS_HOURS_ONLY',
+        abacContext
+      );
+
+      if (!timeWindowPolicy.allowed) {
+        toast({
+          title: "Access Restricted",
+          description: "High-value operations are only allowed during business hours (9 AM - 6 PM)",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Step 5: Success - redirect
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${user.name}!`,
+      });
+
+      router.push(result.redirectTo || "/dashboard");
+    } catch (error) {
+      console.error("Login error:", error);
+      toast({
+        title: "Login Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const handleVerify2FA = async () => {
+    if (!twoFactorCode || twoFactorCode.length !== 6) {
+      toast({
+        title: "Invalid Code",
+        description: "Please enter a valid 6-digit code",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const isValid = await twoFactorService.verify2FA(tempUserId, twoFactorCode);
+
+      if (!isValid) {
+        toast({
+          title: "Invalid Code",
+          description: "The verification code is incorrect",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // 2FA verified - proceed with login
+      const user = authService.getSession();
+      
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${user?.name}!`,
+      });
+
+      const redirectTo = authService.getCurrentRole() 
+        ? `/dashboard/${authService.getCurrentRole()?.toLowerCase()}`
+        : "/dashboard";
+
+      router.push(redirectTo);
+    } catch (error) {
+      console.error("2FA verification error:", error);
+      toast({
+        title: "Verification Error",
+        description: "Failed to verify code",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegisterDevice = async () => {
+    setIsLoading(true);
+
+    try {
+      await deviceFingerprintService.registerTrustedDevice(tempUserId, "Current Device");
+      
+      toast({
+        title: "Device Registered",
+        description: "This device is now trusted for high-value operations",
+      });
+
+      // Proceed with login
+      const user = authService.getSession();
+      const redirectTo = authService.getCurrentRole() 
+        ? `/dashboard/${authService.getCurrentRole()?.toLowerCase()}`
+        : "/dashboard";
+
+      router.push(redirectTo);
+    } catch (error) {
+      console.error("Device registration error:", error);
+      toast({
+        title: "Registration Error",
+        description: "Failed to register device",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Show 2FA verification screen
+  if (show2FA) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+        <Card className="w-full max-w-md border-slate-800 bg-slate-900/80 backdrop-blur-sm">
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+              <Shield className="w-8 h-8 text-white" />
+            </div>
+            <CardTitle className="text-2xl font-bold text-white">Two-Factor Authentication</CardTitle>
+            <CardDescription className="text-slate-400">
+              Enter the 6-digit code from your authenticator app
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="twoFactorCode" className="text-slate-300">Verification Code</Label>
+              <Input
+                id="twoFactorCode"
+                type="text"
+                placeholder="000000"
+                maxLength={6}
+                value={twoFactorCode}
+                onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))}
+                className="bg-slate-800 border-slate-700 text-white text-center text-2xl tracking-widest"
+              />
+            </div>
+
+            <Button
+              onClick={handleVerify2FA}
+              disabled={isLoading || twoFactorCode.length !== 6}
+              className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500"
+            >
+              {isLoading ? "Verifying..." : "Verify & Login"}
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              onClick={() => setShow2FA(false)}
+              className="w-full text-slate-400 hover:text-white"
+            >
+              Back to Login
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show device binding warning
+  if (showDeviceWarning) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+        <Card className="w-full max-w-md border-amber-500/20 bg-slate-900/80 backdrop-blur-sm">
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-500/10 flex items-center justify-center">
+              <AlertTriangle className="w-8 h-8 text-amber-400" />
+            </div>
+            <CardTitle className="text-2xl font-bold text-white">Device Binding Required</CardTitle>
+            <CardDescription className="text-slate-400">
+              Your account has investments ≥ ₹5 Crore
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/20">
+              <p className="text-sm text-slate-300">
+                For your security, high-value accounts require trusted device binding. 
+                This ensures only authorized devices can access your account and execute transactions.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm text-slate-400">This will:</p>
+              <ul className="space-y-1 text-sm text-slate-300">
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                  Register this device as trusted
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                  Enable high-value operations
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                  Require this device for transactions ≥ ₹1 Cr
+                </li>
+              </ul>
+            </div>
+
+            <Button
+              onClick={handleRegisterDevice}
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500"
+            >
+              {isLoading ? "Registering..." : "Register This Device"}
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              onClick={() => setShowDeviceWarning(false)}
+              className="w-full text-slate-400 hover:text-white"
+            >
+              Cancel Login
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show normal login screen
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 p-4">
-      <Card className="w-full max-w-md border-slate-800 bg-slate-900/50 backdrop-blur">
-        <CardHeader className="space-y-1 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+      <Card className="w-full max-w-md border-slate-800 bg-slate-900/80 backdrop-blur-sm">
+        <CardHeader className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-            <LogIn className="w-8 h-8 text-white" />
+            <Shield className="w-8 h-8 text-white" />
           </div>
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            Welcome Back
-          </CardTitle>
+          <CardTitle className="text-2xl font-bold text-white">Welcome Back</CardTitle>
           <CardDescription className="text-slate-400">
             Sign in to access your investment dashboard
           </CardDescription>
         </CardHeader>
-
-        <CardContent className="space-y-4">
-          {error && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-              {error}
-            </div>
-          )}
-
+        <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-slate-300">Email Address</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Mail className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@sunray.eco"
+                  placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                  className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                   required
-                  disabled={loading}
                 />
               </div>
             </div>
@@ -80,16 +354,15 @@ export default function LoginPage() {
             <div className="space-y-2">
               <Label htmlFor="password" className="text-slate-300">Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Lock className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
                 <Input
                   id="password"
                   type="password"
-                  placeholder="••••••••••"
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                  className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                   required
-                  disabled={loading}
                 />
               </div>
             </div>
@@ -105,43 +378,22 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white"
-              disabled={loading}
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500"
             >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                <>
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Sign In
-                </>
-              )}
+              {isLoading ? "Signing in..." : "Sign In"}
+              <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </form>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-700"></div>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-slate-900 px-2 text-slate-500">Or</span>
-            </div>
-          </div>
-
-          <div className="text-center text-sm">
-            <span className="text-slate-400">Don&apos;t have an account? </span>
-            <Link 
-              href="/auth/register" 
-              className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
-            >
+          <div className="mt-6 text-center text-sm text-slate-400">
+            Don't have an account?{" "}
+            <Link href="/auth/register" className="text-cyan-400 hover:text-cyan-300 transition-colors">
               Create Account
             </Link>
           </div>
 
-          <div className="flex items-center justify-center gap-2 text-xs text-slate-500 mt-6">
+          <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-500">
             <Shield className="w-3 h-3" />
             <span>Secured with bank-grade encryption</span>
           </div>
