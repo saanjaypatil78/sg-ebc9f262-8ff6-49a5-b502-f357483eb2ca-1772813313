@@ -176,7 +176,7 @@ export const commissionService = {
           user_id: userId,
           current_rank: 'grey',
           rank_color: '#6B7280',
-          total_network_commission: additionalCommission
+          total_network_commission: additionalCommission.toString()
         });
       return;
     }
@@ -188,7 +188,7 @@ export const commissionService = {
     await supabase
       .from('user_rankings')
       .update({ 
-        total_network_commission: newTotal, // Pass as number, not string
+        total_network_commission: newTotal.toString(),
         updated_at: new Date().toISOString()
       })
       .eq('user_id', userId);
