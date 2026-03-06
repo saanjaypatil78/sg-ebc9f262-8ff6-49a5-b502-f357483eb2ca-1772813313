@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GlassmorphicCard } from "./GlassmorphicCard";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -50,8 +50,13 @@ function generateMockPayouts() {
 export function PublicLedger() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
-  
-  const allPayouts = generateMockPayouts();
+  const [allPayouts, setAllPayouts] = useState<any[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setAllPayouts(generateMockPayouts());
+    setIsMounted(true);
+  }, []);
   
   // Group by month
   const payoutsByMonth = allPayouts.reduce((acc, payout) => {
@@ -75,6 +80,8 @@ export function PublicLedger() {
     p.utr.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.txnId.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (!isMounted) return null; // Prevent hydration mismatch
 
   return (
     <section id="transparency" className="py-24 bg-gradient-to-br from-slate-950 via-purple-950/50 to-slate-900">
