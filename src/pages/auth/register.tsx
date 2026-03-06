@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -16,8 +16,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, ShieldCheck, Banknote, UserPlus } from "lucide-react";
+import { Loader2, ShieldCheck, Banknote, UserPlus, TrendingUp, Mail, Shield, Building2, CreditCard, Users, AlertCircle, Lock, User, Phone, MapPin } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { supabase } from "@/integrations/supabase/client";
+import { SEO } from "@/components/SEO";
 
 type UserRole = "investor" | "franchise_partner" | "admin" | "super_admin";
 
