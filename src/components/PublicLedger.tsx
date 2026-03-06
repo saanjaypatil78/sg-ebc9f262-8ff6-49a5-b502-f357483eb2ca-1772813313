@@ -28,8 +28,8 @@ import {
 } from "@/lib/mock-data/comprehensive-ledger";
 
 export function PublicLedger() {
-  const [investors, setInvestors] = useState<LedgerInvestor[]>([]);
-  const [filteredInvestors, setFilteredInvestors] = useState<LedgerInvestor[]>([]);
+  const [investors, setInvestors] = useState<LedgerInvestor[]>(COMPREHENSIVE_LEDGER_DATA); // Load immediately
+  const [filteredInvestors, setFilteredInvestors] = useState<LedgerInvestor[]>(COMPREHENSIVE_LEDGER_DATA); // Load immediately
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedInvestor, setSelectedInvestor] = useState<LedgerInvestor | null>(null);
@@ -45,11 +45,8 @@ export function PublicLedger() {
     setIsMounted(true);
   }, []);
 
-  // Load data on mount
-  useEffect(() => {
-    setInvestors(COMPREHENSIVE_LEDGER_DATA);
-    setFilteredInvestors(COMPREHENSIVE_LEDGER_DATA);
-  }, []);
+  // Remove the loading effect that was blocking rendering
+  // Data is now loaded immediately from state initialization
 
   // Auto-scroll to section if URL has #transparency hash
   useEffect(() => {
@@ -307,7 +304,7 @@ export function PublicLedger() {
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.1 * (idx % 12) }}
               >
-                <Card className="bg-slate-900/50 border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">
+                <Card className="bg-slate-900 border-2 border-slate-700 hover:border-cyan-500 transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/30">
                   <CardContent className="p-6">
                     {/* Header */}
                     <div className="flex items-start justify-between mb-4">
@@ -402,11 +399,12 @@ export function PublicLedger() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-2">
+          <div className="flex justify-center items-center gap-2 flex-wrap">
             <Button
               variant="outline"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
+              className="bg-slate-800 border-slate-600 hover:bg-slate-700 hover:border-cyan-500"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
@@ -421,7 +419,7 @@ export function PublicLedger() {
 
               if (!showPage) {
                 if (page === 4 || page === totalPages - 3) {
-                  return <span key={page} className="text-slate-500">...</span>;
+                  return <span key={page} className="text-slate-500 px-2">...</span>;
                 }
                 return null;
               }
@@ -431,6 +429,10 @@ export function PublicLedger() {
                   key={page}
                   variant={currentPage === page ? "default" : "outline"}
                   onClick={() => handlePageChange(page)}
+                  className={currentPage === page 
+                    ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" 
+                    : "bg-slate-800 border-slate-600 hover:bg-slate-700 hover:border-cyan-500 text-white"
+                  }
                 >
                   {page}
                 </Button>
@@ -441,6 +443,7 @@ export function PublicLedger() {
               variant="outline"
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
+              className="bg-slate-800 border-slate-600 hover:bg-slate-700 hover:border-cyan-500"
             >
               <ChevronRight className="w-4 h-4" />
             </Button>
