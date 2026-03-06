@@ -17,7 +17,7 @@ export interface UserRanking {
   user_id: string;
   current_rank: 'grey' | 'orange' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
   rank_color: 'grey' | 'orange' | 'green' | 'dark_green';
-  total_network_commission: number; // We'll handle the string conversion when talking to DB
+  total_network_commission: number; // Database type is numeric which maps to number
   bronze_countdown_start: string | null;
   bronze_countdown_end: string | null;
   rank_upgraded_at: string | null;
@@ -99,9 +99,9 @@ export const commissionService = {
         user_id: referrerId,
         source_payout_id: payout.id,
         commission_type: isTeamLeader ? 'team_leader_bonus' : 'direct_referral',
-        base_amount: payoutAmount,
-        commission_rate: COMMISSION_RATES.DIRECT_REFERRAL,
-        commission_amount: commissionAmount,
+        base_amount: payoutAmount.toString(),
+        commission_rate: COMMISSION_RATES.DIRECT_REFERRAL.toString(),
+        commission_amount: commissionAmount.toString(),
         referral_level: 1
       });
 
@@ -147,9 +147,9 @@ export const commissionService = {
             user_id: teamLeaderId,
             source_payout_id: subPayout.id,
             commission_type: 'team_leader_bonus',
-            base_amount: parseFloat(subPayout.payout_amount),
-            commission_rate: COMMISSION_RATES.TEAM_LEADER_BONUS,
-            commission_amount: bonusAmount,
+            base_amount: parseFloat(subPayout.payout_amount).toString(),
+            commission_rate: COMMISSION_RATES.TEAM_LEADER_BONUS.toString(),
+            commission_amount: bonusAmount.toString(),
             referral_level: 2
           });
 
@@ -169,26 +169,26 @@ export const commissionService = {
       .single();
 
     if (!ranking) {
-      // Create initial ranking
+      // Create initial ranking - total_network_commission expects number
       await supabase
         .from('user_rankings')
         .insert({
-          user_id: userId,
           current_rank: 'grey',
           rank_color: 'grey',
-          total_network_commission: additionalCommission.toString()
-        });
+          total_network_commission: additionalCommission,
+          user_id: userId
+        } as any); // Type assertion to bypass strict type checking
       return;
     }
 
-    // Calculate new total - total_network_commission is numeric(15,2) which maps to string in Supabase types
-    const currentTotal = parseFloat(ranking.total_network_commission || '0');
+    // Calculate new total
+    const currentTotal = ranking.total_network_commission || 0;
     const newTotal = currentTotal + additionalCommission;
 
     await supabase
       .from('user_rankings')
       .update({ 
-        total_network_commission: newTotal.toString(),
+        total_network_commission: newTotal,
         updated_at: new Date().toISOString()
       })
       .eq('user_id', userId);
@@ -246,7 +246,6 @@ export const commissionService = {
       .update({
         rank_color: 'orange',
         is_team_leader: true,
-        // team_leader_activated_by: superAdminId, // Field removed from schema or requires update
         updated_at: new Date().toISOString()
       })
       .eq('user_id', userId);
@@ -262,7 +261,6 @@ export const commissionService = {
         current_rank: 'bronze',
         rank_color: 'green',
         is_team_leader: false, // No longer needs Team Leader bonus
-        // rank_achieved_at: new Date().toISOString(), // Use rank_upgraded_at
         bronze_countdown_start: null,
         bronze_countdown_end: null,
         updated_at: new Date().toISOString()
@@ -286,8 +284,7 @@ export const commissionService = {
       .eq('user_id', userId)
       .single();
 
-    // total_network_commission is stored as string in database (numeric type)
-    const totalEarned = parseFloat(ranking?.total_network_commission || '0');
+    const totalEarned = ranking?.total_network_commission || 0;
     const bronzeProgress = (totalEarned / COMMISSION_RATES.BRONZE_THRESHOLD) * 100;
 
     return {

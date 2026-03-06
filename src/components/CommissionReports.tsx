@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DollarSign, Trophy, TrendingUp } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { Trophy, TrendingUp, Users, Award } from "lucide-react";
 
 export function CommissionReports() {
   // In a real app, these would be fetched via commissionService

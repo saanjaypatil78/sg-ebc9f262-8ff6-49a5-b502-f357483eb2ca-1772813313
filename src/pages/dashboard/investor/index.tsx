@@ -23,29 +23,26 @@ export default function InvestorDashboard() {
   const [nextPayoutDate, setNextPayoutDate] = useState("");
 
   useEffect(() => {
+    async function loadInvestorData() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return; // Handle null user gracefully
+        
+        const summary = await investmentService.getPortfolioSummary(user.id);
+        const active = await investmentService.getInvestorAgreements(user.id);
+        const history = await investmentService.getPayoutHistory(user.id);
+        
+        setPortfolioSummary(summary);
+      } catch (error) {
+        console.error("Failed to load investor data", error);
+      } finally {
+        setLoading(false);
+      }
+    }
     if (user) {
       loadInvestorData();
     }
   }, [user]);
-
-  const loadInvestorData = async () => {
-    try {
-      const [summ, agrs, pays] = await Promise.all([
-        investmentService.getPortfolioSummary(user!.id),
-        investmentService.getInvestorAgreements(user!.id),
-        investmentService.getPayoutHistory(user!.id)
-      ]);
-      
-      setSummary(summ);
-      setAgreements(agrs);
-      setPayouts(pays);
-      setNextPayoutDate(investmentService.calculateNextPayoutDate());
-    } catch (error) {
-      console.error("Failed to load investor data", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <>
