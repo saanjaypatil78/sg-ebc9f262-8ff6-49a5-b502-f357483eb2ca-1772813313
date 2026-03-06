@@ -769,6 +769,48 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_tree: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active_investor: boolean | null
+          referral_level: number | null
+          referrer_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active_investor?: boolean | null
+          referral_level?: number | null
+          referrer_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active_investor?: boolean | null
+          referral_level?: number | null
+          referrer_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_tree_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_tree_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       returns: {
         Row: {
           admin_notes: string | null
