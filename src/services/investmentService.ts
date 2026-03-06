@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { getNextPayoutDate, isPayoutExcluded } from "@/lib/calendar/payout-exclusions";
 
 export interface InvestmentAgreement {
   id: string;
@@ -77,25 +78,14 @@ export const investmentService = {
   },
 
   /**
-   * Calculate next payout date (1st-5th of month, excluding holidays)
+   * Calculate next payout date (1st-5th of next month, excluding weekends/holidays)
    */
-  calculateNextPayoutDate(): string {
+  calculateNextPayoutDate(): Date {
     const now = new Date();
-    const currentDay = now.getDate();
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     
-    const payoutDate = new Date(now);
-    
-    // If we're past the 5th, move to next month
-    if (currentDay > 5) {
-      payoutDate.setMonth(payoutDate.getMonth() + 1);
-    }
-    
-    // Set to 1st of the month
-    payoutDate.setDate(1);
-    
-    // TODO: Integrate Google Calendar API to skip holidays
-    // For now, just return the 1st
-    return payoutDate.toISOString().split('T')[0];
+    // Use calendar exclusion logic
+    return getNextPayoutDate(nextMonth);
   },
 
   /**
