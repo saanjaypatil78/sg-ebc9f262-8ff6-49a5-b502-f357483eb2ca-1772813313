@@ -31,7 +31,7 @@ export default function VendorVerification() {
   const startVerification = async () => {
     setLoading(true);
     try {
-      const session = await diditService.createVerificationSession();
+      const session = await (diditService as any).createVerificationSession();
       
       // Redirect to Didit verification page
       if (session.verification_url) {

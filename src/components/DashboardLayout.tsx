@@ -10,7 +10,7 @@ import { useRouter } from "next/router";
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  role?: "investor" | "admin" | "vendor" | "client" | "bdm" | "franchise";
+  role?: "investor" | "admin" | "super_admin" | "vendor" | "client" | "bdm" | "franchise" | "franchise_partner";
 }
 
 export function DashboardLayout({ children, role = "investor" }: DashboardLayoutProps) {

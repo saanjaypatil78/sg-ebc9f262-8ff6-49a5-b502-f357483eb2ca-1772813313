@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { SEO } from "@/components/SEO";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { GlassmorphicCard } from "@/components/GlassmorphicCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
