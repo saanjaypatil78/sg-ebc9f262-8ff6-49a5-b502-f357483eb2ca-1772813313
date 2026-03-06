@@ -24,10 +24,10 @@ export default function Home() {
   });
 
   // Ultra-strong parallax transforms for maximum visibility (2x stronger)
-  const y1 = useTransform(scrollYProgress, [0, 1], [100, -800]);   // 2x stronger (was -400)
-  const y2 = useTransform(scrollYProgress, [0, 1], [-100, 600]);   // 2x stronger (was 300)
-  const y3 = useTransform(scrollYProgress, [0, 1], [50, -500]);    // 2x stronger (was -250)
-  const y4 = useTransform(scrollYProgress, [0, 1], [-50, 300]);    // 2x stronger (was 150)
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -800]);   // 2x stronger (was -400)
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, 600]);   // 2x stronger (was 300)
+  const y3 = useTransform(scrollYProgress, [0, 1], [0, -500]);    // 2x stronger (was -250)
+  const y4 = useTransform(scrollYProgress, [0, 1], [0, 300]);    // 2x stronger (was 150)
   
   // Advanced cinematic effects
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.5, 0.8, 1], [1, 0.95, 0.85, 0.7, 0.5]);
@@ -56,9 +56,9 @@ export default function Home() {
         description="Join the exclusive ₹12 Crore investment opportunity. 15% monthly returns with full transparency. Only 28 slots available."
       />
       
-      <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black relative">
-        {/* ULTRA-ENHANCED 4-Layer Parallax Background - MAXIMUM INTENSITY */}
-        <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+      <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black relative overflow-x-hidden">
+        {/* ULTRA-ENHANCED 4-Layer Parallax Background - MAXIMUM INTENSITY - CHANGED TO ABSOLUTE */}
+        <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
           {/* Layer 1: Copper (Ultra Fast) - 2x stronger */}
           <motion.div 
             style={{ y: y1, rotate, scale }}
@@ -315,8 +315,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Public Ledger */}
-        <div className="relative z-10">
+        {/* Public Ledger - ENSURE VISIBILITY */}
+        <div className="relative z-10 bg-slate-950">
           <PublicLedger />
         </div>
 

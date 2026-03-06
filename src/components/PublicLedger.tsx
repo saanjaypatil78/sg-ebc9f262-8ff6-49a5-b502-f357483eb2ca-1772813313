@@ -17,7 +17,9 @@ import {
   Filter,
   X
 } from "lucide-react";
-import { MOCK_INVESTORS, INVESTOR_STATS, type InvestorData } from "@/lib/mock-data/investors";
+import { INVESTOR_STATS } from "@/lib/mock-data/investors";
+import { getAllInvestors, type InvestorData } from "@/services/investorService";
+import { Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
 export function PublicLedger() {
@@ -27,6 +29,8 @@ export function PublicLedger() {
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedInvestor, setSelectedInvestor] = useState<InvestorData | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [allInvestors, setAllInvestors] = useState<InvestorData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Filters state
   const [filters, setFilters] = useState({
@@ -49,20 +53,38 @@ export function PublicLedger() {
   const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
   const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.4, 1, 1, 0.4]);
   
-  // Auto-scroll through pages
+  // Fetch Real Backend Data
   useEffect(() => {
     setIsMounted(true);
-    if (!isInView) return;
+    const loadInvestors = async () => {
+      try {
+        const data = await getAllInvestors();
+        setAllInvestors(data);
+      } catch (error) {
+        console.error("Failed to load investors:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadInvestors();
+  }, []);
+
+  // Auto-scroll through pages
+  useEffect(() => {
+    if (!isInView || allInvestors.length === 0) return;
     
     const interval = setInterval(() => {
-      setCurrentPage(prev => (prev + 1) % Math.ceil(filteredInvestors.length / itemsPerPage));
+      setCurrentPage(prev => {
+        const maxPages = Math.ceil(filteredInvestors.length / itemsPerPage);
+        return maxPages > 0 ? (prev + 1) % maxPages : 0;
+      });
     }, 5000);
     
     return () => clearInterval(interval);
-  }, [isInView]);
+  }, [isInView, allInvestors.length]);
   
   // Apply filters
-  const filteredInvestors = MOCK_INVESTORS.filter(inv => {
+  const filteredInvestors = allInvestors.filter(inv => {
     if (filters.rank !== 'all' && inv.rank !== filters.rank) return false;
     if (inv.investment_amount < filters.minInvestment || inv.investment_amount > filters.maxInvestment) return false;
     if (filters.dateFrom && new Date(inv.investment_date) < new Date(filters.dateFrom)) return false;
@@ -144,7 +166,7 @@ export function PublicLedger() {
           className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12"
         >
           {[
-            { label: "Active Investors", value: filteredInvestors.length.toLocaleString(), icon: Users, color: "text-purple-400" },
+            { label: "Active Investors", value: allInvestors.length.toLocaleString(), icon: Users, color: "text-purple-400" },
             { label: "Total Investment", value: formatCurrency(filteredInvestors.reduce((sum, inv) => sum + inv.investment_amount, 0)), icon: DollarSign, color: "text-green-400" },
             { label: "Total Payouts", value: formatCurrency(filteredInvestors.reduce((sum, inv) => sum + inv.total_payouts, 0)), icon: TrendingUp, color: "text-cyan-400" },
             { label: "Success Rate", value: "100%", icon: Award, color: "text-yellow-400" },
@@ -268,7 +290,16 @@ export function PublicLedger() {
             
             {/* Table Rows */}
             <div className="space-y-2 mt-4">
-              {currentInvestors.map((investor, idx) => (
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                  <Loader2 className="w-8 h-8 animate-spin mb-4 text-orange-500" />
+                  <p>Loading real-time investor data from database...</p>
+                </div>
+              ) : currentInvestors.length === 0 ? (
+                <div className="text-center py-12 text-slate-400">
+                  No investors found matching your criteria.
+                </div>
+              ) : currentInvestors.map((investor, idx) => (
                 <motion.div
                   key={investor.id}
                   initial={{ opacity: 0, x: -20 }}
