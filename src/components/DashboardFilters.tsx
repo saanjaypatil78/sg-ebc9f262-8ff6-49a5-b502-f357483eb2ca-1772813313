@@ -22,6 +22,7 @@ export interface FilterState {
   dateTo: Date | undefined;
   status: string;
   search?: string;
+  role?: string;
 }
 
 export function DashboardFilters({ 
@@ -36,7 +37,8 @@ export function DashboardFilters({
     dateFrom: undefined,
     dateTo: undefined,
     status: "all",
-    search: ""
+    search: "",
+    role: "all"
   });
 
   const [showFilters, setShowFilters] = useState(false);
