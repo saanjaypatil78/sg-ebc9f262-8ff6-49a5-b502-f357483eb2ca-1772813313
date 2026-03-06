@@ -342,7 +342,7 @@ export default function Home() {
         </section>
 
         {/* Public Ledger - ENSURE VISIBILITY */}
-        <div className="relative z-10 bg-slate-950">
+        <div className="relative z-50 bg-slate-950">
           <PublicLedger />
         </div>
 
