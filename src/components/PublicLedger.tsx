@@ -54,7 +54,36 @@ export function PublicLedger() {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setAllPayouts(generateMockPayouts());
+    // Generate mock data: Mar 2026 back to Jan 2024
+    const generatedData: Transaction[] = [];
+    const startDate = new Date('2024-01-01');
+    const endDate = new Date('2026-03-01');
+    
+    const currentDate = new Date(endDate);
+    
+    while (currentDate >= startDate) {
+      // Generate 1-3 payouts for this day if it's a payout day (1st-5th)
+      const day = currentDate.getDate();
+      if (day <= 5) {
+        const numPayouts = Math.floor(Math.random() * 3) + 1;
+        
+        for (let i = 0; i < numPayouts; i++) {
+          generatedData.push({
+            id: `TXN${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+            utr: `CMS${Math.random().toString(36).substr(2, 12).toUpperCase()}`,
+            date: currentDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+            amount: Math.floor(Math.random() * (500000 - 10000) + 10000),
+            status: "Success",
+            user: `User${Math.floor(Math.random() * 9000) + 1000}`
+          });
+        }
+      }
+      
+      // Move back one day
+      currentDate.setDate(currentDate.getDate() - 1);
+    }
+    
+    setAllPayouts(generatedData);
     setIsMounted(true);
   }, []);
   

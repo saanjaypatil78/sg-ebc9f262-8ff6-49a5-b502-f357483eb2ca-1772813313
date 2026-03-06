@@ -36,7 +36,13 @@ export default function InvestorDashboard() {
         setSummary(summary);
         setAgreements(active);
         setPayouts(history);
-        setNextPayoutDate(investmentService.calculateNextPayoutDate());
+        // Load next payout date
+        const nextDate = investmentService.calculateNextPayoutDate();
+        setNextPayoutDate(nextDate.toLocaleDateString('en-IN', { 
+          day: 'numeric', 
+          month: 'long', 
+          year: 'numeric' 
+        }));
       } catch (error) {
         console.error("Failed to load investor data", error);
       }
