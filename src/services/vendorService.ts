@@ -164,5 +164,139 @@ export const vendorService = {
 
     if (error) throw error;
     return data;
+  },
+
+  /**
+   * Register a new vendor profile
+   */
+  async registerVendor(userId: string, data: any) {
+    const { data: vendor, error } = await supabase
+      .from('vendors')
+      .insert({
+        user_id: userId,
+        business_name: data.businessName,
+        business_type: data.businessType,
+        gst_number: data.gstNumber,
+        pickup_address: data.pickupAddress,
+        vendor_status: 'pending',
+        onboarding_step: 'verification'
+      } as any)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return vendor;
+  },
+
+  /**
+   * Get vendor profile
+   */
+  async getVendorProfile(userId: string) {
+    const { data, error } = await supabase
+      .from('vendors')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+    
+    // Allow error if not found (user might not be a vendor yet)
+    if (error && error.code !== 'PGRST116') throw error;
+    return data;
+  },
+
+  /**
+   * Update vendor status (Admin only)
+   */
+  async updateVendorStatus(vendorId: string, status: 'active' | 'suspended' | 'rejected') {
+    const { data, error } = await supabase
+      .from('vendors')
+      .update({ vendor_status: status } as any)
+      .eq('id', vendorId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Update onboarding step
+   */
+  async updateOnboardingStep(vendorId: string, step: string) {
+    const { data, error } = await supabase
+      .from('vendors')
+      .update({ onboarding_step: step } as any)
+      .eq('id', vendorId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Get vendor stats
+   */
+  async getVendorStats(vendorId: string) {
+    const { data: vendor, error: vendorError } = await supabase
+      .from('vendors')
+      .select('*')
+      .eq('id', vendorId)
+      .single();
+
+    if (vendorError) throw vendorError;
+
+    // In a real app, these would be aggregated queries
+    // For now, return mock stats or basic counts
+    return {
+      totalOrders: 0,
+      totalRevenue: 0,
+      pendingOrders: 0,
+      returnRate: 0
+    };
+  },
+
+  /**
+   * Get vendor orders
+   */
+  async getVendorOrders(vendorId: string) {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('vendor_id', vendorId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  /**
+   * Get vendor returns
+   */
+  async getVendorReturns(vendorId: string) {
+    const { data, error } = await supabase
+      .from('returns')
+      .select('*, orders(*)')
+      .eq('vendor_id', vendorId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  /**
+   * Update vendor metrics
+   */
+  async updateVendorMetrics(vendorId: string, metrics: any) {
+    const { error } = await supabase
+      .from('vendors')
+      .update({
+        total_orders: metrics.totalOrders,
+        successful_deliveries: metrics.successfulDeliveries,
+        on_time_delivery_rate: metrics.onTimeDeliveryRate,
+        return_rate: metrics.returnRate
+      } as any)
+      .eq('id', vendorId);
+
+    if (error) throw error;
   }
 };

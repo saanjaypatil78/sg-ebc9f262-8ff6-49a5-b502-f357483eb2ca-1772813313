@@ -175,22 +175,22 @@ export const commissionService = {
         .insert({
           current_rank: 'grey',
           rank_color: 'grey',
-          total_network_commission: additionalCommission,
+          total_network_commission: additionalCommission.toString(),
           user_id: userId
         } as any); // Type assertion to bypass strict type checking
       return;
     }
 
     // Calculate new total
-    const currentTotal = ranking.total_network_commission || 0;
+    const currentTotal = parseFloat(ranking.total_network_commission as unknown as string) || 0;
     const newTotal = currentTotal + additionalCommission;
 
     await supabase
       .from('user_rankings')
       .update({ 
-        total_network_commission: newTotal,
+        total_network_commission: newTotal.toString(),
         updated_at: new Date().toISOString()
-      })
+      } as any)
       .eq('user_id', userId);
 
     // Check for Bronze qualification (₹1 Cr)
