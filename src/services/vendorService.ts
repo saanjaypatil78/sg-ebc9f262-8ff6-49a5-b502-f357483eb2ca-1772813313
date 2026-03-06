@@ -281,22 +281,5 @@ export const vendorService = {
 
     if (error) throw error;
     return data || [];
-  },
-
-  /**
-   * Update vendor metrics
-   */
-  async updateVendorMetrics(vendorId: string, metrics: any) {
-    const { error } = await supabase
-      .from('vendors')
-      .update({
-        total_orders: metrics.totalOrders,
-        successful_deliveries: metrics.successfulDeliveries,
-        on_time_delivery_rate: metrics.onTimeDeliveryRate,
-        return_rate: metrics.returnRate
-      } as any)
-      .eq('id', vendorId);
-
-    if (error) throw error;
   }
 };

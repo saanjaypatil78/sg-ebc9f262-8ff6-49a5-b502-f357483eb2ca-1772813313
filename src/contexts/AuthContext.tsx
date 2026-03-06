@@ -1,15 +1,19 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useRouter } from "next/router";
 import { authService } from "@/services/authService";
-import type { Database } from "@/integrations/supabase/types";
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+interface Profile {
+  id: string;
+  full_name?: string;
+  email?: string;
+  user_role?: string;
+}
 
 interface AuthContextType {
   user: Profile | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, fullName: string, role?: Database["public"]["Enums"]["user_role"]) => Promise<void>;
+  register: (email: string, password: string, fullName: string, role?: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -29,7 +33,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function loadUser() {
     try {
       const currentUser = await authService.getCurrentUser();
-      setUser(currentUser);
+      if (currentUser) {
+        // Fetch profile data from profiles table
+        const { data } = await authService.supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', currentUser.id)
+          .single();
+        
+        setUser(data || null);
+      } else {
+        setUser(null);
+      }
     } catch (error) {
       console.error("Error loading user:", error);
       setUser(null);
@@ -44,23 +59,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await loadUser();
       
       // Redirect based on role
-      if (user) {
+      if (user?.user_role) {
         const roleRoutes: Record<string, string> = {
           client: "/dashboard/client",
           vendor: "/dashboard/vendor",
           admin: "/dashboard/admin",
-          bdm: "/dashboard/bdm"
+          bdm: "/dashboard/bdm",
+          investor: "/dashboard/investor"
         };
-        router.push(roleRoutes[user.role] || "/dashboard/client");
+        router.push(roleRoutes[user.user_role] || "/dashboard/client");
       }
     } catch (error) {
       throw error;
     }
   }
 
-  async function register(email: string, password: string, fullName: string, role: Database["public"]["Enums"]["user_role"] = "client") {
+  async function register(email: string, password: string, fullName: string, role: string = "client") {
     try {
-      await authService.register(email, password, fullName, role);
+      await authService.register(email, password);
       await loadUser();
       
       // Redirect to appropriate dashboard
@@ -68,7 +84,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         client: "/dashboard/client",
         vendor: "/dashboard/vendor",
         admin: "/dashboard/admin",
-        bdm: "/dashboard/bdm"
+        bdm: "/dashboard/bdm",
+        investor: "/dashboard/investor"
       };
       router.push(roleRoutes[role] || "/dashboard/client");
     } catch (error) {

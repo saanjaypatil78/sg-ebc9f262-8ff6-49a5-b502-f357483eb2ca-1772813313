@@ -1,6 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
+// Export supabase for use in other parts of the auth flow
+export { supabase };
+
 export interface AuthUser {
   id: string;
   email: string;
@@ -177,5 +180,20 @@ export const authService = {
   // Listen to auth state changes
   onAuthStateChange(callback: (event: string, session: Session | null) => void) {
     return supabase.auth.onAuthStateChange(callback);
+  },
+
+  // Login wrapper (alias for signIn)
+  async login(email: string, password: string) {
+    return this.signIn(email, password);
+  },
+
+  // Register wrapper (alias for signUp)
+  async register(email: string, password: string) {
+    return this.signUp(email, password);
+  },
+
+  // Logout wrapper (alias for signOut)
+  async logout() {
+    return this.signOut();
   }
 };
