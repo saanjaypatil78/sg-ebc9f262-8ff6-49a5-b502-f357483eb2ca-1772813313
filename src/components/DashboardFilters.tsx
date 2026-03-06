@@ -17,10 +17,10 @@ interface DashboardFiltersProps {
 }
 
 export interface FilterState {
-  rank: string;
-  dateFrom: Date | undefined;
-  dateTo: Date | undefined;
-  status: string;
+  rank?: string;
+  dateFrom?: Date | undefined;
+  dateTo?: Date | undefined;
+  status?: string;
   search?: string;
   role?: string;
 }
