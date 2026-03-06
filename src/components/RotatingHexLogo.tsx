@@ -1,147 +1,120 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
 interface RotatingHexLogoProps {
   size?: number;
-  showTicking?: boolean;
-  enableSound?: boolean;
+  showTick?: boolean;
+  playSound?: boolean;
 }
 
 export function RotatingHexLogo({ 
   size = 200, 
-  showTicking = true,
-  enableSound = true 
+  showTick = true,
+  playSound = false 
 }: RotatingHexLogoProps) {
-  const [rotation, setRotation] = useState(0);
   const [tick, setTick] = useState(0);
-
+  const [isMounted, setIsMounted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  
   useEffect(() => {
-    // Rotate outer ring 6 degrees per second (60 seconds = 360 degrees)
+    setIsMounted(true);
+    
+    // Create audio element for tick sound
+    if (typeof window !== 'undefined' && playSound) {
+      audioRef.current = new Audio();
+      audioRef.current.volume = 0.15;
+    }
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [playSound]);
+  
+  useEffect(() => {
+    if (!isMounted) return;
+    
     const interval = setInterval(() => {
-      setRotation(prev => (prev + 6) % 360);
       setTick(prev => (prev + 1) % 60);
-
-      // Play tick sound (optional)
-      if (enableSound && typeof window !== 'undefined') {
+      
+      // Play tick sound
+      if (playSound && audioRef.current) {
+        // Generate simple tick sound using Web Audio API
         try {
-          const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBg==');
-          audio.volume = 0.1;
-          audio.play().catch(() => {
-            // Ignore autoplay restrictions
-          });
-        } catch (e) {
-          // Ignore audio errors
+          const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          
+          oscillator.frequency.value = 800;
+          oscillator.type = 'sine';
+          
+          gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+          
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.05);
+        } catch (error) {
+          // Fallback: silent if audio context fails
         }
       }
-    }, 1000); // Every 1 second
-
+    }, 1000);
+    
     return () => clearInterval(interval);
-  }, [enableSound]);
-
+  }, [isMounted, playSound]);
+  
+  if (!isMounted) return null;
+  
+  const rotation = (tick % 60) * 6;
+  
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      {/* Static inner logo (arrow + cart) */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <Image
-          src="/bravecom-logo-favicon.png"
-          alt="BRAVECOM Logo"
-          width={size}
-          height={size}
-          className="object-contain"
-          priority
-        />
-      </div>
-
-      {/* Rotating outer hexagonal ring (black layer only) */}
+      {/* Rotating Outer Black Ring */}
       <motion.div
-        className="absolute inset-0"
-        animate={{ rotate: rotation }}
-        transition={{ duration: 0, ease: "linear" }}
+        className="absolute inset-0 z-10"
+        animate={{ 
+          rotate: rotation,
+          scale: tick % 1 === 0 ? 1.02 : 1
+        }}
+        transition={{
+          rotate: { duration: 0, ease: "linear" },
+          scale: { duration: 0.1, ease: "easeOut" }
+        }}
         style={{
-          transformOrigin: "center center",
+          filter: `drop-shadow(0 0 ${tick % 1 === 0 ? 20 : 10}px rgba(249, 115, 22, ${tick % 1 === 0 ? 0.6 : 0.3}))`
         }}
       >
-        <svg
+        <Image
+          src="/bravecom-logo-favicon.png"
+          alt="BRAVECOM Rotating Logo"
           width={size}
           height={size}
-          viewBox="0 0 200 200"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Hexagonal outer ring (black segments) */}
-          <g opacity="0.9">
-            {/* Top segment */}
-            <path
-              d="M100 20 L140 40 L140 60 L100 40 Z"
-              fill="#1a1a1a"
-              stroke="#333"
-              strokeWidth="1"
-            />
-            {/* Top-right segment */}
-            <path
-              d="M140 40 L170 70 L170 90 L140 60 Z"
-              fill="#2a2a2a"
-              stroke="#333"
-              strokeWidth="1"
-            />
-            {/* Bottom-right segment */}
-            <path
-              d="M170 90 L170 130 L140 140 L140 110 Z"
-              fill="#1a1a1a"
-              stroke="#333"
-              strokeWidth="1"
-            />
-            {/* Bottom segment */}
-            <path
-              d="M140 140 L100 160 L60 140 L100 160 Z"
-              fill="#2a2a2a"
-              stroke="#333"
-              strokeWidth="1"
-            />
-            {/* Bottom-left segment */}
-            <path
-              d="M60 140 L30 130 L30 90 L60 110 Z"
-              fill="#1a1a1a"
-              stroke="#333"
-              strokeWidth="1"
-            />
-            {/* Top-left segment */}
-            <path
-              d="M30 90 L30 70 L60 40 L60 60 Z"
-              fill="#2a2a2a"
-              stroke="#333"
-              strokeWidth="1"
-            />
-          </g>
-
-          {/* Small tick markers (optional visual feedback) */}
-          {showTicking && (
-            <g>
-              {[...Array(60)].map((_, i) => (
-                <line
-                  key={i}
-                  x1="100"
-                  y1="15"
-                  x2="100"
-                  y2={i % 5 === 0 ? "22" : "20"}
-                  stroke={i === tick ? "#F97316" : "#444"}
-                  strokeWidth={i % 5 === 0 ? "2" : "1"}
-                  transform={`rotate(${i * 6} 100 100)`}
-                />
-              ))}
-            </g>
-          )}
-        </svg>
+          className="hexagonal-mask"
+          priority
+        />
       </motion.div>
-
-      {/* Subtle glow effect */}
+      
+      {/* Static Inner Content */}
+      <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+        <div className="text-center">
+          <div className="text-xs text-slate-400 font-mono">
+            {showTick && `${tick}s`}
+          </div>
+        </div>
+      </div>
+      
+      {/* Glow Effect */}
       <div 
-        className="absolute inset-0 rounded-full blur-xl opacity-30"
+        className="absolute inset-0 -z-10 blur-2xl opacity-40"
         style={{
-          background: `radial-gradient(circle, rgba(249, 115, 22, 0.3) 0%, transparent 70%)`,
+          background: `radial-gradient(circle, rgba(249, 115, 22, 0.4) 0%, transparent 70%)`,
         }}
       />
     </div>

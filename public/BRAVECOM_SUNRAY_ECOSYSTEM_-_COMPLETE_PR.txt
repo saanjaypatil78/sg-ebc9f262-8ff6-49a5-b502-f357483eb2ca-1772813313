@@ -3031,3 +3031,476 @@ sys:*      → System operations
 ---
 
 **ALL DOCUMENTS COMPLETE AND PRODUCTION READY** 🚀
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brave Ecom Pvt Ltd - Interactive Investment Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Warm Neutrals & Corporate Navy with Bronze Accents (Slate-50, Slate-900, Amber-500) -->
+    <!-- Application Structure Plan: A single-page dashboard structure designed to guide a potential investor through the Brave Ecom opportunity. It starts with high-level corporate credibility (Overview), transitions to actionable financial projections (Interactive ROI Calculator), explains the network growth incentives (Affiliate & Royalty), and concludes with execution details (Roadmap & Terms). This flow is optimized for conversion and clarity, presenting complex MLM and investment data in an easily digestible, interactive format. -->
+    <!-- Visualization & Content Choices: 1. Corporate KPIs -> Goal: Inform & Build Trust -> HTML Grid Cards -> Justification: Quick scanning of key metrics. 2. Investment ROI -> Goal: Change/Interactive projection -> Line Chart (Chart.js) & Dynamic Text -> Interaction: Slider/Input for investment amount -> Justification: Allows users to personalize their potential earnings. 3. Royalty Structure -> Goal: Compare -> Bar Chart (Chart.js) -> Justification: Clearly shows the scale required to hit different ambassador tiers. No SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; 
+            max-height: 400px;
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 280px;
+            }
+        }
+
+        .nav-link.active {
+            border-bottom: 2px solid #f59e0b;
+            color: #f59e0b;
+        }
+
+        .smooth-scroll {
+            scroll-behavior: smooth;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+<body class="antialiased smooth-scroll">
+
+    <nav class="fixed w-full z-50 glass-card shadow-sm transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl mr-2">🌐</span>
+                    <span class="font-bold text-xl tracking-tight text-slate-900">BRAVE ECOM</span>
+                </div>
+                <div class="hidden md:flex space-x-8 items-center">
+                    <button onclick="scrollToSection('overview')" class="nav-link text-sm font-semibold text-slate-600 hover:text-amber-500 transition-colors">Overview</button>
+                    <button onclick="scrollToSection('calculator')" class="nav-link text-sm font-semibold text-slate-600 hover:text-amber-500 transition-colors">ROI Calculator</button>
+                    <button onclick="scrollToSection('affiliate')" class="nav-link text-sm font-semibold text-slate-600 hover:text-amber-500 transition-colors">Affiliate Plan</button>
+                    <button onclick="scrollToSection('roadmap')" class="nav-link text-sm font-semibold text-slate-600 hover:text-amber-500 transition-colors">Roadmap & Info</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-20 pb-12">
+        <section id="overview" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-16">
+                <h1 class="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Partner in the Journey.<br><span class="text-amber-500">Participate in the Growth.</span></h1>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">This is not just an investment. It's a strategic entry into the next phase of growth. Brave Ecom Pvt Ltd is building a legally fortified, high-growth institution for frictionless global dropshipping.</p>
+            </div>
+
+            <div class="mb-8">
+                <p class="text-slate-700 leading-relaxed mb-4 text-center max-w-4xl mx-auto">
+                    Established in January 2024 and led by Founder & CEO Sanjay Patil, we operate across 6 continents. Our core offerings include Ledger Consistency, Frictionless Onboarding, Blockchain Transparency, and a Global Payment Gateway.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
+                <div class="glass-card p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-center">
+                    <div class="text-4xl mb-3">🌍</div>
+                    <div class="text-3xl font-bold text-slate-900">6</div>
+                    <div class="text-sm text-slate-500 uppercase tracking-wide mt-1">Continents Active</div>
+                </div>
+                <div class="glass-card p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-center">
+                    <div class="text-4xl mb-3">🤝</div>
+                    <div class="text-3xl font-bold text-slate-900">50+</div>
+                    <div class="text-sm text-slate-500 uppercase tracking-wide mt-1">Suppliers Verified</div>
+                </div>
+                <div class="glass-card p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-center">
+                    <div class="text-4xl mb-3">⏱️</div>
+                    <div class="text-3xl font-bold text-slate-900">30-40%</div>
+                    <div class="text-sm text-slate-500 uppercase tracking-wide mt-1">Time Reduction</div>
+                </div>
+                <div class="glass-card p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-center">
+                    <div class="text-4xl mb-3">🛡️</div>
+                    <div class="text-3xl font-bold text-slate-900">40%</div>
+                    <div class="text-sm text-slate-500 uppercase tracking-wide mt-1">Iron Reserve</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="calculator" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-slate-100 rounded-3xl my-8">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold text-slate-900 mb-3">Investment ROI Calculator</h2>
+                <p class="text-slate-600">Simulate your returns based on our 12-Month Agreement structure with a standard 15% monthly profit generation.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <div class="glass-card p-8 rounded-2xl shadow-sm lg:col-span-1">
+                    <label for="investmentInput" class="block text-sm font-semibold text-slate-700 mb-2">Enter Investment Amount (₹)</label>
+                    <input type="number" id="investmentInput" value="100000" min="50000" step="10000" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none text-lg font-bold text-slate-900 mb-6">
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between pb-3 border-b border-slate-200">
+                            <span class="text-slate-500">Monthly Gross Profit (15%)</span>
+                            <span id="grossProfitVal" class="font-semibold text-slate-900">₹15,000</span>
+                        </div>
+                        <div class="flex justify-between pb-3 border-b border-slate-200">
+                            <span class="text-slate-500">Admin Charges (10%)</span>
+                            <span id="adminChargeVal" class="font-semibold text-red-500">-₹1,500</span>
+                        </div>
+                        <div class="flex justify-between pb-3 border-b border-slate-200">
+                            <span class="text-slate-800 font-semibold">Net Monthly Payout</span>
+                            <span id="netMonthlyVal" class="font-bold text-green-600 text-lg">₹13,500</span>
+                        </div>
+                        <div class="flex justify-between pt-2">
+                            <span class="text-slate-800 font-bold">Total 12-Month Return</span>
+                            <span id="totalReturnVal" class="font-bold text-amber-600 text-xl">₹162,000</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-xs text-slate-500">
+                        * Payout timeline: 1st payout after 45 days, subsequent payouts in 30-day intervals.
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl shadow-sm lg:col-span-2">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-4 text-center">Cumulative Net Profit (12 Months)</h3>
+                    <div class="chart-container">
+                        <canvas id="roiChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="affiliate" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold text-slate-900 mb-3">Affiliate & Royalty Program</h2>
+                <p class="text-slate-600 max-w-2xl mx-auto">Build your network to unlock multi-level commissions and achieve prestigious Royalty badges based on total team investment volume.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center"><span class="mr-2">🔗</span> Referral Level Commissions</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 text-sm uppercase tracking-wider">
+                                    <th class="p-4 rounded-tl-lg font-semibold">Level</th>
+                                    <th class="p-4 font-semibold">Commission % (on ROI)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-800 divide-y divide-slate-100">
+                                <tr class="hover:bg-slate-50 transition-colors"><td class="p-4 font-semibold">Level 1</td><td class="p-4 text-amber-600 font-bold">20.0%</td></tr>
+                                <tr class="hover:bg-slate-50 transition-colors"><td class="p-4 font-semibold">Level 2</td><td class="p-4">10.0%</td></tr>
+                                <tr class="hover:bg-slate-50 transition-colors"><td class="p-4 font-semibold">Level 3</td><td class="p-4">7.0%</td></tr>
+                                <tr class="hover:bg-slate-50 transition-colors"><td class="p-4 font-semibold">Level 4</td><td class="p-4">5.0%</td></tr>
+                                <tr class="hover:bg-slate-50 transition-colors"><td class="p-4 font-semibold">Level 5</td><td class="p-4">2.0%</td></tr>
+                                <tr class="hover:bg-slate-50 transition-colors"><td class="p-4 font-semibold">Level 6</td><td class="p-4">1.0%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-4">* Referral commission is payable only if the referee ID is duly activated within 60 days of registration.</p>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center"><span class="mr-2">👑</span> Affiliate Royalty Structure</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="royaltyChart"></canvas>
+                    </div>
+                    <div class="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <div class="bg-slate-50 p-3 rounded border border-slate-200 text-center"><div class="text-xs text-slate-500">Bronze</div><div class="font-bold">1 Cr (1.00%)</div></div>
+                        <div class="bg-slate-50 p-3 rounded border border-slate-200 text-center"><div class="text-xs text-slate-500">Silver</div><div class="font-bold">5 Cr (0.75%)</div></div>
+                        <div class="bg-slate-50 p-3 rounded border border-slate-200 text-center"><div class="text-xs text-slate-500">Gold</div><div class="font-bold">10 Cr (0.50%)</div></div>
+                        <div class="bg-slate-50 p-3 rounded border border-slate-200 text-center"><div class="text-xs text-slate-500">Platinum</div><div class="font-bold">25 Cr (0.35%)</div></div>
+                        <div class="bg-slate-50 p-3 rounded border border-slate-200 text-center"><div class="text-xs text-slate-500">Diamond</div><div class="font-bold">50 Cr (0.25%)</div></div>
+                        <div class="bg-slate-50 p-3 rounded border border-slate-200 text-center bg-amber-50"><div class="text-xs text-amber-600">Ambassador</div><div class="font-bold">100 Cr (0.15%)</div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-slate-900 text-slate-50 rounded-3xl my-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <div>
+                    <h2 class="text-3xl font-bold mb-8">Strategic Roadmap</h2>
+                    <div class="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-700 before:to-transparent">
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-slate-800 text-slate-300 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                                🚀
+                            </div>
+                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-slate-700 bg-slate-800/50">
+                                <div class="font-bold text-amber-500 mb-1">Q1 - Q2 2024</div>
+                                <div class="text-slate-300 text-sm">Company Incorporation & Legal Framework Setup.</div>
+                            </div>
+                        </div>
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-slate-800 text-slate-300 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                                ⚙️
+                            </div>
+                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-slate-700 bg-slate-800/50">
+                                <div class="font-bold text-amber-500 mb-1">Q3 - Q4 2024</div>
+                                <div class="text-slate-300 text-sm">Ledger Consistency & System Development.</div>
+                            </div>
+                        </div>
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full border border-amber-500 bg-amber-500 text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                                🌟
+                            </div>
+                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-amber-500/30 bg-amber-500/10">
+                                <div class="font-bold text-amber-400 mb-1">Q1 - Q2 2025</div>
+                                <div class="text-slate-200 text-sm font-semibold">First 50+ Suppliers & Frictionless Onboarding.</div>
+                            </div>
+                        </div>
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-600 bg-slate-800 text-slate-400 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                                ⛓️
+                            </div>
+                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-slate-700 bg-slate-800/20">
+                                <div class="font-bold text-slate-400 mb-1">Q3 - Q4 2025</div>
+                                <div class="text-slate-500 text-sm">Blockchain PoC, Operational MVP & Iron Reserve.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-3xl font-bold mb-6">Terms & Onboarding</h2>
+                    <p class="text-slate-300 mb-8">Strict KYC compliance and clear withdrawal rules ensure a secure environment for all partners.</p>
+                    
+                    <div class="bg-slate-800 rounded-xl p-6 mb-6">
+                        <h4 class="font-bold text-amber-500 mb-3 border-b border-slate-700 pb-2">Registration & KYC Requirements</h4>
+                        <ul class="text-sm text-slate-300 space-y-2 list-disc pl-4">
+                            <li>Valid Aadhaar No & PAN Card.</li>
+                            <li>Bank Account Verification (IFSC matching).</li>
+                            <li>Mandatory Nominee Details (>18 years).</li>
+                            <li>Dual OTP Verification (Email & Contact).</li>
+                            <li>Dashboard Color Code: <span class="text-red-400">Red (Pending)</span>, <span class="text-green-400">Green (Active/Verified)</span>.</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-slate-800 rounded-xl p-6">
+                        <h4 class="font-bold text-amber-500 mb-3 border-b border-slate-700 pb-2">Deposit Bank Details</h4>
+                        <div class="grid grid-cols-1 gap-2 text-sm">
+                            <div class="flex justify-between"><span class="text-slate-400">Mode:</span> <span class="font-semibold">IMPS/NEFT/RTGS/Cheque</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">Beneficiary:</span> <span class="font-semibold">BRAVE ECOM PVT LTD</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">Account No:</span> <span class="font-mono text-amber-400 font-bold tracking-wider">4051939609</span></div>
+                            <div class="flex justify-between"><span class="text-slate-400">IFSC Code:</span> <span class="font-mono font-bold">KKBK0001352</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-950 py-8 text-center text-slate-500 text-sm">
+        <p>&copy; 2024-2025 Brave Ecom Pvt Ltd. Global Dropshipping Infrastructure.</p>
+        <p class="mt-2 text-xs opacity-70">This dashboard is an interactive representation of the official company investment plan.</p>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Highlight active nav item on scroll
+        const sections = document.querySelectorAll("section");
+        const navLinks = document.querySelectorAll(".nav-link");
+
+        window.addEventListener("scroll", () => {
+            let current = "";
+            sections.forEach((section) => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            navLinks.forEach((link) => {
+                link.classList.remove("active");
+                if (link.getAttribute("onclick").includes(current)) {
+                    link.classList.add("active");
+                }
+            });
+        });
+
+        // Initialize Charts and Calculator logic
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // --- Chart variables ---
+            let roiChartInstance = null;
+
+            // --- Elements ---
+            const inputEl = document.getElementById('investmentInput');
+            const grossValEl = document.getElementById('grossProfitVal');
+            const adminValEl = document.getElementById('adminChargeVal');
+            const netValEl = document.getElementById('netMonthlyVal');
+            const totalValEl = document.getElementById('totalReturnVal');
+
+            // Formatter for currency
+            const formatCurrency = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
+
+            // --- Calculator Logic ---
+            function updateCalculator() {
+                const investment = parseFloat(inputEl.value) || 0;
+                
+                // Rules based on CSV: 15% Monthly Profit, 10% Admin charge on profit
+                const grossMonthly = investment * 0.15;
+                const adminCharge = grossMonthly * 0.10;
+                const netMonthly = grossMonthly - adminCharge;
+                const totalYearly = netMonthly * 12;
+
+                grossValEl.textContent = formatCurrency(grossMonthly);
+                adminValEl.textContent = "-" + formatCurrency(adminCharge);
+                netValEl.textContent = formatCurrency(netMonthly);
+                totalValEl.textContent = formatCurrency(totalYearly);
+
+                updateChart(netMonthly);
+            }
+
+            // --- ROI Line Chart Initialization ---
+            function initROIChart() {
+                const ctx = document.getElementById('roiChart').getContext('2d');
+                roiChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10', 'M11', 'M12'],
+                        datasets: [{
+                            label: 'Cumulative Net Payout (₹)',
+                            data: [],
+                            borderColor: '#f59e0b', // amber-500
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            pointBackgroundColor: '#0f172a',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) { label += ': '; }
+                                        if (context.parsed.y !== null) {
+                                            label += formatCurrency(context.parsed.y);
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#f1f5f9' },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₹' + (value / 1000) + 'k';
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function updateChart(netMonthly) {
+                if(!roiChartInstance) return;
+                
+                const dataPoints = [];
+                let cumulative = 0;
+                for(let i=1; i<=12; i++) {
+                    cumulative += netMonthly;
+                    dataPoints.push(cumulative);
+                }
+                
+                roiChartInstance.data.datasets[0].data = dataPoints;
+                roiChartInstance.update();
+            }
+
+            // --- Royalty Bar Chart Initialization ---
+            function initRoyaltyChart() {
+                const ctx2 = document.getElementById('royaltyChart').getContext('2d');
+                new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond', 'Ambassador'],
+                        datasets: [{
+                            label: 'Target Vol (Cr)',
+                            data: [1, 5, 10, 25, 50, 100],
+                            backgroundColor: [
+                                '#cbd5e1', // Bronze-ish slate
+                                '#94a3b8', // Silver-ish
+                                '#fbbf24', // Gold
+                                '#94a3b8', // Plat
+                                '#60a5fa', // Diamond
+                                '#f59e0b'  // Ambassador Amber
+                            ],
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const percentages = ['1.00%', '0.75%', '0.50%', '0.35%', '0.25%', '0.15%'];
+                                        return `Target: ${context.parsed.y} Cr | Royalty: ${percentages[context.dataIndex]}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                title: { display: true, text: 'Target Volume (Crores)' },
+                                beginAtZero: true,
+                                grid: { color: '#f1f5f9' }
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Event Listeners
+            inputEl.addEventListener('input', updateCalculator);
+
+            // Startup
+            initROIChart();
+            initRoyaltyChart();
+            updateCalculator(); // initial run
+        });
+    </script>
+</body>
+</html>

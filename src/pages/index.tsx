@@ -93,24 +93,11 @@ export default function Home() {
           transition={{ duration: 0.8 }}
           className="relative z-10 text-center max-w-5xl mx-auto px-4 pt-24 pb-16"
         >
-          {/* Rotating Hexagonal Logo with Clock Ticking */}
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="mb-8"
+          {/* Logo */}
+          <motion.div 
+            className="mb-8 relative z-20 flex justify-center"
           >
-            <div className="flex justify-center mb-6">
-              <RotatingHexLogo size={200} showTicking={true} enableSound={true} />
-            </div>
-            <h1 className="text-6xl md:text-8xl font-black mb-4 tracking-tight">
-              <span className="bg-gradient-to-br from-orange-300 via-amber-500 to-orange-700 bg-clip-text text-transparent">
-                BRAVECOM
-              </span>
-            </h1>
-            <p className="text-xl md:text-2xl text-slate-300 font-light tracking-[0.3em]">
-              SUNRAY ECOSYSTEM
-            </p>
+            <RotatingHexLogo size={200} showTick={true} playSound={true} />
           </motion.div>
 
           <motion.h2
@@ -365,10 +352,10 @@ export default function Home() {
         {/* Footer with Hexagonal Logo */}
         <footer className="py-12 px-4 border-t border-white/10 relative z-10 bg-black/80 backdrop-blur-lg">
           <div className="container mx-auto max-w-7xl">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
               <div className="flex items-center gap-3">
-                <RotatingHexLogo size={32} showTicking={false} enableSound={false} />
-                <span className="text-xl font-bold bg-gradient-to-r from-orange-300 to-orange-600 bg-clip-text text-transparent">BRAVECOM</span>
+                <RotatingHexLogo size={32} showTick={false} playSound={false} />
+                <span className="text-xl font-bold tracking-tight text-white">BRAVECOM</span>
               </div>
               <div className="flex gap-6 text-sm text-slate-400">
                 <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>

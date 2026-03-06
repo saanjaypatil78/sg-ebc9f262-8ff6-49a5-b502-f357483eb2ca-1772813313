@@ -1,173 +1,202 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
+
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Trophy, TrendingUp, Award } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { 
+  TrendingUp, 
+  Users, 
+  DollarSign, 
+  Download,
+  Calendar,
+  Filter
+} from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
+interface CommissionData {
+  month: string;
+  level1: number;
+  level2: number;
+  level3: number;
+  level4: number;
+  level5: number;
+  level6: number;
+  royalty: number;
+  total: number;
+}
+
+const MOCK_COMMISSION_DATA: CommissionData[] = [
+  {
+    month: "Dec 2025",
+    level1: 45000,
+    level2: 22500,
+    level3: 15750,
+    level4: 11250,
+    level5: 4500,
+    level6: 2250,
+    royalty: 8000,
+    total: 109250
+  },
+  {
+    month: "Nov 2025",
+    level1: 42000,
+    level2: 21000,
+    level3: 14700,
+    level4: 10500,
+    level5: 4200,
+    level6: 2100,
+    royalty: 7500,
+    total: 102000
+  },
+  {
+    month: "Oct 2025",
+    level1: 38000,
+    level2: 19000,
+    level3: 13300,
+    level4: 9500,
+    level5: 3800,
+    level6: 1900,
+    royalty: 6800,
+    total: 92300
+  }
+];
+
 export function CommissionReports() {
-  // Mock data for commission reports
-  // In production, this would be fetched via commissionService
-  // Mock data for display based on your "Public Ledger" requirement
-
-  const totalCommissionsDistributed = 50000000; // ₹5 Crore
-  const activeEarners = 247;
-  const avgCommissionPerUser = 202429;
-
-  const topEarners = [
-    { id: 1, name: "Rajesh Kumar", rank: "Diamond", earnings: 2500000, commissions: 1850000 },
-    { id: 2, name: "Priya Sharma", rank: "Platinum", earnings: 1800000, commissions: 1350000 },
-    { id: 3, name: "Amit Patel", rank: "Gold", earnings: 1500000, commissions: 1125000 },
-    { id: 4, name: "Sneha Reddy", rank: "Gold", earnings: 1200000, commissions: 900000 },
-    { id: 5, name: "Vikram Singh", rank: "Silver", earnings: 950000, commissions: 712500 },
-  ];
-
-  const recentCommissions = [
-    { id: 1, user: "Arjun Mehta", amount: 45000, type: "Direct Referral", date: "2026-03-06" },
-    { id: 2, user: "Kavita Joshi", amount: 32000, type: "Team Leader Bonus", date: "2026-03-06" },
-    { id: 3, user: "Rohit Verma", amount: 28000, type: "Direct Referral", date: "2026-03-05" },
-    { id: 4, user: "Neha Gupta", amount: 55000, type: "Rank Bonus", date: "2026-03-05" },
-    { id: 5, user: "Sanjay Desai", amount: 38000, type: "Direct Referral", date: "2026-03-04" },
-  ];
-
-  const getRankBadge = (rank: string) => {
-    const colors: Record<string, string> = {
-      "Diamond": "bg-purple-500/10 text-purple-400 border-purple-500/30",
-      "Platinum": "bg-cyan-500/10 text-cyan-400 border-cyan-500/30",
-      "Gold": "bg-yellow-500/10 text-yellow-400 border-yellow-500/30",
-      "Silver": "bg-gray-500/10 text-gray-400 border-gray-500/30",
-      "Bronze": "bg-orange-500/10 text-orange-400 border-orange-500/30",
-    };
-
-    return (
-      <Badge variant="outline" className={colors[rank] || "bg-gray-500/10 text-gray-400"}>
-        {rank}
-      </Badge>
-    );
+  const [selectedMonth, setSelectedMonth] = useState("Dec 2025");
+  
+  const currentData = MOCK_COMMISSION_DATA.find(d => d.month === selectedMonth) || MOCK_COMMISSION_DATA[0];
+  
+  const handleExport = () => {
+    const csvContent = [
+      ["Month", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6", "Royalty", "Total"],
+      ...MOCK_COMMISSION_DATA.map(d => [
+        d.month,
+        d.level1,
+        d.level2,
+        d.level3,
+        d.level4,
+        d.level5,
+        d.level6,
+        d.royalty,
+        d.total
+      ])
+    ].map(row => row.join(",")).join("\n");
+    
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "commission-report.csv";
+    a.click();
   };
-
+  
   return (
     <div className="space-y-6">
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-gradient-to-br from-purple-900/20 via-slate-900/40 to-purple-900/20 backdrop-blur-xl border-white/10">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-300">Total Distributed</p>
-                <h3 className="text-3xl font-bold text-white mt-1">
-                  {formatCurrency(totalCommissionsDistributed)}
-                </h3>
-              </div>
-              <DollarSign className="w-10 h-10 text-purple-400 opacity-60" />
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-white">Commission Reports</h2>
+          <p className="text-slate-400 mt-1">Track your multi-level earnings</p>
+        </div>
+        <Button onClick={handleExport} className="bg-orange-600 hover:bg-orange-500">
+          <Download className="w-4 h-4 mr-2" />
+          Export CSV
+        </Button>
+      </div>
+      
+      {/* Month Selector */}
+      <div className="flex items-center gap-4">
+        <Calendar className="w-5 h-5 text-slate-400" />
+        <select
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+          className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+        >
+          {MOCK_COMMISSION_DATA.map(d => (
+            <option key={d.month} value={d.month}>{d.month}</option>
+          ))}
+        </select>
+      </div>
+      
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="p-6 bg-gradient-to-br from-slate-900/50 to-slate-800/50 border-slate-700/50">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
+              <DollarSign className="w-6 h-6 text-orange-400" />
             </div>
-          </CardContent>
+            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+              +12.5%
+            </Badge>
+          </div>
+          <div>
+            <p className="text-sm text-slate-400 mb-1">Total Commission</p>
+            <p className="text-3xl font-bold text-white">{formatCurrency(currentData.total)}</p>
+          </div>
         </Card>
-
-        <Card className="bg-gradient-to-br from-cyan-900/20 via-slate-900/40 to-cyan-900/20 backdrop-blur-xl border-white/10">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-300">Active Earners</p>
-                <h3 className="text-3xl font-bold text-white mt-1">{activeEarners}</h3>
-              </div>
-              <Trophy className="w-10 h-10 text-cyan-400 opacity-60" />
+        
+        <Card className="p-6 bg-gradient-to-br from-slate-900/50 to-slate-800/50 border-slate-700/50">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+              <TrendingUp className="w-6 h-6 text-blue-400" />
             </div>
-          </CardContent>
+          </div>
+          <div>
+            <p className="text-sm text-slate-400 mb-1">Level 1 Earnings</p>
+            <p className="text-3xl font-bold text-white">{formatCurrency(currentData.level1)}</p>
+          </div>
         </Card>
-
-        <Card className="bg-gradient-to-br from-green-900/20 via-slate-900/40 to-green-900/20 backdrop-blur-xl border-white/10">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-300">Avg Per User</p>
-                <h3 className="text-3xl font-bold text-white mt-1">
-                  {formatCurrency(avgCommissionPerUser)}
-                </h3>
-              </div>
-              <TrendingUp className="w-10 h-10 text-green-400 opacity-60" />
+        
+        <Card className="p-6 bg-gradient-to-br from-slate-900/50 to-slate-800/50 border-slate-700/50">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+              <Users className="w-6 h-6 text-purple-400" />
             </div>
-          </CardContent>
+          </div>
+          <div>
+            <p className="text-sm text-slate-400 mb-1">Royalty Bonus</p>
+            <p className="text-3xl font-bold text-white">{formatCurrency(currentData.royalty)}</p>
+          </div>
+        </Card>
+        
+        <Card className="p-6 bg-gradient-to-br from-slate-900/50 to-slate-800/50 border-slate-700/50">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+              <Filter className="w-6 h-6 text-amber-400" />
+            </div>
+          </div>
+          <div>
+            <p className="text-sm text-slate-400 mb-1">Deep Levels (4-6)</p>
+            <p className="text-3xl font-bold text-white">
+              {formatCurrency(currentData.level4 + currentData.level5 + currentData.level6)}
+            </p>
+          </div>
         </Card>
       </div>
-
-      {/* Top Earners Leaderboard */}
-      <Card className="bg-gradient-to-br from-slate-900/40 via-purple-900/20 to-slate-900/40 backdrop-blur-xl border-white/10">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Award className="w-5 h-5 text-yellow-400" />
-            Top Earners Leaderboard
-          </CardTitle>
-          <CardDescription>Highest commission earners this month</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {topEarners.map((earner, index) => (
-              <div 
-                key={earner.id}
-                className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-slate-800/50 to-slate-900/50 border border-white/5 hover:border-purple-500/30 transition-all"
-              >
-                <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${
-                    index === 0 ? 'bg-yellow-500/20 text-yellow-400' :
-                    index === 1 ? 'bg-gray-400/20 text-gray-300' :
-                    index === 2 ? 'bg-orange-500/20 text-orange-400' :
-                    'bg-slate-700/50 text-slate-400'
-                  }`}>
-                    {index + 1}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-white">{earner.name}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      {getRankBadge(earner.rank)}
-                      <span className="text-xs text-slate-400">
-                        Total: {formatCurrency(earner.earnings)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold text-green-400">
-                    {formatCurrency(earner.commissions)}
-                  </p>
-                  <p className="text-xs text-slate-400">Commission Earned</p>
-                </div>
+      
+      {/* Detailed Breakdown */}
+      <Card className="p-6 bg-gradient-to-br from-slate-900/50 to-slate-800/50 border-slate-700/50">
+        <h3 className="text-lg font-semibold text-white mb-4">Level-wise Breakdown</h3>
+        <div className="space-y-3">
+          {[
+            { level: "Level 1 (20%)", amount: currentData.level1, color: "bg-orange-500" },
+            { level: "Level 2 (10%)", amount: currentData.level2, color: "bg-blue-500" },
+            { level: "Level 3 (7%)", amount: currentData.level3, color: "bg-green-500" },
+            { level: "Level 4 (5%)", amount: currentData.level4, color: "bg-purple-500" },
+            { level: "Level 5 (2%)", amount: currentData.level5, color: "bg-pink-500" },
+            { level: "Level 6 (1%)", amount: currentData.level6, color: "bg-cyan-500" },
+            { level: "Royalty Bonus", amount: currentData.royalty, color: "bg-amber-500" }
+          ].map((item, idx) => (
+            <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-slate-800/50 hover:bg-slate-800 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className={`w-2 h-8 ${item.color} rounded-full`} />
+                <span className="text-slate-300 font-medium">{item.level}</span>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Recent Commission Activity */}
-      <Card className="bg-gradient-to-br from-slate-900/40 via-cyan-900/20 to-slate-900/40 backdrop-blur-xl border-white/10">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-cyan-400" />
-            Recent Commission Activity
-          </CardTitle>
-          <CardDescription>Latest commission transactions</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {recentCommissions.map((commission) => (
-              <div 
-                key={commission.id}
-                className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-slate-800/30 to-transparent border-l-2 border-green-500/50 hover:bg-slate-800/50 transition-all"
-              >
-                <div>
-                  <p className="font-medium text-white">{commission.user}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="outline" className="text-xs bg-cyan-500/10 text-cyan-400 border-cyan-500/30">
-                      {commission.type}
-                    </Badge>
-                    <span className="text-xs text-slate-400">{commission.date}</span>
-                  </div>
-                </div>
-                <p className="text-lg font-bold text-green-400">
-                  +{formatCurrency(commission.amount)}
-                </p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
+              <span className="text-white font-bold text-lg">{formatCurrency(item.amount)}</span>
+            </div>
+          ))}
+        </div>
       </Card>
     </div>
   );

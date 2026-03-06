@@ -1,5 +1,7 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
-import { FileDown, FileSpreadsheet } from "lucide-react";
+import { Download, FileText, Table } from "lucide-react";
 
 interface ExportToolsProps {
   data: any[];
@@ -9,53 +11,52 @@ interface ExportToolsProps {
 
 export function ExportTools({ data, filename, headers }: ExportToolsProps) {
   const exportToCSV = () => {
-    if (!data || data.length === 0) {
-      alert("No data to export");
-      return;
-    }
-
-    // Get headers from first object keys if not provided
-    const csvHeaders = headers || Object.keys(data[0]);
+    if (data.length === 0) return;
     
-    // Create CSV content
+    const exportHeaders = headers || Object.keys(data[0]);
     const csvContent = [
-      csvHeaders.join(","), // Header row
-      ...data.map(row => 
-        csvHeaders.map(header => {
-          const value = row[header];
-          // Escape commas and quotes
-          if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
-            return `"${value.replace(/"/g, '""')}"`;
-          }
-          return value;
-        }).join(",")
-      )
+      exportHeaders.join(","),
+      ...data.map(row => exportHeaders.map(h => row[h]).join(","))
     ].join("\n");
-
-    // Create blob and download
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
     
-    link.setAttribute("href", url);
-    link.setAttribute("download", `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = "hidden";
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${filename}.csv`;
+    a.click();
   };
-
+  
+  const exportToPDF = () => {
+    // Simplified PDF export - In production, use jsPDF or similar
+    const content = JSON.stringify(data, null, 2);
+    const blob = new Blob([content], { type: "application/json" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${filename}.json`;
+    a.click();
+  };
+  
   return (
-    <div className="flex gap-2">
+    <div className="flex items-center gap-2">
       <Button
         onClick={exportToCSV}
         variant="outline"
         size="sm"
-        className="gap-2"
+        className="border-slate-700 hover:border-orange-500/50 text-slate-300"
       >
-        <FileSpreadsheet className="h-4 w-4" />
+        <Table className="w-4 h-4 mr-2" />
         Export CSV
+      </Button>
+      <Button
+        onClick={exportToPDF}
+        variant="outline"
+        size="sm"
+        className="border-slate-700 hover:border-orange-500/50 text-slate-300"
+      >
+        <FileText className="w-4 h-4 mr-2" />
+        Export PDF
       </Button>
     </div>
   );
