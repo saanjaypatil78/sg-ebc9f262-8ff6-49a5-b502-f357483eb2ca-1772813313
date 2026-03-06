@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useScroll, useTransform, motion } from "framer-motion";
+import { SparklingCountdown, useDailySound, Confetti, ScrollProgressIndicator } from "@/components/SparklingCountdown";
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -115,7 +116,7 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [countdownEnded]);
 
-  // Enhanced parallax scroll effects - CINEMATIC & DRAMATIC
+  // ULTRA-ENHANCED parallax scroll effects - MAXIMUM INTENSITY (2x stronger)
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"]
@@ -133,6 +134,10 @@ export default function Home() {
   const rotate = useTransform(scrollYProgress, [0, 0.5, 1], [0, 2, -3]);
   const blur = useTransform(scrollYProgress, [0, 0.5, 1], [0, 2, 5]);
 
+  // ULTRA-ENHANCED parallax scroll effects - MAXIMUM INTENSITY (2x stronger)
+  const rotateHero = useTransform(scrollYProgress, [0, 1], [0, 8]); // Stronger rotation
+  const scaleHero = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+
   return (
     <>
       <SEO 
@@ -141,12 +146,12 @@ export default function Home() {
       />
       
       <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 relative">
-        {/* Enhanced 4-Layer Parallax Background - CINEMATIC DEPTH */}
+        {/* ULTRA-ENHANCED 4-Layer Parallax Background - MAXIMUM INTENSITY */}
         <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-          {/* Layer 1: Primary BRAVECOM Purple Orb - Ultra Fast */}
+          {/* Layer 1: Primary Copper/Bronze Orb (BRAVECOM Logo Colors) - Ultra Fast */}
           <motion.div 
             style={{ y: y1, rotate, scale }}
-            className="absolute -top-[40%] -right-[20%] w-[900px] h-[900px] rounded-full bg-purple-600/25 blur-[180px]" 
+            className="absolute -top-[40%] -right-[20%] w-[900px] h-[900px] rounded-full bg-copper-600/80 blur-[180px]" 
           />
           
           {/* Layer 2: Secondary BRAVECOM Cyan Orb - Slow Reverse */}
@@ -173,6 +178,7 @@ export default function Home() {
 
         {/* Hero Section */}
         <motion.div
+          style={{ scale: scaleHero, opacity: opacity }}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
