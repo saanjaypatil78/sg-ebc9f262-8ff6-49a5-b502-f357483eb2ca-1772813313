@@ -1,4 +1,4 @@
- 
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 export type Json =
   | string
   | number
@@ -1181,6 +1181,51 @@ export type Database = {
           total_referrals?: number | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          created_at: string | null
+          email: string
+          email_verified: boolean | null
+          full_name: string
+          id: string
+          is_active: boolean | null
+          kyc_status: string | null
+          last_login_at: string | null
+          password_hash: string
+          phone: string | null
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          email_verified?: boolean | null
+          full_name: string
+          id?: string
+          is_active?: boolean | null
+          kyc_status?: string | null
+          last_login_at?: string | null
+          password_hash: string
+          phone?: string | null
+          role?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          email_verified?: boolean | null
+          full_name?: string
+          id?: string
+          is_active?: boolean | null
+          kyc_status?: string | null
+          last_login_at?: string | null
+          password_hash?: string
+          phone?: string | null
+          role?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
