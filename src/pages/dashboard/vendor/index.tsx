@@ -2,8 +2,9 @@ import { SEO } from "@/components/SEO";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, TrendingUp, AlertCircle, CheckCircle, QrCode, Upload } from "lucide-react";
+import { Package, TrendingUp, AlertCircle, CheckCircle, QrCode, Upload, ShieldCheck } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useRouter } from "next/navigation";
 
 const pendingOrders = [
   { id: "ORD-105", product: "Wireless Mouse", customer: "John D.", deadline: "2026-03-02", priority: "High" },
@@ -19,6 +20,7 @@ const stats = [
 ];
 
 export default function VendorDashboard() {
+  const router = useRouter();
   return (
     <>
       <SEO title="Vendor Dashboard - DropSync" />
