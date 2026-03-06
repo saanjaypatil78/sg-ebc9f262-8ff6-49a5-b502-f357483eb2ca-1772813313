@@ -56,9 +56,9 @@ export default function Home() {
         description="Join the exclusive ₹12 Crore investment opportunity. 15% monthly returns with full transparency. Only 28 slots available."
       />
       
-      <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black relative overflow-x-hidden">
-        {/* ULTRA-ENHANCED 4-Layer Parallax Background - MAXIMUM INTENSITY - CHANGED TO ABSOLUTE */}
-        <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
+      <div ref={containerRef} className="relative min-h-screen bg-slate-950">
+        {/* Parallax Background - Behind Everything */}
+        <div className="fixed inset-0 pointer-events-none -z-[999] overflow-hidden">
           {/* Layer 1: Copper (Ultra Fast) - 2x stronger */}
           <motion.div 
             style={{ y: y1, rotate, scale }}
@@ -143,32 +143,6 @@ export default function Home() {
             >
               View Public Ledger
             </a>
-          </motion.div>
-
-          {/* Demo Credentials Access */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-            className="max-w-4xl mx-auto"
-          >
-            <Badge className="mb-4 bg-orange-500/20 text-orange-400 border-orange-500/30 px-4 py-1 text-sm">
-              <Key className="w-4 h-4 mr-2" /> System Dashboard Access
-            </Badge>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-left">
-              {demoRoles.map((demo, i) => (
-                <Link href="/auth/login" key={i}>
-                  <GlassmorphicCard className="p-4 hover:-translate-y-1 transition-transform cursor-pointer border-white/5 bg-slate-900/50 group" glow>
-                    <div className="font-semibold text-white mb-2 group-hover:text-orange-400 transition-colors flex justify-between items-center">
-                      {demo.role}
-                      <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <div className="text-xs text-slate-400 font-mono mb-1">ID: {demo.email}</div>
-                    <div className="text-xs text-slate-500 font-mono">Pass: Password@123</div>
-                  </GlassmorphicCard>
-                </Link>
-              ))}
-            </div>
           </motion.div>
         </motion.div>
 
@@ -341,13 +315,13 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Public Ledger - ENSURE VISIBILITY */}
-        <div className="relative z-50 bg-slate-950">
+        {/* Public Ledger - MAXIMUM VISIBILITY */}
+        <div className="relative z-[999] bg-slate-950 py-20">
           <PublicLedger />
         </div>
 
-        {/* Final CTA */}
-        <section className="py-24 px-4 relative z-10">
+        {/* CTA Section */}
+        <section className="relative z-10 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 py-20">
           <div className="container mx-auto max-w-4xl">
             <GlassmorphicCard className="p-12 text-center border-orange-500/30" glow>
               <CheckCircle className="w-16 h-16 mx-auto mb-6 text-orange-400" />

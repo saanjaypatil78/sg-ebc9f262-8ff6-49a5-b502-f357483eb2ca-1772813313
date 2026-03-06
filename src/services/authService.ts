@@ -1,200 +1,262 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
+import { UserRole, RBACService, UserSession } from "@/lib/rbac/rbac-system";
 
-// Export supabase for use in other parts of the auth flow
-export { supabase };
+const SESSION_KEY = "sunray_user_session";
+const SESSION_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
-export interface AuthUser {
-  id: string;
-  email: string;
-  user_metadata?: any;
-  created_at?: string;
-}
-
-export interface AuthError {
-  message: string;
-  code?: string;
-}
-
-// Dynamic URL Helper
-const getURL = () => {
-  let url = process?.env?.NEXT_PUBLIC_VERCEL_URL ?? 
-           process?.env?.NEXT_PUBLIC_SITE_URL ?? 
-           'http://localhost:3000'
-  
-  // Handle undefined or null url
-  if (!url) {
-    url = 'http://localhost:3000';
-  }
-  
-  // Ensure url has protocol
-  url = url.startsWith('http') ? url : `https://${url}`
-  
-  // Ensure url ends with slash
-  url = url.endsWith('/') ? url : `${url}/`
-  
-  return url
-}
+// ============================================================================
+// FAST LOGIN (No Database Delays)
+// ============================================================================
 
 export const authService = {
-  // Get current user
-  async getCurrentUser(): Promise<AuthUser | null> {
-    const { data: { user } } = await supabase.auth.getUser();
-    return user ? {
-      id: user.id,
-      email: user.email || "",
-      user_metadata: user.user_metadata,
-      created_at: user.created_at
-    } : null;
-  },
-
-  // Get current session
-  async getCurrentSession(): Promise<Session | null> {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session;
-  },
-
-  // Sign up with email and password
-  async signUp(email: string, password: string, metadata?: { full_name?: string; referral_code?: string | null }): Promise<{ user: AuthUser | null; error: AuthError | null }> {
+  /**
+   * OPTIMIZED LOGIN - Instant response with role-based redirect
+   */
+  async login(email: string, password: string): Promise<{
+    success: boolean;
+    user?: UserSession;
+    redirectTo?: string;
+    error?: string;
+  }> {
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${getURL()}auth/confirm-email`,
-          data: metadata || {}
-        }
-      });
-
-      if (error) {
-        return { user: null, error: { message: error.message, code: error.status?.toString() } };
-      }
-
-      const authUser = data.user ? {
-        id: data.user.id,
-        email: data.user.email || "",
-        user_metadata: data.user.user_metadata,
-        created_at: data.user.created_at
-      } : null;
-
-      return { user: authUser, error: null };
-    } catch (error) {
-      return { 
-        user: null, 
-        error: { message: "An unexpected error occurred during sign up" } 
-      };
-    }
-  },
-
-  // Sign in with email and password
-  async signIn(email: string, password: string): Promise<{ user: AuthUser | null; error: AuthError | null }> {
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // Step 1: Authenticate with Supabase (single query)
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
-        return { user: null, error: { message: error.message, code: error.status?.toString() } };
+      if (authError || !authData.user) {
+        return {
+          success: false,
+          error: authError?.message || "Invalid credentials",
+        };
       }
 
-      const authUser = data.user ? {
-        id: data.user.id,
-        email: data.user.email || "",
-        user_metadata: data.user.user_metadata,
-        created_at: data.user.created_at
-      } : null;
+      // Step 2: Get user role from database (single query with select)
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("id, email, role, full_name")
+        .eq("id", authData.user.id)
+        .single();
 
-      return { user: authUser, error: null };
-    } catch (error) {
-      return { 
-        user: null, 
-        error: { message: "An unexpected error occurred during sign in" } 
-      };
-    }
-  },
-
-  // Sign out
-  async signOut(): Promise<{ error: AuthError | null }> {
-    try {
-      const { error } = await supabase.auth.signOut();
+      let userRole: UserRole;
       
-      if (error) {
-        return { error: { message: error.message } };
+      if (userError || !userData) {
+        // Fallback: Detect role from email for development
+        userRole = RBACService.getRoleFromEmail(email);
+      } else {
+        // Use database role
+        userRole = (userData.role as UserRole) || RBACService.getRoleFromEmail(email);
       }
 
-      return { error: null };
+      // Step 3: Create session with embedded permissions (no future DB calls needed)
+      const userSession: UserSession = {
+        id: authData.user.id,
+        email: authData.user.email!,
+        role: userRole,
+        permissions: RBACService.getPermissions(userRole),
+        name: userData?.full_name || email.split('@')[0],
+      };
+
+      // Step 4: Store session locally (fast access)
+      this.setSession(userSession);
+
+      // Step 5: Get instant redirect route
+      const redirectTo = RBACService.getDashboardRoute(userRole);
+
+      return {
+        success: true,
+        user: userSession,
+        redirectTo,
+      };
     } catch (error) {
-      return { 
-        error: { message: "An unexpected error occurred during sign out" } 
+      console.error("Login error:", error);
+      return {
+        success: false,
+        error: "Login failed. Please try again.",
       };
     }
   },
 
-  // Reset password
-  async resetPassword(email: string): Promise<{ error: AuthError | null }> {
+  /**
+   * INSTANT LOGOUT
+   */
+  async logout(): Promise<void> {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${getURL()}auth/reset-password`,
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      this.clearSession();
+    }
+  },
+
+  /**
+   * GET CURRENT SESSION (No DB Call - Instant)
+   */
+  getSession(): UserSession | null {
+    try {
+      const sessionData = localStorage.getItem(SESSION_KEY);
+      if (!sessionData) return null;
+
+      const session = JSON.parse(sessionData);
+      
+      // Check expiry
+      if (session.expiresAt && Date.now() > session.expiresAt) {
+        this.clearSession();
+        return null;
+      }
+
+      return session.user;
+    } catch (error) {
+      console.error("Session parse error:", error);
+      return null;
+    }
+  },
+
+  /**
+   * SET SESSION (Instant)
+   */
+  setSession(user: UserSession): void {
+    const sessionData = {
+      user,
+      expiresAt: Date.now() + SESSION_EXPIRY,
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+  },
+
+  /**
+   * CLEAR SESSION (Instant)
+   */
+  clearSession(): void {
+    localStorage.removeItem(SESSION_KEY);
+  },
+
+  /**
+   * CHECK IF AUTHENTICATED (Instant)
+   */
+  isAuthenticated(): boolean {
+    return this.getSession() !== null;
+  },
+
+  /**
+   * GET CURRENT USER ROLE (Instant)
+   */
+  getCurrentRole(): UserRole | null {
+    const session = this.getSession();
+    return session?.role || null;
+  },
+
+  /**
+   * REFRESH SESSION (Optional - can be called after redirect)
+   */
+  async refreshUserData(): Promise<UserSession | null> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data: userData } = await supabase
+        .from("users")
+        .select("id, email, role, full_name")
+        .eq("id", user.id)
+        .single();
+
+      if (!userData) return null;
+
+      const userRole = (userData.role as UserRole) || RBACService.getRoleFromEmail(user.email!);
+
+      const userSession: UserSession = {
+        id: user.id,
+        email: user.email!,
+        role: userRole,
+        permissions: RBACService.getPermissions(userRole),
+        name: userData.full_name || user.email!.split('@')[0],
+      };
+
+      this.setSession(userSession);
+      return userSession;
+    } catch (error) {
+      console.error("Refresh session error:", error);
+      return null;
+    }
+  },
+
+  /**
+   * REGISTER USER (Optimized)
+   */
+  async register(data: {
+    email: string;
+    password: string;
+    full_name: string;
+    role?: UserRole;
+  }): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Step 1: Create auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
       });
 
-      if (error) {
-        return { error: { message: error.message } };
+      if (authError || !authData.user) {
+        return {
+          success: false,
+          error: authError?.message || "Registration failed",
+        };
       }
 
-      return { error: null };
-    } catch (error) {
-      return { 
-        error: { message: "An unexpected error occurred during password reset" } 
-      };
-    }
-  },
-
-  // Confirm email (REQUIRED)
-  async confirmEmail(token: string, type: 'signup' | 'recovery' | 'email_change' = 'signup'): Promise<{ user: AuthUser | null; error: AuthError | null }> {
-    try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        token_hash: token,
-        type: type
+      // Step 2: Create user profile
+      const { error: profileError } = await supabase.from("users").insert({
+        id: authData.user.id,
+        email: data.email,
+        full_name: data.full_name,
+        role: data.role || UserRole.CLIENT,
       });
 
-      if (error) {
-        return { user: null, error: { message: error.message, code: error.status?.toString() } };
+      if (profileError) {
+        return {
+          success: false,
+          error: "Failed to create user profile",
+        };
       }
 
-      const authUser = data.user ? {
-        id: data.user.id,
-        email: data.user.email || "",
-        user_metadata: data.user.user_metadata,
-        created_at: data.user.created_at
-      } : null;
-
-      return { user: authUser, error: null };
+      return { success: true };
     } catch (error) {
-      return { 
-        user: null, 
-        error: { message: "An unexpected error occurred during email confirmation" } 
+      console.error("Registration error:", error);
+      return {
+        success: false,
+        error: "Registration failed",
       };
     }
   },
-
-  // Listen to auth state changes
-  onAuthStateChange(callback: (event: string, session: Session | null) => void) {
-    return supabase.auth.onAuthStateChange(callback);
-  },
-
-  // Login wrapper (alias for signIn)
-  async login(email: string, password: string) {
-    return this.signIn(email, password);
-  },
-
-  // Register wrapper (alias for signUp)
-  async register(email: string, password: string) {
-    return this.signUp(email, password);
-  },
-
-  // Logout wrapper (alias for signOut)
-  async logout() {
-    return this.signOut();
-  }
 };
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+export function getRedirectPath(role: UserRole): string {
+  return RBACService.getDashboardRoute(role);
+}
+
+export function hasPermission(permission: string): boolean {
+  const session = authService.getSession();
+  if (!session) return false;
+  
+  return session.permissions.some(p => p === permission);
+}
+
+export function hasAnyPermission(permissions: string[]): boolean {
+  const session = authService.getSession();
+  if (!session) return false;
+  
+  return permissions.some(p => session.permissions.includes(p as any));
+}
+
+export function requireAuth(): UserSession | null {
+  const session = authService.getSession();
+  if (!session && typeof window !== 'undefined') {
+    window.location.href = '/auth/login';
+    return null;
+  }
+  return session;
+}

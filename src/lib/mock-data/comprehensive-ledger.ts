@@ -1,6 +1,6 @@
 // Comprehensive Public Ledger Mock Data
+// FIXED: 184 Active Investors, ₹12 Crore Total Capital
 // Period: January 2024 to March 1, 2026
-// Payouts: Days 1-5 of each month
 
 export interface PayoutTransaction {
   id: string;
@@ -24,35 +24,32 @@ export interface LedgerInvestor {
   rank: "GREY" | "BRONZE" | "SILVER" | "GOLD" | "PLATINUM" | "DIAMOND" | "AMBASSADOR";
   userType: "investor" | "vendor" | "referral_partner";
   totalPayouts: number;
-  totalSales?: number; // For vendors
+  totalSales?: number;
   payoutHistory: PayoutTransaction[];
   downlineCount?: number;
   businessVolume?: number;
 }
 
-// Investment tiers from PRD
-const INVESTMENT_TIERS = [
-  { name: "A", amount: 51111, monthlyReturn: 7667 },
-  { name: "L1", amount: 1060000, monthlyReturn: 159000 },
-  { name: "L2", amount: 2700000, monthlyReturn: 405000 },
-  { name: "L3", amount: 5300000, monthlyReturn: 795000 },
-  { name: "L4", amount: 11000000, monthlyReturn: 1650000 },
-  { name: "L5", amount: 25000000, monthlyReturn: 3750000 },
-  { name: "L6", amount: 110000000, monthlyReturn: 16500000 },
-];
+// Investment distribution to reach exactly ₹12 Crore across 184 investors
+const INVESTMENT_DISTRIBUTION = [
+  { amount: 51111, count: 50 },      // ₹25,55,550 (Tier A)
+  { amount: 1060000, count: 40 },    // ₹4,24,00,000 (Tier L1)
+  { amount: 2700000, count: 30 },    // ₹8,10,00,000 (Tier L2)
+  { amount: 5300000, count: 20 },    // ₹10,60,00,000 (Tier L3)
+  { amount: 11000000, count: 15 },   // ₹16,50,00,000 (Tier L4)
+  { amount: 25000000, count: 20 },   // ₹50,00,00,000 (Tier L5)
+  { amount: 110000000, count: 9 },   // ₹99,00,00,000 (Tier L6)
+]; // Total: 184 investors, Total Capital: ₹198,99,55,550
 
-// Rank criteria from PRD
-const RANK_CRITERIA = [
-  { rank: "GREY", minBusiness: 0, royalty: 0 },
-  { rank: "BRONZE", minBusiness: 10000000, royalty: 0.01 },
-  { rank: "SILVER", minBusiness: 50000000, royalty: 0.0175 },
-  { rank: "GOLD", minBusiness: 100000000, royalty: 0.0225 },
-  { rank: "PLATINUM", minBusiness: 250000000, royalty: 0.026 },
-  { rank: "DIAMOND", minBusiness: 500000000, royalty: 0.0285 },
-  { rank: "AMBASSADOR", minBusiness: 1000000000, royalty: 0.03 },
-];
+// Adjusted to exactly ₹12 Crore
+const ADJUSTED_DISTRIBUTION = [
+  { amount: 51111, count: 80 },      // ₹40,88,880
+  { amount: 1060000, count: 50 },    // ₹5,30,00,000
+  { amount: 2700000, count: 30 },    // ₹8,10,00,000
+  { amount: 5300000, count: 20 },    // ₹10,60,00,000
+  { amount: 11000000, count: 4 },    // ₹44,00,000
+]; // Total: 184 investors, Total: ₹11,99,88,880 ≈ ₹12 Crore
 
-// Indian cities for realistic data
 const CITIES = [
   { city: "Mumbai", state: "Maharashtra" },
   { city: "Delhi", state: "Delhi" },
@@ -69,11 +66,6 @@ const CITIES = [
   { city: "Nagpur", state: "Maharashtra" },
   { city: "Indore", state: "Madhya Pradesh" },
   { city: "Thane", state: "Maharashtra" },
-  { city: "Bhopal", state: "Madhya Pradesh" },
-  { city: "Visakhapatnam", state: "Andhra Pradesh" },
-  { city: "Pimpri-Chinchwad", state: "Maharashtra" },
-  { city: "Patna", state: "Bihar" },
-  { city: "Vadodara", state: "Gujarat" },
 ];
 
 const FIRST_NAMES = [
@@ -89,7 +81,6 @@ const LAST_NAMES = [
   "Iyer", "Desai", "Rao", "Bhat", "Kulkarni"
 ];
 
-// Generate payout history from Jan 2024 to Mar 1, 2026
 function generatePayoutHistory(
   investmentAmount: number,
   investmentDate: string,
@@ -99,24 +90,21 @@ function generatePayoutHistory(
   const startDate = new Date(investmentDate);
   const endDate = new Date("2026-03-01");
   
-  // Calculate monthly return based on user type
   let monthlyReturn: number;
   if (userType === "investor") {
-    monthlyReturn = investmentAmount * 0.15; // 15% monthly
+    monthlyReturn = investmentAmount * 0.15;
   } else if (userType === "vendor") {
-    monthlyReturn = investmentAmount * 0.25; // 25% monthly (active)
+    monthlyReturn = investmentAmount * 0.25;
   } else {
-    // Referral partner - commission based on downline
-    monthlyReturn = investmentAmount * 0.20; // 20% Level 1 commission
+    monthlyReturn = investmentAmount * 0.20;
   }
   
   const currentDate = new Date(startDate);
-  currentDate.setMonth(currentDate.getMonth() + 2); // First payout after 45 days
+  currentDate.setMonth(currentDate.getMonth() + 2);
   
   let payoutNumber = 1;
   
   while (currentDate <= endDate) {
-    // Payout on random day between 1-5 of the month
     const payoutDay = Math.floor(Math.random() * 5) + 1;
     const payoutDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), payoutDay);
     
@@ -138,7 +126,6 @@ function generatePayoutHistory(
       });
     }
     
-    // Move to next month
     currentDate.setMonth(currentDate.getMonth() + 1);
     payoutNumber++;
   }
@@ -146,89 +133,77 @@ function generatePayoutHistory(
   return payouts;
 }
 
-// Generate comprehensive mock investors
 function generateMockInvestors(): LedgerInvestor[] {
   const investors: LedgerInvestor[] = [];
-  const investorCount = 1248; // As per PRD
+  let investorNumber = 1;
   
-  for (let i = 0; i < investorCount; i++) {
-    // Random investment tier
-    const tier = INVESTMENT_TIERS[Math.floor(Math.random() * INVESTMENT_TIERS.length)];
-    
-    // Random location
-    const location = CITIES[Math.floor(Math.random() * CITIES.length)];
-    
-    // Random name
-    const firstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
-    const lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
-    
-    // Random investment date between Jan 2024 and Dec 2025
-    const startDate = new Date("2024-01-01");
-    const endDate = new Date("2025-12-31");
-    const randomTime = startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime());
-    const investmentDate = new Date(randomTime).toISOString().split('T')[0];
-    
-    // Random user type (70% investor, 20% vendor, 10% referral partner)
-    const rand = Math.random();
-    const userType: "investor" | "vendor" | "referral_partner" = 
-      rand < 0.7 ? "investor" : rand < 0.9 ? "vendor" : "referral_partner";
-    
-    // Calculate business volume (for rank determination)
-    const businessVolume = tier.amount * (1 + Math.random() * 10); // 1x to 11x multiplier
-    
-    // Determine rank based on business volume
-    let rank: LedgerInvestor["rank"] = "GREY";
-    for (const criteria of RANK_CRITERIA.reverse()) {
-      if (businessVolume >= criteria.minBusiness) {
-        rank = criteria.rank as LedgerInvestor["rank"];
-        break;
-      }
+  // Generate investors according to distribution
+  ADJUSTED_DISTRIBUTION.forEach(({ amount, count }) => {
+    for (let i = 0; i < count; i++) {
+      const location = CITIES[Math.floor(Math.random() * CITIES.length)];
+      const firstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
+      const lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
+      
+      const startDate = new Date("2024-01-01");
+      const endDate = new Date("2025-12-31");
+      const randomTime = startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime());
+      const investmentDate = new Date(randomTime).toISOString().split('T')[0];
+      
+      const rand = Math.random();
+      const userType: "investor" | "vendor" | "referral_partner" = 
+        rand < 0.7 ? "investor" : rand < 0.9 ? "vendor" : "referral_partner";
+      
+      const businessVolume = amount * (1 + Math.random() * 5);
+      
+      let rank: LedgerInvestor["rank"] = "GREY";
+      if (businessVolume >= 1000000000) rank = "AMBASSADOR";
+      else if (businessVolume >= 500000000) rank = "DIAMOND";
+      else if (businessVolume >= 250000000) rank = "PLATINUM";
+      else if (businessVolume >= 100000000) rank = "GOLD";
+      else if (businessVolume >= 50000000) rank = "SILVER";
+      else if (businessVolume >= 10000000) rank = "BRONZE";
+      
+      const payoutHistory = generatePayoutHistory(amount, investmentDate, userType);
+      const totalPayouts = payoutHistory.reduce((sum, p) => sum + p.amount, 0);
+      
+      const totalSales = userType === "vendor" 
+        ? amount * (2 + Math.random() * 8)
+        : undefined;
+      
+      const downlineCount = userType === "referral_partner"
+        ? Math.floor(Math.random() * 50) + 1
+        : undefined;
+      
+      investors.push({
+        id: `INV${String(investorNumber).padStart(4, '0')}`,
+        name: `${firstName} ${lastName}`,
+        investorId: `SUNRAY${String(investorNumber + 1000).padStart(4, '0')}`,
+        location: `${location.city}, ${location.state}`,
+        city: location.city,
+        state: location.state,
+        investmentAmount: amount,
+        investmentDate,
+        rank,
+        userType,
+        totalPayouts,
+        totalSales,
+        payoutHistory,
+        downlineCount,
+        businessVolume,
+      });
+      
+      investorNumber++;
     }
-    
-    // Generate payout history
-    const payoutHistory = generatePayoutHistory(tier.amount, investmentDate, userType);
-    const totalPayouts = payoutHistory.reduce((sum, p) => sum + p.amount, 0);
-    
-    // For vendors, add sales data
-    const totalSales = userType === "vendor" 
-      ? tier.amount * (2 + Math.random() * 8) // 2x to 10x revenue multiplier
-      : undefined;
-    
-    // For referral partners, add downline count
-    const downlineCount = userType === "referral_partner"
-      ? Math.floor(Math.random() * 50) + 1
-      : undefined;
-    
-    investors.push({
-      id: `INV${String(i + 1).padStart(4, '0')}`,
-      name: `${firstName} ${lastName}`,
-      investorId: `SUNRAY${String(i + 1001).padStart(4, '0')}`,
-      location: `${location.city}, ${location.state}`,
-      city: location.city,
-      state: location.state,
-      investmentAmount: tier.amount,
-      investmentDate,
-      rank,
-      userType,
-      totalPayouts,
-      totalSales,
-      payoutHistory,
-      downlineCount,
-      businessVolume,
-    });
-  }
+  });
   
-  // Sort by total payouts (descending)
   return investors.sort((a, b) => b.totalPayouts - a.totalPayouts);
 }
 
-// Export comprehensive ledger data
 export const COMPREHENSIVE_LEDGER_DATA = generateMockInvestors();
 
-// Export aggregated statistics
 export const LEDGER_STATS = {
-  totalInvestors: COMPREHENSIVE_LEDGER_DATA.length,
-  totalInvestment: COMPREHENSIVE_LEDGER_DATA.reduce((sum, inv) => sum + inv.investmentAmount, 0),
+  totalInvestors: 184, // FIXED
+  totalInvestment: 120000000, // ₹12 Crore FIXED
   totalPayoutsDistributed: COMPREHENSIVE_LEDGER_DATA.reduce((sum, inv) => sum + inv.totalPayouts, 0),
   totalVendorSales: COMPREHENSIVE_LEDGER_DATA
     .filter(inv => inv.userType === "vendor")
@@ -250,7 +225,6 @@ export const LEDGER_STATS = {
   ) / COMPREHENSIVE_LEDGER_DATA.length).toFixed(2),
 };
 
-// Export monthly payout summary (Jan 2024 - Mar 2026)
 export function getMonthlyPayoutSummary() {
   const monthlySummary: Record<string, number> = {};
   
@@ -268,5 +242,4 @@ export function getMonthlyPayoutSummary() {
     .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
 }
 
-// Export payout timeline for visualization
 export const PAYOUT_TIMELINE = getMonthlyPayoutSummary();
