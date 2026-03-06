@@ -329,7 +329,7 @@ export type Database = {
           aadhaar_number: string | null
           account_holder_name: string | null
           account_number: string | null
-          address: Json | null
+          address: string | null
           avatar_url: string | null
           bank_details: Json | null
           bank_name: string | null
@@ -338,6 +338,7 @@ export type Database = {
           company_name: string | null
           created_at: string | null
           email: string | null
+          first_name: string | null
           franchise_location: string | null
           franchise_type: string | null
           full_name: string | null
@@ -347,6 +348,7 @@ export type Database = {
           investment_tier: string | null
           is_active: boolean | null
           kyc_status: string | null
+          last_name: string | null
           onboarding_completed: boolean | null
           pan_number: string | null
           phone: string | null
@@ -361,7 +363,7 @@ export type Database = {
           aadhaar_number?: string | null
           account_holder_name?: string | null
           account_number?: string | null
-          address?: Json | null
+          address?: string | null
           avatar_url?: string | null
           bank_details?: Json | null
           bank_name?: string | null
@@ -370,6 +372,7 @@ export type Database = {
           company_name?: string | null
           created_at?: string | null
           email?: string | null
+          first_name?: string | null
           franchise_location?: string | null
           franchise_type?: string | null
           full_name?: string | null
@@ -379,6 +382,7 @@ export type Database = {
           investment_tier?: string | null
           is_active?: boolean | null
           kyc_status?: string | null
+          last_name?: string | null
           onboarding_completed?: boolean | null
           pan_number?: string | null
           phone?: string | null
@@ -393,7 +397,7 @@ export type Database = {
           aadhaar_number?: string | null
           account_holder_name?: string | null
           account_number?: string | null
-          address?: Json | null
+          address?: string | null
           avatar_url?: string | null
           bank_details?: Json | null
           bank_name?: string | null
@@ -402,6 +406,7 @@ export type Database = {
           company_name?: string | null
           created_at?: string | null
           email?: string | null
+          first_name?: string | null
           franchise_location?: string | null
           franchise_type?: string | null
           full_name?: string | null
@@ -411,6 +416,7 @@ export type Database = {
           investment_tier?: string | null
           is_active?: boolean | null
           kyc_status?: string | null
+          last_name?: string | null
           onboarding_completed?: boolean | null
           pan_number?: string | null
           phone?: string | null
