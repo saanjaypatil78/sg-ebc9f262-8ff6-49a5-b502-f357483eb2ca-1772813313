@@ -16,10 +16,13 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { formatCurrency } from "@/lib/utils";
+import { Confetti } from "@/components/Confetti";
+import { useRouter } from "next/router";
 
 export default function InvestPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Form State
@@ -29,6 +32,12 @@ export default function InvestPage() {
   const [bankName, setBankName] = useState("");
   const [isVerifyingIfsc, setIsVerifyingIfsc] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  
+  // Real-time payment polling
+  const [transactionId, setTransactionId] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<'pending' | 'processing' | 'verified' | 'failed'>('pending');
+  const [pollingProgress, setPollingProgress] = useState(0);
 
   // Parallax Scroll Effects
   const { scrollYProgress } = useScroll({
@@ -43,6 +52,45 @@ export default function InvestPage() {
 
   const numericAmount = parseInt(amount.replace(/,/g, '') || "0", 10);
   const isLargeTransfer = numericAmount >= 100000;
+
+  // Real-time payment status polling
+  useEffect(() => {
+    if (!transactionId) return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const status = await diditService.checkPaymentStatus(transactionId);
+        setPaymentStatus(status.status);
+        setPollingProgress((prev) => Math.min(prev + 10, 90));
+
+        if (status.status === 'verified') {
+          clearInterval(pollInterval);
+          setPollingProgress(100);
+          setShowConfetti(true);
+          
+          toast({
+            title: "✅ Payment Verified!",
+            description: "Your investment has been confirmed. Redirecting to dashboard...",
+          });
+
+          setTimeout(() => {
+            router.push('/dashboard/investor');
+          }, 3000);
+        } else if (status.status === 'failed') {
+          clearInterval(pollInterval);
+          toast({
+            variant: "destructive",
+            title: "Payment Verification Failed",
+            description: "Please contact support with your UTR number.",
+          });
+        }
+      } catch (error) {
+        console.error('Polling error:', error);
+      }
+    }, 5000); // Poll every 5 seconds
+
+    return () => clearInterval(pollInterval);
+  }, [transactionId, router, toast]);
 
   // Real-time IFSC Fetch
   useEffect(() => {
@@ -84,9 +132,11 @@ export default function InvestPage() {
     if (!utrNumber || utrNumber.length < 12) return toast({ title: "Invalid UTR", description: "Please enter a valid 12-digit UTR/Transaction ID.", variant: "destructive" });
 
     setIsSubmitting(true);
+    setPaymentStatus('processing');
+    
     try {
       // 1. Register transaction via Didit platform
-      await diditService.createVerificationRequest({
+      const verification = await diditService.createVerificationRequest({
         amount: numericAmount,
         utr: utrNumber,
         accountNumber: isLargeTransfer ? "4051939609" : "PHONEPE",
@@ -94,15 +144,17 @@ export default function InvestPage() {
         userId: user.id
       });
 
+      setTransactionId(verification.id);
+
       // 2. Sync with Supabase (Investment Agreement Creation)
       await investmentService.createAgreement(user.id, numericAmount);
 
       toast({
         title: "Investment Initiated! 🎉",
-        description: "Your payment is under verification. Agreement created.",
+        description: "Your payment is under verification. Real-time status updates will appear below.",
       });
 
-      // Reset
+      // Reset form but keep showing status
       setAmount("");
       setUtrNumber("");
     } catch (error) {
@@ -111,6 +163,7 @@ export default function InvestPage() {
         title: "Submission Failed",
         description: "There was an error processing your investment.",
       });
+      setPaymentStatus('failed');
     } finally {
       setIsSubmitting(false);
     }
@@ -119,6 +172,8 @@ export default function InvestPage() {
   return (
     <>
       <SEO title="Secure Investment Portal | Brave Ecom" />
+      <Confetti trigger={showConfetti} duration={5000} />
+      
       <DashboardLayout role="investor">
         <motion.div 
           ref={containerRef}
@@ -292,6 +347,39 @@ export default function InvestPage() {
                       "Submit for Verification"
                     )}
                   </Button>
+
+                  {/* Real-time Payment Status */}
+                  {transactionId && paymentStatus !== 'pending' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-6 p-4 rounded-xl bg-gradient-to-br from-purple-900/20 to-cyan-900/20 border border-purple-500/30"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm text-slate-300 font-medium">Payment Status</span>
+                        <span className={`text-xs font-semibold uppercase tracking-wider ${
+                          paymentStatus === 'verified' ? 'text-green-400' :
+                          paymentStatus === 'processing' ? 'text-yellow-400' :
+                          'text-red-400'
+                        }`}>
+                          {paymentStatus}
+                        </span>
+                      </div>
+                      <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${pollingProgress}%` }}
+                          transition={{ duration: 0.5 }}
+                          className="h-full bg-gradient-to-r from-purple-500 to-cyan-500"
+                        />
+                      </div>
+                      <p className="text-xs text-slate-400 mt-2">
+                        {paymentStatus === 'verified' ? '✅ Verified! Redirecting...' :
+                         paymentStatus === 'processing' ? '⏳ Checking payment status...' :
+                         '❌ Verification failed'}
+                      </p>
+                    </motion.div>
+                  )}
                 </form>
               </GlassmorphicCard>
             </motion.div>
@@ -331,6 +419,7 @@ export default function InvestPage() {
                           alt="PhonePe QR Code" 
                           fill
                           className="object-contain p-2"
+                          loading="lazy"
                         />
                       </div>
                       
