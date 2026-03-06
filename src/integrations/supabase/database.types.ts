@@ -11,619 +11,751 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.4"
+    PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
-      commission_ledger: {
+      audit_logs: {
         Row: {
-          approved_at: string | null
-          approved_by: string | null
-          base_amount: number
-          commission_amount: number
-          commission_rate: number
-          commission_type: string
+          action: string
           created_at: string | null
+          entity: string
+          entity_id: string | null
           id: string
-          paid_at: string | null
-          source_payout_id: string | null
-          status: string
+          ip_address: unknown
+          new_value: Json | null
+          old_value: Json | null
+          rbac_decision: string | null
+          rbac_metadata: Json | null
+          rbac_reason: string | null
+          user_agent: string | null
           user_id: string | null
         }
         Insert: {
-          approved_at?: string | null
-          approved_by?: string | null
-          base_amount: number
-          commission_amount: number
-          commission_rate: number
-          commission_type: string
+          action: string
           created_at?: string | null
+          entity: string
+          entity_id?: string | null
           id?: string
-          paid_at?: string | null
-          source_payout_id?: string | null
-          status?: string
+          ip_address?: unknown
+          new_value?: Json | null
+          old_value?: Json | null
+          rbac_decision?: string | null
+          rbac_metadata?: Json | null
+          rbac_reason?: string | null
+          user_agent?: string | null
           user_id?: string | null
         }
         Update: {
-          approved_at?: string | null
-          approved_by?: string | null
-          base_amount?: number
-          commission_amount?: number
-          commission_rate?: number
-          commission_type?: string
+          action?: string
           created_at?: string | null
+          entity?: string
+          entity_id?: string | null
           id?: string
-          paid_at?: string | null
-          source_payout_id?: string | null
-          status?: string
+          ip_address?: unknown
+          new_value?: Json | null
+          old_value?: Json | null
+          rbac_decision?: string | null
+          rbac_metadata?: Json | null
+          rbac_reason?: string | null
+          user_agent?: string | null
           user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "commission_ledger_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commission_ledger_source_payout_id_fkey"
-            columns: ["source_payout_id"]
-            isOneToOne: false
-            referencedRelation: "monthly_payouts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commission_ledger_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      file_uploads: {
-        Row: {
-          created_at: string | null
-          errors: Json | null
-          file_name: string
-          file_size: number | null
-          file_type: string
-          file_url: string
-          id: string
-          processing_status: string | null
-          records_processed: number | null
-          upload_category: string
-          uploaded_by: string
-          vendor_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          errors?: Json | null
-          file_name: string
-          file_size?: number | null
-          file_type: string
-          file_url: string
-          id?: string
-          processing_status?: string | null
-          records_processed?: number | null
-          upload_category: string
-          uploaded_by: string
-          vendor_id: string
-        }
-        Update: {
-          created_at?: string | null
-          errors?: Json | null
-          file_name?: string
-          file_size?: number | null
-          file_type?: string
-          file_url?: string
-          id?: string
-          processing_status?: string | null
-          records_processed?: number | null
-          upload_category?: string
-          uploaded_by?: string
-          vendor_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "file_uploads_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "file_uploads_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      fundraising_adjustments: {
-        Row: {
-          adjusted_by: string | null
-          adjustment_type: string
-          created_at: string | null
-          entity_id: string
-          id: string
-          new_value: Json | null
-          old_value: Json | null
-          reason: string
-        }
-        Insert: {
-          adjusted_by?: string | null
-          adjustment_type: string
-          created_at?: string | null
-          entity_id: string
-          id?: string
-          new_value?: Json | null
-          old_value?: Json | null
-          reason: string
-        }
-        Update: {
-          adjusted_by?: string | null
-          adjustment_type?: string
-          created_at?: string | null
-          entity_id?: string
-          id?: string
-          new_value?: Json | null
-          old_value?: Json | null
-          reason?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fundraising_adjustments_adjusted_by_fkey"
-            columns: ["adjusted_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      investment_agreements: {
-        Row: {
-          agreement_number: number
-          agreement_value: number
-          created_at: string | null
-          id: string
-          investment_date: string
-          investor_id: string | null
-          maturity_date: string
-          monthly_payout_rate: number
-          next_payout_date: string | null
-          status: string
-          total_paid_out: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          agreement_number: number
-          agreement_value?: number
-          created_at?: string | null
-          id?: string
-          investment_date?: string
-          investor_id?: string | null
-          maturity_date: string
-          monthly_payout_rate?: number
-          next_payout_date?: string | null
-          status?: string
-          total_paid_out?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          agreement_number?: number
-          agreement_value?: number
-          created_at?: string | null
-          id?: string
-          investment_date?: string
-          investor_id?: string | null
-          maturity_date?: string
-          monthly_payout_rate?: number
-          next_payout_date?: string | null
-          status?: string
-          total_paid_out?: number | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "investment_agreements_investor_id_fkey"
-            columns: ["investor_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      ipo_milestones: {
-        Row: {
-          completion_date: string | null
-          created_at: string | null
-          criteria_met: Json | null
-          id: string
-          milestone_stage: string
-          notes: string | null
-          status: string
-          target_date: string
-          updated_at: string | null
-        }
-        Insert: {
-          completion_date?: string | null
-          created_at?: string | null
-          criteria_met?: Json | null
-          id?: string
-          milestone_stage: string
-          notes?: string | null
-          status?: string
-          target_date: string
-          updated_at?: string | null
-        }
-        Update: {
-          completion_date?: string | null
-          created_at?: string | null
-          criteria_met?: Json | null
-          id?: string
-          milestone_stage?: string
-          notes?: string | null
-          status?: string
-          target_date?: string
-          updated_at?: string | null
         }
         Relationships: []
       }
-      monthly_payouts: {
+      commission_accumulation_ledger: {
         Row: {
-          agreement_id: string | null
+          admin_charge: number | null
+          commission_level: number | null
+          commission_rate: number | null
+          commission_type: string
           created_at: string | null
+          gross_commission: number
           id: string
-          investor_id: string | null
-          payment_method: string | null
-          payout_amount: number
-          payout_month: string
-          payout_percentage: number
-          principal_amount: number
+          net_commission: number
+          payout_batch_id: string | null
           processed_at: string | null
-          status: string
-          transaction_id: string | null
+          referral_user_id: string | null
+          royalty_bonus: number | null
+          source_amount: number | null
+          source_investment_id: string | null
+          status: string | null
+          user_id: string
         }
         Insert: {
-          agreement_id?: string | null
+          admin_charge?: number | null
+          commission_level?: number | null
+          commission_rate?: number | null
+          commission_type: string
           created_at?: string | null
+          gross_commission: number
           id?: string
-          investor_id?: string | null
-          payment_method?: string | null
-          payout_amount: number
-          payout_month: string
-          payout_percentage: number
-          principal_amount: number
+          net_commission: number
+          payout_batch_id?: string | null
           processed_at?: string | null
-          status?: string
-          transaction_id?: string | null
+          referral_user_id?: string | null
+          royalty_bonus?: number | null
+          source_amount?: number | null
+          source_investment_id?: string | null
+          status?: string | null
+          user_id: string
         }
         Update: {
-          agreement_id?: string | null
+          admin_charge?: number | null
+          commission_level?: number | null
+          commission_rate?: number | null
+          commission_type?: string
           created_at?: string | null
+          gross_commission?: number
           id?: string
-          investor_id?: string | null
-          payment_method?: string | null
-          payout_amount?: number
-          payout_month?: string
-          payout_percentage?: number
-          principal_amount?: number
+          net_commission?: number
+          payout_batch_id?: string | null
           processed_at?: string | null
-          status?: string
-          transaction_id?: string | null
+          referral_user_id?: string | null
+          royalty_bonus?: number | null
+          source_amount?: number | null
+          source_investment_id?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      daily_payout_accumulation: {
+        Row: {
+          accumulated_items: Json | null
+          created_at: string | null
+          deductions: number | null
+          gross_amount: number
+          id: string
+          net_amount: number
+          payout_date: string
+          payout_type: string
+          processed_at: string | null
+          status: string | null
+          transaction_reference: string | null
+          user_id: string
+        }
+        Insert: {
+          accumulated_items?: Json | null
+          created_at?: string | null
+          deductions?: number | null
+          gross_amount: number
+          id?: string
+          net_amount: number
+          payout_date: string
+          payout_type: string
+          processed_at?: string | null
+          status?: string | null
+          transaction_reference?: string | null
+          user_id: string
+        }
+        Update: {
+          accumulated_items?: Json | null
+          created_at?: string | null
+          deductions?: number | null
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          payout_date?: string
+          payout_type?: string
+          processed_at?: string | null
+          status?: string | null
+          transaction_reference?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      franchise_partners: {
+        Row: {
+          commission_earned: number | null
+          created_at: string | null
+          franchise_fee: number | null
+          id: string
+          state: string
+          status: string | null
+          territory: string | null
+          total_investment: number | null
+          total_members: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          commission_earned?: number | null
+          created_at?: string | null
+          franchise_fee?: number | null
+          id?: string
+          state: string
+          status?: string | null
+          territory?: string | null
+          total_investment?: number | null
+          total_members?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          commission_earned?: number | null
+          created_at?: string | null
+          franchise_fee?: number | null
+          id?: string
+          state?: string
+          status?: string | null
+          territory?: string | null
+          total_investment?: number | null
+          total_members?: number | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "monthly_payouts_agreement_id_fkey"
-            columns: ["agreement_id"]
+            foreignKeyName: "franchise_partners_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "investment_agreements"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "monthly_payouts_investor_id_fkey"
-            columns: ["investor_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
         ]
       }
-      notifications: {
+      fundraising_capital: {
+        Row: {
+          current_amount: number | null
+          id: string
+          percentage: number | null
+          target_amount: number | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          current_amount?: number | null
+          id?: string
+          percentage?: number | null
+          target_amount?: number | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          current_amount?: number | null
+          id?: string
+          percentage?: number | null
+          target_amount?: number | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      google_trends_tracking: {
+        Row: {
+          competition_level: string | null
+          created_at: string | null
+          data_timestamp: string
+          growth_rate: number | null
+          id: string
+          product_id: string | null
+          search_volume: number | null
+          trend_keyword: string
+          trend_score: number | null
+        }
+        Insert: {
+          competition_level?: string | null
+          created_at?: string | null
+          data_timestamp: string
+          growth_rate?: number | null
+          id?: string
+          product_id?: string | null
+          search_volume?: number | null
+          trend_keyword: string
+          trend_score?: number | null
+        }
+        Update: {
+          competition_level?: string | null
+          created_at?: string | null
+          data_timestamp?: string
+          growth_rate?: number | null
+          id?: string
+          product_id?: string | null
+          search_volume?: number | null
+          trend_keyword?: string
+          trend_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "google_trends_tracking_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      investments: {
+        Row: {
+          amount: number
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string | null
+          first_payout_amount: number | null
+          first_payout_date: string | null
+          id: string
+          is_first_payout_done: boolean | null
+          monthly_payout: number | null
+          next_payout_date: string | null
+          payment_method: string | null
+          payment_status: string | null
+          payout_cycle_day: number | null
+          roi_percentage: number | null
+          total_payouts_made: number | null
+          transaction_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string | null
+          first_payout_amount?: number | null
+          first_payout_date?: string | null
+          id?: string
+          is_first_payout_done?: boolean | null
+          monthly_payout?: number | null
+          next_payout_date?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          payout_cycle_day?: number | null
+          roi_percentage?: number | null
+          total_payouts_made?: number | null
+          transaction_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string | null
+          first_payout_amount?: number | null
+          first_payout_date?: string | null
+          id?: string
+          is_first_payout_done?: boolean | null
+          monthly_payout?: number | null
+          next_payout_date?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          payout_cycle_day?: number | null
+          roi_percentage?: number | null
+          total_payouts_made?: number | null
+          transaction_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kyc_documents: {
         Row: {
           created_at: string | null
+          document_hash: string
+          document_type: string
+          document_url: string
+          expiry_date: string | null
           id: string
-          is_read: boolean | null
-          link: string | null
-          message: string
-          title: string
-          type: string
+          rejection_reason: string | null
+          updated_at: string | null
           user_id: string
+          verification_status: string | null
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           created_at?: string | null
+          document_hash: string
+          document_type: string
+          document_url: string
+          expiry_date?: string | null
           id?: string
-          is_read?: boolean | null
-          link?: string | null
-          message: string
-          title: string
-          type: string
+          rejection_reason?: string | null
+          updated_at?: string | null
           user_id: string
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           created_at?: string | null
+          document_hash?: string
+          document_type?: string
+          document_url?: string
+          expiry_date?: string | null
           id?: string
-          is_read?: boolean | null
-          link?: string | null
-          message?: string
-          title?: string
-          type?: string
+          rejection_reason?: string | null
+          updated_at?: string | null
+          user_id?: string
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
+      kyc_nominations: {
+        Row: {
+          aadhar_back_url: string | null
+          aadhar_front_url: string | null
+          aadhar_number: string | null
+          account_holder_name: string
+          account_number: string
+          account_type: string | null
+          address_line1: string | null
+          address_line2: string | null
+          bank_name: string
+          bank_proof_url: string | null
+          branch_name: string | null
+          city: string | null
+          created_at: string | null
+          date_of_birth: string | null
+          email: string
+          full_name: string
+          id: string
+          ifsc_code: string
+          investment_amount: number
+          investment_type: string
+          kyc_status: string | null
+          nominee_aadhar: string | null
+          nominee_address: string | null
+          nominee_dob: string | null
+          nominee_name: string | null
+          nominee_phone: string | null
+          nominee_relationship: string | null
+          pan_card_url: string | null
+          pan_number: string | null
+          phone: string
+          photo_url: string | null
+          pincode: string | null
+          referred_by_code: string | null
+          state: string | null
+          updated_at: string | null
+          user_id: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          aadhar_back_url?: string | null
+          aadhar_front_url?: string | null
+          aadhar_number?: string | null
+          account_holder_name: string
+          account_number: string
+          account_type?: string | null
+          address_line1?: string | null
+          address_line2?: string | null
+          bank_name: string
+          bank_proof_url?: string | null
+          branch_name?: string | null
+          city?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          email: string
+          full_name: string
+          id?: string
+          ifsc_code: string
+          investment_amount: number
+          investment_type: string
+          kyc_status?: string | null
+          nominee_aadhar?: string | null
+          nominee_address?: string | null
+          nominee_dob?: string | null
+          nominee_name?: string | null
+          nominee_phone?: string | null
+          nominee_relationship?: string | null
+          pan_card_url?: string | null
+          pan_number?: string | null
+          phone: string
+          photo_url?: string | null
+          pincode?: string | null
+          referred_by_code?: string | null
+          state?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          aadhar_back_url?: string | null
+          aadhar_front_url?: string | null
+          aadhar_number?: string | null
+          account_holder_name?: string
+          account_number?: string
+          account_type?: string | null
+          address_line1?: string | null
+          address_line2?: string | null
+          bank_name?: string
+          bank_proof_url?: string | null
+          branch_name?: string | null
+          city?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          ifsc_code?: string
+          investment_amount?: number
+          investment_type?: string
+          kyc_status?: string | null
+          nominee_aadhar?: string | null
+          nominee_address?: string | null
+          nominee_dob?: string | null
+          nominee_name?: string | null
+          nominee_phone?: string | null
+          nominee_relationship?: string | null
+          pan_card_url?: string | null
+          pan_number?: string | null
+          phone?: string
+          photo_url?: string | null
+          pincode?: string | null
+          referred_by_code?: string | null
+          state?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kyc_nominations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_confirmations: {
+        Row: {
+          account_number: string | null
+          auto_generated_referral_code: string | null
+          bank_name: string | null
+          confirmation_status: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string | null
+          id: string
+          ifsc_code: string | null
+          investment_amount: number
+          is_franchise_fee: boolean | null
+          payment_date: string | null
+          payment_proof_url: string | null
+          rejection_reason: string | null
+          transaction_reference: string | null
+          updated_at: string | null
+          user_id: string | null
+          utr_number: string | null
+        }
+        Insert: {
+          account_number?: string | null
+          auto_generated_referral_code?: string | null
+          bank_name?: string | null
+          confirmation_status?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string | null
+          id?: string
+          ifsc_code?: string | null
+          investment_amount: number
+          is_franchise_fee?: boolean | null
+          payment_date?: string | null
+          payment_proof_url?: string | null
+          rejection_reason?: string | null
+          transaction_reference?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          utr_number?: string | null
+        }
+        Update: {
+          account_number?: string | null
+          auto_generated_referral_code?: string | null
+          bank_name?: string | null
+          confirmation_status?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string | null
+          id?: string
+          ifsc_code?: string | null
+          investment_amount?: number
+          is_franchise_fee?: boolean | null
+          payment_date?: string | null
+          payment_proof_url?: string | null
+          rejection_reason?: string | null
+          transaction_reference?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          utr_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_confirmations_confirmed_by_fkey"
+            columns: ["confirmed_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_confirmations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payout_history: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          investment_id: string | null
+          payout_date: string
+          payout_type: string | null
+          processed_at: string | null
+          referral_level: number | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          investment_id?: string | null
+          payout_date: string
+          payout_type?: string | null
+          processed_at?: string | null
+          referral_level?: number | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          investment_id?: string | null
+          payout_date?: string
+          payout_type?: string | null
+          processed_at?: string | null
+          referral_level?: number | null
+          status?: string | null
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "payout_history_investment_id_fkey"
+            columns: ["investment_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "investments"
             referencedColumns: ["id"]
           },
         ]
       }
-      orders: {
+      permissions: {
         Row: {
-          actual_delivery_date: string | null
-          client_id: string
-          commission_amount: number | null
-          created_at: string | null
-          expected_delivery_date: string | null
-          id: string
-          is_on_time: boolean | null
-          notes: string | null
-          order_number: string
-          packaging_verified: boolean | null
-          product_id: string
-          qr_code: string | null
-          qr_validated: boolean | null
-          quantity: number
-          shipping_address: Json
-          status: Database["public"]["Enums"]["order_status"] | null
-          total_amount: number
-          tracking_number: string | null
-          unit_price: number
-          updated_at: string | null
-          vendor_id: string
-        }
-        Insert: {
-          actual_delivery_date?: string | null
-          client_id: string
-          commission_amount?: number | null
-          created_at?: string | null
-          expected_delivery_date?: string | null
-          id?: string
-          is_on_time?: boolean | null
-          notes?: string | null
-          order_number: string
-          packaging_verified?: boolean | null
-          product_id: string
-          qr_code?: string | null
-          qr_validated?: boolean | null
-          quantity?: number
-          shipping_address: Json
-          status?: Database["public"]["Enums"]["order_status"] | null
-          total_amount: number
-          tracking_number?: string | null
-          unit_price: number
-          updated_at?: string | null
-          vendor_id: string
-        }
-        Update: {
-          actual_delivery_date?: string | null
-          client_id?: string
-          commission_amount?: number | null
-          created_at?: string | null
-          expected_delivery_date?: string | null
-          id?: string
-          is_on_time?: boolean | null
-          notes?: string | null
-          order_number?: string
-          packaging_verified?: boolean | null
-          product_id?: string
-          qr_code?: string | null
-          qr_validated?: boolean | null
-          quantity?: number
-          shipping_address?: Json
-          status?: Database["public"]["Enums"]["order_status"] | null
-          total_amount?: number
-          tracking_number?: string | null
-          unit_price?: number
-          updated_at?: string | null
-          vendor_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "orders_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "orders_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "orders_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      penalties: {
-        Row: {
-          amount: number
-          applied_at: string | null
-          created_at: string | null
-          created_by: string | null
-          id: string
-          reason: string
-          settlement_id: string | null
-          vendor_id: string
-        }
-        Insert: {
-          amount: number
-          applied_at?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          id?: string
-          reason: string
-          settlement_id?: string | null
-          vendor_id: string
-        }
-        Update: {
-          amount?: number
-          applied_at?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          id?: string
-          reason?: string
-          settlement_id?: string | null
-          vendor_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "penalties_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "penalties_settlement_id_fkey"
-            columns: ["settlement_id"]
-            isOneToOne: false
-            referencedRelation: "settlements"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "penalties_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      phonepe_transactions: {
-        Row: {
-          amount: number
-          callback_data: Json | null
-          completed_at: string | null
-          id: string
-          initiated_at: string | null
-          phonepe_order_id: string | null
-          phonepe_transaction_id: string | null
-          status: string
-          transaction_id: string
-          transaction_type: string
-          user_id: string | null
-        }
-        Insert: {
-          amount: number
-          callback_data?: Json | null
-          completed_at?: string | null
-          id?: string
-          initiated_at?: string | null
-          phonepe_order_id?: string | null
-          phonepe_transaction_id?: string | null
-          status: string
-          transaction_id: string
-          transaction_type: string
-          user_id?: string | null
-        }
-        Update: {
-          amount?: number
-          callback_data?: Json | null
-          completed_at?: string | null
-          id?: string
-          initiated_at?: string | null
-          phonepe_order_id?: string | null
-          phonepe_transaction_id?: string | null
-          status?: string
-          transaction_id?: string
-          transaction_type?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "phonepe_transactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      products: {
-        Row: {
-          category: string | null
-          cost_price: number | null
+          action: string
+          code: string
           created_at: string | null
           description: string | null
           id: string
-          images: Json | null
           is_active: boolean | null
-          name: string
-          price: number
-          sku: string
-          specifications: Json | null
-          stock_quantity: number | null
+          module: string
+          resource: string
           updated_at: string | null
+        }
+        Insert: {
+          action: string
+          code: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          module: string
+          resource: string
+          updated_at?: string | null
+        }
+        Update: {
+          action?: string
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          module?: string
+          resource?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      product_listing_strategy: {
+        Row: {
+          analysis_completed_at: string | null
+          competition_score: number | null
+          confidence_level: number | null
+          created_at: string | null
+          data_collection_hours: number | null
+          decision_made_at: string | null
+          id: string
+          market_demand_score: number | null
+          notes: string | null
+          overall_strategy_score: number | null
+          product_id: string
+          recommendation: string | null
+          timing_score: number | null
+          trend_analysis_score: number | null
           vendor_id: string
         }
         Insert: {
-          category?: string | null
-          cost_price?: number | null
+          analysis_completed_at?: string | null
+          competition_score?: number | null
+          confidence_level?: number | null
           created_at?: string | null
-          description?: string | null
+          data_collection_hours?: number | null
+          decision_made_at?: string | null
           id?: string
-          images?: Json | null
-          is_active?: boolean | null
-          name: string
-          price: number
-          sku: string
-          specifications?: Json | null
-          stock_quantity?: number | null
-          updated_at?: string | null
+          market_demand_score?: number | null
+          notes?: string | null
+          overall_strategy_score?: number | null
+          product_id: string
+          recommendation?: string | null
+          timing_score?: number | null
+          trend_analysis_score?: number | null
           vendor_id: string
         }
         Update: {
-          category?: string | null
-          cost_price?: number | null
+          analysis_completed_at?: string | null
+          competition_score?: number | null
+          confidence_level?: number | null
           created_at?: string | null
-          description?: string | null
+          data_collection_hours?: number | null
+          decision_made_at?: string | null
           id?: string
-          images?: Json | null
-          is_active?: boolean | null
-          name?: string
-          price?: number
-          sku?: string
-          specifications?: Json | null
-          stock_quantity?: number | null
-          updated_at?: string | null
+          market_demand_score?: number | null
+          notes?: string | null
+          overall_strategy_score?: number | null
+          product_id?: string
+          recommendation?: string | null
+          timing_score?: number | null
+          trend_analysis_score?: number | null
           vendor_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "products_vendor_id_fkey"
+            foreignKeyName: "product_listing_strategy_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_listing_strategy_vendor_id_fkey"
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "vendors"
@@ -633,459 +765,582 @@ export type Database = {
       }
       profiles: {
         Row: {
-          aadhaar_number: string | null
-          account_holder_name: string | null
-          account_number: string | null
-          address: string | null
           avatar_url: string | null
-          bank_details: Json | null
-          bank_name: string | null
-          business_registration: string | null
-          city: string | null
-          company_name: string | null
           created_at: string | null
           email: string | null
-          first_name: string | null
-          franchise_location: string | null
-          franchise_type: string | null
           full_name: string | null
           id: string
-          ifsc_code: string | null
-          investment_amount: number | null
-          investment_tier: string | null
-          is_active: boolean | null
-          kyc_status: string | null
-          last_name: string | null
-          onboarding_completed: boolean | null
-          pan_number: string | null
-          phone: string | null
-          pincode: string | null
-          referral_code: string | null
-          role: Database["public"]["Enums"]["user_role"] | null
-          state: string | null
-          tax_id: string | null
           updated_at: string | null
         }
         Insert: {
-          aadhaar_number?: string | null
-          account_holder_name?: string | null
-          account_number?: string | null
-          address?: string | null
           avatar_url?: string | null
-          bank_details?: Json | null
-          bank_name?: string | null
-          business_registration?: string | null
-          city?: string | null
-          company_name?: string | null
           created_at?: string | null
           email?: string | null
-          first_name?: string | null
-          franchise_location?: string | null
-          franchise_type?: string | null
           full_name?: string | null
           id: string
-          ifsc_code?: string | null
-          investment_amount?: number | null
-          investment_tier?: string | null
-          is_active?: boolean | null
-          kyc_status?: string | null
-          last_name?: string | null
-          onboarding_completed?: boolean | null
-          pan_number?: string | null
-          phone?: string | null
-          pincode?: string | null
-          referral_code?: string | null
-          role?: Database["public"]["Enums"]["user_role"] | null
-          state?: string | null
-          tax_id?: string | null
           updated_at?: string | null
         }
         Update: {
-          aadhaar_number?: string | null
-          account_holder_name?: string | null
-          account_number?: string | null
-          address?: string | null
           avatar_url?: string | null
-          bank_details?: Json | null
-          bank_name?: string | null
-          business_registration?: string | null
-          city?: string | null
-          company_name?: string | null
           created_at?: string | null
           email?: string | null
-          first_name?: string | null
-          franchise_location?: string | null
-          franchise_type?: string | null
           full_name?: string | null
           id?: string
-          ifsc_code?: string | null
-          investment_amount?: number | null
-          investment_tier?: string | null
-          is_active?: boolean | null
-          kyc_status?: string | null
-          last_name?: string | null
-          onboarding_completed?: boolean | null
-          pan_number?: string | null
-          phone?: string | null
-          pincode?: string | null
-          referral_code?: string | null
-          role?: Database["public"]["Enums"]["user_role"] | null
-          state?: string | null
-          tax_id?: string | null
           updated_at?: string | null
         }
         Relationships: []
       }
-      public_payout_ledger: {
+      rank_change_history: {
         Row: {
-          average_payout: number | null
-          created_at: string | null
+          change_type: string
+          changed_at: string | null
           id: string
-          payout_date: string
-          payout_month: string
-          status: string
-          total_investors: number
-          total_payout_amount: number
+          new_rank: string
+          notes: string | null
+          previous_rank: string | null
+          qualifying_volume: number | null
+          trigger_event: string | null
+          user_id: string
         }
         Insert: {
-          average_payout?: number | null
-          created_at?: string | null
+          change_type: string
+          changed_at?: string | null
           id?: string
-          payout_date: string
-          payout_month: string
-          status?: string
-          total_investors: number
-          total_payout_amount: number
+          new_rank: string
+          notes?: string | null
+          previous_rank?: string | null
+          qualifying_volume?: number | null
+          trigger_event?: string | null
+          user_id: string
         }
         Update: {
-          average_payout?: number | null
-          created_at?: string | null
+          change_type?: string
+          changed_at?: string | null
           id?: string
-          payout_date?: string
-          payout_month?: string
-          status?: string
-          total_investors?: number
-          total_payout_amount?: number
+          new_rank?: string
+          notes?: string | null
+          previous_rank?: string | null
+          qualifying_volume?: number | null
+          trigger_event?: string | null
+          user_id?: string
         }
         Relationships: []
       }
       referral_tree: {
         Row: {
+          corrected_by: string | null
+          correction_note: string | null
           created_at: string | null
           id: string
-          is_active_investor: boolean | null
-          referral_level: number | null
-          referrer_id: string | null
-          user_id: string
+          level: number | null
+          parent_id: string | null
+          position: number | null
+          updated_at: string | null
+          user_id: string | null
         }
         Insert: {
+          corrected_by?: string | null
+          correction_note?: string | null
           created_at?: string | null
           id?: string
-          is_active_investor?: boolean | null
-          referral_level?: number | null
-          referrer_id?: string | null
-          user_id: string
+          level?: number | null
+          parent_id?: string | null
+          position?: number | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
+          corrected_by?: string | null
+          correction_note?: string | null
           created_at?: string | null
           id?: string
-          is_active_investor?: boolean | null
-          referral_level?: number | null
-          referrer_id?: string | null
-          user_id?: string
+          level?: number | null
+          parent_id?: string | null
+          position?: number | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "referral_tree_referrer_id_fkey"
-            columns: ["referrer_id"]
+            foreignKeyName: "referral_tree_corrected_by_fkey"
+            columns: ["corrected_by"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_tree_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "referral_tree_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
         ]
       }
-      returns: {
+      role_permissions: {
         Row: {
-          admin_notes: string | null
-          approved_at: string | null
-          approved_by: string | null
-          client_id: string
-          created_at: string | null
+          expires_at: string | null
+          granted_at: string | null
+          granted_by: string | null
           id: string
-          images: Json | null
-          is_within_limit: boolean | null
-          order_id: string
-          reason: string
-          replacement_order_id: string | null
-          resolved_at: string | null
-          return_number: string
-          status: Database["public"]["Enums"]["return_status"] | null
-          updated_at: string | null
-          vendor_id: string
+          permission_id: string
+          role_id: string
         }
         Insert: {
-          admin_notes?: string | null
-          approved_at?: string | null
-          approved_by?: string | null
-          client_id: string
-          created_at?: string | null
+          expires_at?: string | null
+          granted_at?: string | null
+          granted_by?: string | null
           id?: string
-          images?: Json | null
-          is_within_limit?: boolean | null
-          order_id: string
-          reason: string
-          replacement_order_id?: string | null
-          resolved_at?: string | null
-          return_number: string
-          status?: Database["public"]["Enums"]["return_status"] | null
-          updated_at?: string | null
-          vendor_id: string
+          permission_id: string
+          role_id: string
         }
         Update: {
-          admin_notes?: string | null
-          approved_at?: string | null
-          approved_by?: string | null
-          client_id?: string
-          created_at?: string | null
+          expires_at?: string | null
+          granted_at?: string | null
+          granted_by?: string | null
           id?: string
-          images?: Json | null
-          is_within_limit?: boolean | null
-          order_id?: string
-          reason?: string
-          replacement_order_id?: string | null
-          resolved_at?: string | null
-          return_number?: string
-          status?: Database["public"]["Enums"]["return_status"] | null
-          updated_at?: string | null
-          vendor_id?: string
+          permission_id?: string
+          role_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "returns_approved_by_fkey"
-            columns: ["approved_by"]
+            foreignKeyName: "role_permissions_permission_id_fkey"
+            columns: ["permission_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "permissions"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "returns_client_id_fkey"
-            columns: ["client_id"]
+            foreignKeyName: "role_permissions_role_id_fkey"
+            columns: ["role_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "returns_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "returns_replacement_order_id_fkey"
-            columns: ["replacement_order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "returns_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
+            referencedRelation: "roles"
             referencedColumns: ["id"]
           },
         ]
       }
-      settlements: {
+      roles: {
         Row: {
-          commission_amount: number | null
+          approval_level: number | null
+          audit_level: string | null
+          can_downgrade: boolean | null
+          can_upgrade: boolean | null
           created_at: string | null
-          details: Json | null
+          description: string | null
           id: string
-          net_payout: number | null
-          other_deductions: number | null
-          payment_date: string | null
-          payment_reference: string | null
-          payment_status: Database["public"]["Enums"]["payment_status"] | null
-          penalty_amount: number | null
-          period_end: string
-          period_start: string
-          return_count: number | null
-          return_penalty: number | null
-          settlement_number: string
-          sla_penalty: number | null
-          total_orders: number | null
-          total_sales: number | null
+          is_active: boolean | null
+          level: number
+          max_session_hours: number | null
+          name: string
+          require_2fa: boolean | null
+          requires_approval: boolean | null
           updated_at: string | null
-          vendor_id: string
         }
         Insert: {
-          commission_amount?: number | null
+          approval_level?: number | null
+          audit_level?: string | null
+          can_downgrade?: boolean | null
+          can_upgrade?: boolean | null
           created_at?: string | null
-          details?: Json | null
+          description?: string | null
           id?: string
-          net_payout?: number | null
-          other_deductions?: number | null
-          payment_date?: string | null
-          payment_reference?: string | null
-          payment_status?: Database["public"]["Enums"]["payment_status"] | null
-          penalty_amount?: number | null
-          period_end: string
-          period_start: string
-          return_count?: number | null
-          return_penalty?: number | null
-          settlement_number: string
-          sla_penalty?: number | null
-          total_orders?: number | null
-          total_sales?: number | null
+          is_active?: boolean | null
+          level: number
+          max_session_hours?: number | null
+          name: string
+          require_2fa?: boolean | null
+          requires_approval?: boolean | null
           updated_at?: string | null
-          vendor_id: string
         }
         Update: {
-          commission_amount?: number | null
+          approval_level?: number | null
+          audit_level?: string | null
+          can_downgrade?: boolean | null
+          can_upgrade?: boolean | null
           created_at?: string | null
-          details?: Json | null
+          description?: string | null
           id?: string
-          net_payout?: number | null
-          other_deductions?: number | null
-          payment_date?: string | null
-          payment_reference?: string | null
-          payment_status?: Database["public"]["Enums"]["payment_status"] | null
-          penalty_amount?: number | null
-          period_end?: string
-          period_start?: string
-          return_count?: number | null
-          return_penalty?: number | null
-          settlement_number?: string
-          sla_penalty?: number | null
-          total_orders?: number | null
-          total_sales?: number | null
+          is_active?: boolean | null
+          level?: number
+          max_session_hours?: number | null
+          name?: string
+          require_2fa?: boolean | null
+          requires_approval?: boolean | null
           updated_at?: string | null
-          vendor_id?: string
+        }
+        Relationships: []
+      }
+      status_change_log: {
+        Row: {
+          auto_triggered: boolean | null
+          changed_at: string | null
+          changed_by: string | null
+          email_sent: boolean | null
+          id: string
+          new_status: string | null
+          old_status: string | null
+          reason: string | null
+          user_id: string | null
+        }
+        Insert: {
+          auto_triggered?: boolean | null
+          changed_at?: string | null
+          changed_by?: string | null
+          email_sent?: boolean | null
+          id?: string
+          new_status?: string | null
+          old_status?: string | null
+          reason?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          auto_triggered?: boolean | null
+          changed_at?: string | null
+          changed_by?: string | null
+          email_sent?: boolean | null
+          id?: string
+          new_status?: string | null
+          old_status?: string | null
+          reason?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "settlements_vendor_id_fkey"
-            columns: ["vendor_id"]
+            foreignKeyName: "status_change_log_changed_by_fkey"
+            columns: ["changed_by"]
             isOneToOne: false
-            referencedRelation: "vendors"
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "status_change_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
         ]
       }
-      user_rankings: {
+      user_business_volume: {
         Row: {
-          bronze_countdown_end: string | null
-          bronze_countdown_start: string | null
           created_at: string | null
-          current_rank: string
+          current_rank: string | null
+          direct_investment: number | null
+          id: string
+          last_rank_evaluation: string | null
+          level_1_business: number | null
+          level_2_business: number | null
+          level_3_business: number | null
+          level_4_business: number | null
+          level_5_business: number | null
+          level_6_business: number | null
+          next_rank: string | null
+          rank_progress_percentage: number | null
+          rank_qualifying_volume: number | null
+          total_team_business: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_rank?: string | null
+          direct_investment?: number | null
+          id?: string
+          last_rank_evaluation?: string | null
+          level_1_business?: number | null
+          level_2_business?: number | null
+          level_3_business?: number | null
+          level_4_business?: number | null
+          level_5_business?: number | null
+          level_6_business?: number | null
+          next_rank?: string | null
+          rank_progress_percentage?: number | null
+          rank_qualifying_volume?: number | null
+          total_team_business?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_rank?: string | null
+          direct_investment?: number | null
+          id?: string
+          last_rank_evaluation?: string | null
+          level_1_business?: number | null
+          level_2_business?: number | null
+          level_3_business?: number | null
+          level_4_business?: number | null
+          level_5_business?: number | null
+          level_6_business?: number | null
+          next_rank?: string | null
+          rank_progress_percentage?: number | null
+          rank_qualifying_volume?: number | null
+          total_team_business?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          city: string | null
+          commission_earned_passive: number | null
+          created_at: string | null
           direct_referrals: number | null
+          email: string
+          franchise_id: string | null
+          full_name: string
           id: string
-          investment_count: number | null
-          is_active_investor: boolean | null
-          is_team_leader: boolean | null
-          payout_months_received: number | null
-          rank_color: string
-          rank_upgraded_at: string | null
-          total_network_commission: number | null
-          total_team_size: number | null
+          kyc_verified: boolean | null
+          last_status_change: string | null
+          network_size: number | null
+          next_payout_date: string | null
+          orange_timer_end: string | null
+          orange_timer_start: string | null
+          payout_cycle_day: number | null
+          phone: string | null
+          referral_code: string
+          referred_by: string | null
+          role: string | null
+          state: string | null
+          status: string | null
+          status_change_reason: string | null
+          status_changed_at: string | null
+          tier_level: number | null
+          total_commission: number | null
+          total_investment: number | null
+          total_referrals: number | null
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
-          bronze_countdown_end?: string | null
-          bronze_countdown_start?: string | null
+          city?: string | null
+          commission_earned_passive?: number | null
           created_at?: string | null
-          current_rank?: string
           direct_referrals?: number | null
+          email: string
+          franchise_id?: string | null
+          full_name: string
           id?: string
-          investment_count?: number | null
-          is_active_investor?: boolean | null
-          is_team_leader?: boolean | null
-          payout_months_received?: number | null
-          rank_color?: string
-          rank_upgraded_at?: string | null
-          total_network_commission?: number | null
-          total_team_size?: number | null
+          kyc_verified?: boolean | null
+          last_status_change?: string | null
+          network_size?: number | null
+          next_payout_date?: string | null
+          orange_timer_end?: string | null
+          orange_timer_start?: string | null
+          payout_cycle_day?: number | null
+          phone?: string | null
+          referral_code: string
+          referred_by?: string | null
+          role?: string | null
+          state?: string | null
+          status?: string | null
+          status_change_reason?: string | null
+          status_changed_at?: string | null
+          tier_level?: number | null
+          total_commission?: number | null
+          total_investment?: number | null
+          total_referrals?: number | null
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
-          bronze_countdown_end?: string | null
-          bronze_countdown_start?: string | null
+          city?: string | null
+          commission_earned_passive?: number | null
           created_at?: string | null
-          current_rank?: string
           direct_referrals?: number | null
+          email?: string
+          franchise_id?: string | null
+          full_name?: string
           id?: string
-          investment_count?: number | null
-          is_active_investor?: boolean | null
-          is_team_leader?: boolean | null
-          payout_months_received?: number | null
-          rank_color?: string
-          rank_upgraded_at?: string | null
-          total_network_commission?: number | null
-          total_team_size?: number | null
+          kyc_verified?: boolean | null
+          last_status_change?: string | null
+          network_size?: number | null
+          next_payout_date?: string | null
+          orange_timer_end?: string | null
+          orange_timer_start?: string | null
+          payout_cycle_day?: number | null
+          phone?: string | null
+          referral_code?: string
+          referred_by?: string | null
+          role?: string | null
+          state?: string | null
+          status?: string | null
+          status_change_reason?: string | null
+          status_changed_at?: string | null
+          tier_level?: number | null
+          total_commission?: number | null
+          total_investment?: number | null
+          total_referrals?: number | null
           updated_at?: string | null
           user_id?: string | null
         }
+        Relationships: []
+      }
+      vendor_orders: {
+        Row: {
+          created_at: string | null
+          customer_id: string | null
+          delivered_at: string | null
+          id: string
+          order_number: string
+          order_status: string | null
+          payment_status: string | null
+          platform_fee: number | null
+          product_id: string
+          qr_code: string | null
+          quantity: number
+          replacement_provided: boolean | null
+          return_reason: string | null
+          return_requested: boolean | null
+          shipping_status: string | null
+          total_amount: number
+          tracking_number: string | null
+          unit_price: number
+          updated_at: string | null
+          vendor_id: string
+          vendor_share: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id?: string | null
+          delivered_at?: string | null
+          id?: string
+          order_number: string
+          order_status?: string | null
+          payment_status?: string | null
+          platform_fee?: number | null
+          product_id: string
+          qr_code?: string | null
+          quantity: number
+          replacement_provided?: boolean | null
+          return_reason?: string | null
+          return_requested?: boolean | null
+          shipping_status?: string | null
+          total_amount: number
+          tracking_number?: string | null
+          unit_price: number
+          updated_at?: string | null
+          vendor_id: string
+          vendor_share?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string | null
+          delivered_at?: string | null
+          id?: string
+          order_number?: string
+          order_status?: string | null
+          payment_status?: string | null
+          platform_fee?: number | null
+          product_id?: string
+          qr_code?: string | null
+          quantity?: number
+          replacement_provided?: boolean | null
+          return_reason?: string | null
+          return_requested?: boolean | null
+          shipping_status?: string | null
+          total_amount?: number
+          tracking_number?: string | null
+          unit_price?: number
+          updated_at?: string | null
+          vendor_id?: string
+          vendor_share?: number | null
+        }
         Relationships: [
           {
-            foreignKeyName: "user_rankings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
+            foreignKeyName: "vendor_orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_orders_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
         ]
       }
-      vendor_performance_logs: {
+      vendor_products: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
+          category: string | null
           created_at: string | null
-          date: string
           id: string
-          late_deliveries: number | null
-          on_time_deliveries: number | null
-          on_time_rate: number | null
-          return_rate: number | null
-          returns_count: number | null
-          total_orders: number | null
+          images: Json | null
+          listing_approval_status: string | null
+          listing_score: number | null
+          price: number
+          product_description: string | null
+          product_name: string
+          product_status: string | null
+          rejection_reason: string | null
+          sku: string | null
+          stock_quantity: number | null
+          total_revenue: number | null
+          total_sales: number | null
+          trend_score: number | null
+          updated_at: string | null
           vendor_id: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          category?: string | null
           created_at?: string | null
-          date: string
           id?: string
-          late_deliveries?: number | null
-          on_time_deliveries?: number | null
-          on_time_rate?: number | null
-          return_rate?: number | null
-          returns_count?: number | null
-          total_orders?: number | null
+          images?: Json | null
+          listing_approval_status?: string | null
+          listing_score?: number | null
+          price: number
+          product_description?: string | null
+          product_name: string
+          product_status?: string | null
+          rejection_reason?: string | null
+          sku?: string | null
+          stock_quantity?: number | null
+          total_revenue?: number | null
+          total_sales?: number | null
+          trend_score?: number | null
+          updated_at?: string | null
           vendor_id: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          category?: string | null
           created_at?: string | null
-          date?: string
           id?: string
-          late_deliveries?: number | null
-          on_time_deliveries?: number | null
-          on_time_rate?: number | null
-          return_rate?: number | null
-          returns_count?: number | null
-          total_orders?: number | null
+          images?: Json | null
+          listing_approval_status?: string | null
+          listing_score?: number | null
+          price?: number
+          product_description?: string | null
+          product_name?: string
+          product_status?: string | null
+          rejection_reason?: string | null
+          sku?: string | null
+          stock_quantity?: number | null
+          total_revenue?: number | null
+          total_sales?: number | null
+          trend_score?: number | null
+          updated_at?: string | null
           vendor_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "vendor_performance_logs_vendor_id_fkey"
+            foreignKeyName: "vendor_products_vendor_id_fkey"
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "vendors"
@@ -1095,123 +1350,127 @@ export type Database = {
       }
       vendors: {
         Row: {
-          assigned_bdm: string | null
-          commission_rate: number | null
+          active_products_count: number | null
+          approval_date: string | null
+          approved_by: string | null
+          business_name: string
           created_at: string | null
           id: string
-          on_time_deliveries: number | null
-          onboarding_completed: boolean | null
-          onboarding_step: Database["public"]["Enums"]["onboarding_step"] | null
-          performance_score: number | null
-          rating: number | null
-          return_limit: number | null
-          sla_agreement_date: string | null
-          sla_agreement_signed: boolean | null
-          status: Database["public"]["Enums"]["vendor_status"] | null
+          investment_amount: number | null
+          min_products_required: number | null
+          platform_fee_percentage: number | null
+          platform_fees_collected: number | null
+          rejection_reason: string | null
+          revenue_share_percentage: number | null
           total_orders: number | null
-          total_returns: number | null
+          total_revenue: number | null
           updated_at: string | null
           user_id: string
+          vendor_commission: number | null
+          vendor_status: string | null
+          vendor_type: string | null
         }
         Insert: {
-          assigned_bdm?: string | null
-          commission_rate?: number | null
+          active_products_count?: number | null
+          approval_date?: string | null
+          approved_by?: string | null
+          business_name: string
           created_at?: string | null
           id?: string
-          on_time_deliveries?: number | null
-          onboarding_completed?: boolean | null
-          onboarding_step?:
-            | Database["public"]["Enums"]["onboarding_step"]
-            | null
-          performance_score?: number | null
-          rating?: number | null
-          return_limit?: number | null
-          sla_agreement_date?: string | null
-          sla_agreement_signed?: boolean | null
-          status?: Database["public"]["Enums"]["vendor_status"] | null
+          investment_amount?: number | null
+          min_products_required?: number | null
+          platform_fee_percentage?: number | null
+          platform_fees_collected?: number | null
+          rejection_reason?: string | null
+          revenue_share_percentage?: number | null
           total_orders?: number | null
-          total_returns?: number | null
+          total_revenue?: number | null
           updated_at?: string | null
           user_id: string
+          vendor_commission?: number | null
+          vendor_status?: string | null
+          vendor_type?: string | null
         }
         Update: {
-          assigned_bdm?: string | null
-          commission_rate?: number | null
+          active_products_count?: number | null
+          approval_date?: string | null
+          approved_by?: string | null
+          business_name?: string
           created_at?: string | null
           id?: string
-          on_time_deliveries?: number | null
-          onboarding_completed?: boolean | null
-          onboarding_step?:
-            | Database["public"]["Enums"]["onboarding_step"]
-            | null
-          performance_score?: number | null
-          rating?: number | null
-          return_limit?: number | null
-          sla_agreement_date?: string | null
-          sla_agreement_signed?: boolean | null
-          status?: Database["public"]["Enums"]["vendor_status"] | null
+          investment_amount?: number | null
+          min_products_required?: number | null
+          platform_fee_percentage?: number | null
+          platform_fees_collected?: number | null
+          rejection_reason?: string | null
+          revenue_share_percentage?: number | null
           total_orders?: number | null
-          total_returns?: number | null
+          total_revenue?: number | null
           updated_at?: string | null
           user_id?: string
+          vendor_commission?: number | null
+          vendor_status?: string | null
+          vendor_type?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "vendors_assigned_bdm_fkey"
-            columns: ["assigned_bdm"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vendors_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      webhook_event_queue: {
+        Row: {
+          batch_id: string | null
+          created_at: string | null
+          error_message: string | null
+          event_payload: Json
+          event_type: string
+          id: string
+          max_retries: number | null
+          priority: number | null
+          processed_at: string | null
+          retry_count: number | null
+          scheduled_for: string | null
+          status: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          batch_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          event_payload: Json
+          event_type: string
+          id?: string
+          max_retries?: number | null
+          priority?: number | null
+          processed_at?: string | null
+          retry_count?: number | null
+          scheduled_for?: string | null
+          status?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          batch_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          event_payload?: Json
+          event_type?: string
+          id?: string
+          max_retries?: number | null
+          priority?: number | null
+          processed_at?: string | null
+          retry_count?: number | null
+          scheduled_for?: string | null
+          status?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      generate_order_number: { Args: never; Returns: string }
-      generate_return_number: { Args: never; Returns: string }
-      generate_settlement_number: { Args: never; Returns: string }
+      check_passive_timer_expiry: { Args: never; Returns: undefined }
     }
     Enums: {
-      onboarding_step:
-        | "qualification"
-        | "documentation"
-        | "sla_agreement"
-        | "integration"
-        | "training"
-        | "pilot"
-      order_status:
-        | "pending"
-        | "confirmed"
-        | "processing"
-        | "shipped"
-        | "delivered"
-        | "cancelled"
-      payment_status: "pending" | "processing" | "completed" | "failed"
-      return_status:
-        | "requested"
-        | "approved"
-        | "rejected"
-        | "replacement_shipped"
-        | "completed"
-      user_role:
-        | "client"
-        | "vendor"
-        | "admin"
-        | "bdm"
-        | "investor"
-        | "franchise_partner"
-        | "super_admin"
-      vendor_status: "pending" | "active" | "suspended" | "rejected"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1338,41 +1597,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      onboarding_step: [
-        "qualification",
-        "documentation",
-        "sla_agreement",
-        "integration",
-        "training",
-        "pilot",
-      ],
-      order_status: [
-        "pending",
-        "confirmed",
-        "processing",
-        "shipped",
-        "delivered",
-        "cancelled",
-      ],
-      payment_status: ["pending", "processing", "completed", "failed"],
-      return_status: [
-        "requested",
-        "approved",
-        "rejected",
-        "replacement_shipped",
-        "completed",
-      ],
-      user_role: [
-        "client",
-        "vendor",
-        "admin",
-        "bdm",
-        "investor",
-        "franchise_partner",
-        "super_admin",
-      ],
-      vendor_status: ["pending", "active", "suspended", "rejected"],
-    },
+    Enums: {},
   },
 } as const
