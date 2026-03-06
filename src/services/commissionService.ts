@@ -17,7 +17,7 @@ export interface UserRanking {
   user_id: string;
   current_rank: 'grey' | 'orange' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
   rank_color: 'grey' | 'orange' | 'green' | 'dark_green';
-  total_network_commission: number;
+  total_network_commission: number; // We'll handle the string conversion when talking to DB
   bronze_countdown_start: string | null;
   bronze_countdown_end: string | null;
   rank_upgraded_at: string | null;
@@ -181,14 +181,19 @@ export const commissionService = {
       return;
     }
 
-    const newTotal = parseFloat(ranking.total_network_commission.toString()) + additionalCommission;
+    // Calculate new total
+    const currentTotal = typeof ranking.total_network_commission === 'string' 
+      ? parseFloat(ranking.total_network_commission) 
+      : ranking.total_network_commission || 0;
+      
+    const newTotal = currentTotal + additionalCommission;
 
     await supabase
       .from('user_rankings')
       .update({ 
-        total_network_commission: newTotal.toString(),
+        total_network_commission: newTotal, // Supabase client handles number -> numeric conversion
         updated_at: new Date().toISOString()
-      })
+      } as any) // Bypass type check for partial update
       .eq('user_id', userId);
 
     // Check for Bronze qualification (₹1 Cr)
@@ -284,7 +289,10 @@ export const commissionService = {
       .eq('user_id', userId)
       .single();
 
-    const totalEarned = ranking?.total_network_commission || 0;
+    const totalEarned = typeof ranking?.total_network_commission === 'string'
+      ? parseFloat(ranking.total_network_commission)
+      : ranking?.total_network_commission || 0;
+      
     const bronzeProgress = (totalEarned / COMMISSION_RATES.BRONZE_THRESHOLD) * 100;
 
     return {

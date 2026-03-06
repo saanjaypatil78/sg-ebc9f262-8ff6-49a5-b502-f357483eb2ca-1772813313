@@ -53,7 +53,7 @@ export const phonePeService = {
         amount: request.amount,
         status: 'initiated',
         transaction_type: request.purpose
-      } as any) // Type assertion to bypass temporary mismatch
+      } as any) // Explicitly cast to any to avoid "excessively deep" error
       .select()
       .single();
 
