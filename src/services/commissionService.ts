@@ -103,7 +103,7 @@ export const commissionService = {
         commission_rate: COMMISSION_RATES.DIRECT_REFERRAL.toString(),
         commission_amount: commissionAmount.toString(),
         referral_level: 1
-      });
+      } as any);
 
     // Update total commission earned
     await this.updateTotalCommission(referrerId, commissionAmount);
@@ -151,7 +151,7 @@ export const commissionService = {
             commission_rate: COMMISSION_RATES.TEAM_LEADER_BONUS.toString(),
             commission_amount: bonusAmount.toString(),
             referral_level: 2
-          });
+          } as any);
 
         await this.updateTotalCommission(teamLeaderId, bonusAmount);
       }

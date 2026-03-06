@@ -7,6 +7,7 @@ import { investmentService, InvestmentAgreement, MonthlyPayout } from "@/service
 import { useAuth } from "@/contexts/AuthContext";
 import { formatCurrency } from "@/lib/utils";
 import { TrendingUp, Calendar, DollarSign, PieChart, ArrowUpRight, History } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function InvestorDashboard() {
   const { user } = useAuth();
@@ -32,7 +33,10 @@ export default function InvestorDashboard() {
         const active = await investmentService.getInvestorAgreements(user.id);
         const history = await investmentService.getPayoutHistory(user.id);
         
-        setPortfolioSummary(summary);
+        setSummary(summary);
+        setAgreements(active);
+        setPayouts(history);
+        setNextPayoutDate(investmentService.calculateNextPayoutDate());
       } catch (error) {
         console.error("Failed to load investor data", error);
       } finally {
