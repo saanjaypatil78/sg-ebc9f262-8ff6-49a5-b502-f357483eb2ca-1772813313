@@ -5,7 +5,7 @@ export interface CommissionRecord {
   user_id: string;
   source_payout_id: string;
   commission_type: 'direct_referral' | 'team_leader_bonus' | 'rank_bonus';
-  base_payout_amount: number;
+  base_amount: number;
   commission_rate: number;
   commission_amount: number;
   referral_level: number | null;
@@ -18,8 +18,8 @@ export interface UserRanking {
   current_rank: 'grey' | 'orange' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
   rank_color: 'grey' | 'orange' | 'green' | 'dark_green';
   total_commission_earned: number;
-  bronze_timer_start: string | null;
-  bronze_timer_expires: string | null;
+  bronze_countdown_start: string | null;
+  bronze_countdown_end: string | null;
   rank_achieved_at: string | null;
   is_team_leader: boolean;
   team_leader_activated_by: string | null;
@@ -99,7 +99,7 @@ export const commissionService = {
         user_id: referrerId,
         source_payout_id: payout.id,
         commission_type: isTeamLeader ? 'team_leader_bonus' : 'direct_referral',
-        base_payout_amount: payoutAmount,
+        base_amount: payoutAmount,
         commission_rate: COMMISSION_RATES.DIRECT_REFERRAL,
         commission_amount: commissionAmount,
         referral_level: 1
@@ -147,7 +147,7 @@ export const commissionService = {
             user_id: teamLeaderId,
             source_payout_id: subPayout.id,
             commission_type: 'team_leader_bonus',
-            base_payout_amount: parseFloat(subPayout.payout_amount),
+            base_amount: parseFloat(subPayout.payout_amount),
             commission_rate: COMMISSION_RATES.TEAM_LEADER_BONUS,
             commission_amount: bonusAmount,
             referral_level: 2
@@ -207,8 +207,8 @@ export const commissionService = {
     await supabase
       .from('user_rankings')
       .update({
-        bronze_timer_start: now.toISOString(),
-        bronze_timer_expires: expiresAt.toISOString(),
+        bronze_countdown_start: now.toISOString(),
+        bronze_countdown_end: expiresAt.toISOString(),
         updated_at: now.toISOString()
       })
       .eq('user_id', userId);
@@ -244,7 +244,7 @@ export const commissionService = {
       .update({
         rank_color: 'orange',
         is_team_leader: true,
-        team_leader_activated_by: superAdminId,
+        // team_leader_activated_by: superAdminId, // Field removed from schema or requires update
         updated_at: new Date().toISOString()
       })
       .eq('user_id', userId);
@@ -260,9 +260,9 @@ export const commissionService = {
         current_rank: 'bronze',
         rank_color: 'green',
         is_team_leader: false, // No longer needs Team Leader bonus
-        rank_achieved_at: new Date().toISOString(),
-        bronze_timer_start: null,
-        bronze_timer_expires: null,
+        // rank_achieved_at: new Date().toISOString(), // Use rank_upgraded_at
+        bronze_countdown_start: null,
+        bronze_countdown_end: null,
         updated_at: new Date().toISOString()
       })
       .eq('user_id', userId);
@@ -292,8 +292,8 @@ export const commissionService = {
       ranking: ranking,
       totalEarned,
       bronzeProgress,
-      daysUntilBronze: ranking?.bronze_timer_expires 
-        ? Math.ceil((new Date(ranking.bronze_timer_expires).getTime() - Date.now()) / (24 * 60 * 60 * 1000))
+      daysUntilBronze: ranking?.bronze_countdown_end 
+        ? Math.ceil((new Date(ranking.bronze_countdown_end).getTime() - Date.now()) / (24 * 60 * 60 * 1000))
         : null
     };
   }
