@@ -1,17 +1,10 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useRouter } from "next/router";
 import { authService } from "@/services/authService";
-import { supabase } from "@/integrations/supabase/client";
-
-interface Profile {
-  id: string;
-  full_name?: string;
-  email?: string;
-  user_role?: string;
-}
+import { UserRole, UserSession } from "@/lib/rbac/rbac-system";
 
 interface AuthContextType {
-  user: Profile | null;
+  user: UserSession | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, fullName: string, role?: string) => Promise<void>;
@@ -22,7 +15,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<Profile | null>(null);
+  const [user, setUser] = useState<UserSession | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -33,18 +26,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function loadUser() {
     try {
-      const currentUser = await authService.getCurrentUser();
-      if (currentUser) {
-        // Fetch profile data from profiles table
-        const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', currentUser.id)
-          .single();
-        
-        setUser(data || null);
+      const sessionUser = authService.getSession();
+      if (sessionUser) {
+        setUser(sessionUser);
       } else {
-        setUser(null);
+        const refreshed = await authService.refreshUserData();
+        setUser(refreshed);
       }
     } catch (error) {
       console.error("Error loading user:", error);
@@ -56,38 +43,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function login(email: string, password: string) {
     try {
-      await authService.login(email, password);
-      await loadUser();
-      
-      // Redirect based on role
-      if (user?.user_role) {
-        const roleRoutes: Record<string, string> = {
-          client: "/dashboard/client",
-          vendor: "/dashboard/vendor",
-          admin: "/dashboard/admin",
-          bdm: "/dashboard/bdm",
-          investor: "/dashboard/investor"
-        };
-        router.push(roleRoutes[user.user_role] || "/dashboard/client");
+      const { success, user: sessionUser, error } = await authService.login(email, password);
+      if (success && sessionUser) {
+        setUser(sessionUser);
+      } else if (error) {
+        throw new Error(error);
       }
     } catch (error) {
+      console.error("Login error:", error);
       throw error;
     }
   }
 
-  async function register(email: string, password: string, fullName: string, role: string = "client") {
+  async function register(email: string, password: string, fullName: string, role: string = UserRole.CLIENT) {
     try {
-      await authService.register(email, password);
-      await loadUser();
+      const result = await authService.register({ 
+        email, 
+        password, 
+        full_name: fullName, 
+        role: role as UserRole 
+      });
+      
+      if (!result.success) {
+        throw new Error(result.error || "Registration failed");
+      }
+      
+      // Attempt login after registration
+      await login(email, password);
       
       // Redirect to appropriate dashboard
       const roleRoutes: Record<string, string> = {
-        client: "/dashboard/client",
-        vendor: "/dashboard/vendor",
-        admin: "/dashboard/admin",
-        bdm: "/dashboard/bdm",
-        investor: "/dashboard/investor"
+        [UserRole.CLIENT]: "/dashboard/client",
+        [UserRole.VENDOR]: "/dashboard/vendor",
+        [UserRole.ADMIN]: "/dashboard/admin",
+        [UserRole.SUPER_ADMIN]: "/dashboard/admin",
+        [UserRole.FINANCE]: "/dashboard/admin",
+        [UserRole.COMPLIANCE]: "/dashboard/admin",
+        [UserRole.BDM]: "/dashboard/bdm",
+        [UserRole.INVESTOR]: "/dashboard/investor"
       };
+      
       router.push(roleRoutes[role] || "/dashboard/client");
     } catch (error) {
       throw error;

@@ -63,27 +63,27 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const result = await authService.signUp(
-        formData.email,
-        formData.password,
-        {
-          full_name: formData.fullName,
-          referral_code: formData.referralCode || null,
-        }
-      );
+      // First create user auth
+      const result = await authService.register({
+        email: formData.email,
+        password: formData.password,
+        full_name: formData.fullName
+      });
 
-      if (result.user) {
-        setShowConfetti(true);
-        
-        toast({
-          title: "🎉 Account Created Successfully!",
-          description: "Please check your email to verify your account. Redirecting...",
-        });
-
-        setTimeout(() => {
-          router.push("/auth/onboarding");
-        }, 3000);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to create account");
       }
+
+      setShowConfetti(true);
+      
+      toast({
+        title: "🎉 Account Created Successfully!",
+        description: "Please check your email to verify your account. Redirecting...",
+      });
+
+      setTimeout(() => {
+        router.push("/auth/onboarding");
+      }, 3000);
     } catch (error: any) {
       toast({
         variant: "destructive",
