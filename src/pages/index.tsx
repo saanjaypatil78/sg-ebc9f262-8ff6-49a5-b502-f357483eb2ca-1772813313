@@ -17,8 +17,12 @@ import {
   Clock,
   Globe
 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { useScroll, useTransform, motion } from "framer-motion";
 
 export default function Home() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const features = [
     {
       icon: Shield,
@@ -53,6 +57,53 @@ export default function Home() {
     { label: "Commission Rate", value: "45%", icon: Award }
   ];
 
+  // Countdown timer - TARGET: November 1, 2025
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      // Target date: November 1, 2025 at 00:00:00 IST
+      const targetDate = new Date('2025-11-01T00:00:00+05:30').getTime();
+      const now = new Date().getTime();
+      const difference = targetDate - now; // Decreasing difference
+
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((difference % (1000 * 60)) / 1000)
+        });
+      } else {
+        // Countdown finished
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      }
+    };
+
+    calculateTimeLeft();
+    const interval = setInterval(calculateTimeLeft, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Enhanced parallax scroll effects
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  });
+
+  // Stronger parallax transforms for better visibility
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -300]); 
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, 200]);  
+  const y3 = useTransform(scrollYProgress, [0, 1], [0, -150]); 
+  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [1, 0.9, 0.7, 0.5]);
+  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
+  const rotate = useTransform(scrollYProgress, [0, 1], [0, 5]);
+
   return (
     <>
       <SEO 
@@ -60,12 +111,115 @@ export default function Home() {
         description="Join the exclusive ₹12 Crore investment opportunity. 15% monthly returns with full transparency. Only 28 slots available."
       />
       
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
-        {/* Parallax Hero Section */}
-        <ParallaxHero />
+      <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 relative">
+        {/* Enhanced Ambient background effects with stronger motion */}
+        <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+          {/* Primary BRAVECOM Purple Orb - Fast layer */}
+          <motion.div 
+            style={{ y: y1, rotate }}
+            className="absolute -top-[30%] -right-[15%] w-[700px] h-[700px] rounded-full bg-purple-600/20 blur-[150px]" 
+          />
+          
+          {/* Secondary BRAVECOM Cyan Orb - Medium layer */}
+          <motion.div 
+            style={{ y: y2 }}
+            className="absolute top-[50%] -left-[15%] w-[600px] h-[600px] rounded-full bg-cyan-600/15 blur-[130px]" 
+          />
+          
+          {/* Tertiary Accent Orb - Slow layer */}
+          <motion.div 
+            style={{ y: y3, opacity }}
+            className="absolute top-[20%] right-[20%] w-[500px] h-[500px] rounded-full bg-purple-400/10 blur-[120px]" 
+          />
+          
+          {/* BRAVECOM brand accent - Static subtle glow */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-gradient-to-t from-purple-600/10 to-transparent blur-[100px]" />
+        </div>
+
+        {/* Hero Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-10 text-center max-w-5xl mx-auto px-4 pt-24"
+        >
+          {/* BRAVECOM Logo/Brand */}
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="mb-8"
+          >
+            <h1 className="text-7xl md:text-8xl font-black mb-4">
+              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+                BRAVECOM
+              </span>
+            </h1>
+            <p className="text-xl md:text-2xl text-slate-300 font-light tracking-wider">
+              SUNRAY ECOSYSTEM
+            </p>
+          </motion.div>
+
+          <motion.h2
+            style={{ scale }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="text-4xl md:text-6xl font-bold mb-6 leading-tight"
+          >
+            <span className="bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+              You'll never get a second chance
+            </span>
+            <br />
+            <span className="text-purple-400">to be early.</span>
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            className="text-xl text-slate-400 mb-12 max-w-3xl mx-auto"
+          >
+            Join the revolution in e-commerce investment. 15% monthly returns, transparent operations, and a community of successful investors.
+          </motion.p>
+
+          {/* FOMO Countdown Timer - DECREASING to Nov 1, 2025 */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+            className="mb-12"
+          >
+            <GlassmorphicCard className="inline-block px-8 py-6 border-purple-500/30">
+              <p className="text-sm text-purple-400 mb-4 tracking-wider uppercase">
+                🚀 Limited Time Opportunity Ends In:
+              </p>
+              <div className="flex gap-6 justify-center">
+                {[
+                  { label: 'Days', value: timeLeft.days },
+                  { label: 'Hours', value: timeLeft.hours },
+                  { label: 'Minutes', value: timeLeft.minutes },
+                  { label: 'Seconds', value: timeLeft.seconds }
+                ].map((unit, index) => (
+                  <div key={index} className="text-center w-20">
+                    <div className="text-4xl md:text-5xl font-bold text-white mb-2 tabular-nums">
+                      {String(unit.value).padStart(2, '0')}
+                    </div>
+                    <div className="text-xs text-slate-400 uppercase tracking-wider">
+                      {unit.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-slate-500 mt-4">
+                Target Date: November 1, 2025 • Countdown is LIVE
+              </p>
+            </GlassmorphicCard>
+          </motion.div>
+        </motion.div>
 
         {/* Features Section */}
-        <section className="py-24 px-4 relative">
+        <section className="py-24 px-4 relative z-10">
           <div className="container mx-auto max-w-7xl">
             <div className="text-center mb-16">
               <Badge className="mb-4 bg-purple-500/20 text-purple-300 border-purple-500/30">
@@ -83,7 +237,7 @@ export default function Home() {
               {features.map((feature, i) => (
                 <GlassmorphicCard 
                   key={i} 
-                  className="p-6 group"
+                  className="p-6 group hover:-translate-y-2 transition-transform duration-300"
                   glow
                 >
                   <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
@@ -98,7 +252,7 @@ export default function Home() {
         </section>
 
         {/* Stats Section */}
-        <section className="py-16 px-4">
+        <section className="py-16 px-4 relative z-10">
           <div className="container mx-auto max-w-7xl">
             <GlassmorphicCard className="p-8">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -115,10 +269,12 @@ export default function Home() {
         </section>
 
         {/* Public Ledger */}
-        <PublicLedger />
+        <div className="relative z-10">
+          <PublicLedger />
+        </div>
 
         {/* How It Works */}
-        <section className="py-24 px-4">
+        <section className="py-24 px-4 relative z-10">
           <div className="container mx-auto max-w-7xl">
             <div className="text-center mb-16">
               <Badge className="mb-4 bg-cyan-500/20 text-cyan-300 border-cyan-500/30">
@@ -150,7 +306,7 @@ export default function Home() {
                   icon: TrendingUp
                 }
               ].map((item, i) => (
-                <GlassmorphicCard key={i} className="p-8 text-center" glow>
+                <GlassmorphicCard key={i} className="p-8 text-center hover:-translate-y-2 transition-transform duration-300" glow>
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl font-bold text-white">{item.step}</span>
                   </div>
@@ -164,7 +320,7 @@ export default function Home() {
         </section>
 
         {/* Final CTA */}
-        <section className="py-24 px-4">
+        <section className="py-24 px-4 relative z-10">
           <div className="container mx-auto max-w-4xl">
             <GlassmorphicCard className="p-12 text-center" glow>
               <Zap className="w-16 h-16 mx-auto mb-6 text-yellow-400 animate-pulse" />
@@ -193,14 +349,14 @@ export default function Home() {
         </section>
 
         {/* Footer */}
-        <footer className="py-12 px-4 border-t border-white/10">
+        <footer className="py-12 px-4 border-t border-white/10 relative z-10 bg-slate-950/80 backdrop-blur-lg">
           <div className="container mx-auto max-w-7xl">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-primary" />
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
+                  <TrendingUp className="w-5 h-5 text-purple-400" />
                 </div>
-                <span className="text-xl font-bold text-white">BRAVE ECOM</span>
+                <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">BRAVECOM</span>
               </div>
               <div className="flex gap-6 text-sm text-slate-400">
                 <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
@@ -208,7 +364,7 @@ export default function Home() {
                 <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
               </div>
               <div className="text-sm text-slate-400">
-                © 2026 Brave Ecom. All rights reserved.
+                © 2026 BRAVECOM (Sunray Ecosystem). All rights reserved.
               </div>
             </div>
           </div>
