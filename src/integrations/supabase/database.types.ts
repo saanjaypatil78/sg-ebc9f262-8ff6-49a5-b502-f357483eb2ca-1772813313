@@ -15,6 +15,85 @@ export type Database = {
   }
   public: {
     Tables: {
+      active_sessions: {
+        Row: {
+          created_at: string | null
+          device_fingerprint: string | null
+          device_id: string | null
+          expires_at: string
+          id: string
+          ip_address: unknown
+          is_active: boolean | null
+          is_suspicious: boolean | null
+          killed_at: string | null
+          killed_by: string | null
+          last_activity: string | null
+          location: Json | null
+          session_token: string
+          suspicious_reason: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_fingerprint?: string | null
+          device_id?: string | null
+          expires_at: string
+          id?: string
+          ip_address: unknown
+          is_active?: boolean | null
+          is_suspicious?: boolean | null
+          killed_at?: string | null
+          killed_by?: string | null
+          last_activity?: string | null
+          location?: Json | null
+          session_token: string
+          suspicious_reason?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_fingerprint?: string | null
+          device_id?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: unknown
+          is_active?: boolean | null
+          is_suspicious?: boolean | null
+          killed_at?: string | null
+          killed_by?: string | null
+          last_activity?: string | null
+          location?: Json | null
+          session_token?: string
+          suspicious_reason?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "active_sessions_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "trusted_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "active_sessions_killed_by_fkey"
+            columns: ["killed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "active_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -164,6 +243,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      email_verification_tokens: {
+        Row: {
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          token: string
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          token: string
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          token?: string
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_verification_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       franchise_partners: {
         Row: {
@@ -529,6 +646,112 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      login_history: {
+        Row: {
+          created_at: string | null
+          device_fingerprint: string | null
+          device_name: string | null
+          email: string
+          failure_reason: string | null
+          id: string
+          ip_address: unknown
+          is_new_device: boolean | null
+          is_new_location: boolean | null
+          location: Json | null
+          login_status: string
+          passed_2fa: boolean | null
+          required_2fa: boolean | null
+          risk_score: number | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          device_fingerprint?: string | null
+          device_name?: string | null
+          email: string
+          failure_reason?: string | null
+          id?: string
+          ip_address?: unknown
+          is_new_device?: boolean | null
+          is_new_location?: boolean | null
+          location?: Json | null
+          login_status: string
+          passed_2fa?: boolean | null
+          required_2fa?: boolean | null
+          risk_score?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          device_fingerprint?: string | null
+          device_name?: string | null
+          email?: string
+          failure_reason?: string | null
+          id?: string
+          ip_address?: unknown
+          is_new_device?: boolean | null
+          is_new_location?: boolean | null
+          location?: Json | null
+          login_status?: string
+          passed_2fa?: boolean | null
+          required_2fa?: boolean | null
+          risk_score?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "login_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      password_reset_tokens: {
+        Row: {
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          ip_address: unknown
+          token: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          ip_address?: unknown
+          token: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          ip_address?: unknown
+          token?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "password_reset_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -977,6 +1200,54 @@ export type Database = {
         }
         Relationships: []
       }
+      security_policies: {
+        Row: {
+          action: string
+          applies_to_roles: string[] | null
+          applies_to_tiers: string[] | null
+          condition: Json
+          created_at: string | null
+          description: string | null
+          enforcement_level: string | null
+          id: string
+          is_active: boolean | null
+          policy_name: string
+          policy_type: string
+          priority: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          action: string
+          applies_to_roles?: string[] | null
+          applies_to_tiers?: string[] | null
+          condition: Json
+          created_at?: string | null
+          description?: string | null
+          enforcement_level?: string | null
+          id?: string
+          is_active?: boolean | null
+          policy_name: string
+          policy_type: string
+          priority?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          action?: string
+          applies_to_roles?: string[] | null
+          applies_to_tiers?: string[] | null
+          condition?: Json
+          created_at?: string | null
+          description?: string | null
+          enforcement_level?: string | null
+          id?: string
+          is_active?: boolean | null
+          policy_name?: string
+          policy_type?: string
+          priority?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       status_change_log: {
         Row: {
           auto_triggered: boolean | null
@@ -1024,6 +1295,210 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trusted_devices: {
+        Row: {
+          browser_name: string | null
+          browser_version: string | null
+          created_at: string | null
+          device_fingerprint: string
+          device_name: string | null
+          device_type: string | null
+          first_seen: string | null
+          id: string
+          is_trusted: boolean | null
+          language: string | null
+          last_ip_address: unknown
+          last_location: Json | null
+          last_seen: string | null
+          login_count: number | null
+          os_name: string | null
+          os_version: string | null
+          screen_resolution: string | null
+          timezone: string | null
+          trust_expires_at: string | null
+          user_id: string
+        }
+        Insert: {
+          browser_name?: string | null
+          browser_version?: string | null
+          created_at?: string | null
+          device_fingerprint: string
+          device_name?: string | null
+          device_type?: string | null
+          first_seen?: string | null
+          id?: string
+          is_trusted?: boolean | null
+          language?: string | null
+          last_ip_address?: unknown
+          last_location?: Json | null
+          last_seen?: string | null
+          login_count?: number | null
+          os_name?: string | null
+          os_version?: string | null
+          screen_resolution?: string | null
+          timezone?: string | null
+          trust_expires_at?: string | null
+          user_id: string
+        }
+        Update: {
+          browser_name?: string | null
+          browser_version?: string | null
+          created_at?: string | null
+          device_fingerprint?: string
+          device_name?: string | null
+          device_type?: string | null
+          first_seen?: string | null
+          id?: string
+          is_trusted?: boolean | null
+          language?: string | null
+          last_ip_address?: unknown
+          last_location?: Json | null
+          last_seen?: string | null
+          login_count?: number | null
+          os_name?: string | null
+          os_version?: string | null
+          screen_resolution?: string | null
+          timezone?: string | null
+          trust_expires_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trusted_devices_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_2fa: {
+        Row: {
+          backup_codes: string[] | null
+          created_at: string | null
+          id: string
+          is_enabled: boolean | null
+          recovery_email: string | null
+          recovery_phone: string | null
+          secret_key: string
+          updated_at: string | null
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          backup_codes?: string[] | null
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          recovery_email?: string | null
+          recovery_phone?: string | null
+          secret_key: string
+          updated_at?: string | null
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          backup_codes?: string[] | null
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          recovery_email?: string | null
+          recovery_phone?: string | null
+          secret_key?: string
+          updated_at?: string | null
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_2fa_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_attributes: {
+        Row: {
+          access_end_time: string | null
+          access_start_time: string | null
+          allowed_countries: string[] | null
+          allowed_ip_ranges: string[] | null
+          created_at: string | null
+          id: string
+          investment_tier: string | null
+          last_suspicious_activity: string | null
+          max_concurrent_sessions: number | null
+          max_transaction_amount: number | null
+          require_2fa: boolean | null
+          require_device_binding: boolean | null
+          require_dual_approval_above: number | null
+          require_email_verification: boolean | null
+          risk_level: string | null
+          session_timeout_minutes: number | null
+          suspicious_activity_count: number | null
+          timezone: string | null
+          total_investment: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_end_time?: string | null
+          access_start_time?: string | null
+          allowed_countries?: string[] | null
+          allowed_ip_ranges?: string[] | null
+          created_at?: string | null
+          id?: string
+          investment_tier?: string | null
+          last_suspicious_activity?: string | null
+          max_concurrent_sessions?: number | null
+          max_transaction_amount?: number | null
+          require_2fa?: boolean | null
+          require_device_binding?: boolean | null
+          require_dual_approval_above?: number | null
+          require_email_verification?: boolean | null
+          risk_level?: string | null
+          session_timeout_minutes?: number | null
+          suspicious_activity_count?: number | null
+          timezone?: string | null
+          total_investment?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_end_time?: string | null
+          access_start_time?: string | null
+          allowed_countries?: string[] | null
+          allowed_ip_ranges?: string[] | null
+          created_at?: string | null
+          id?: string
+          investment_tier?: string | null
+          last_suspicious_activity?: string | null
+          max_concurrent_sessions?: number | null
+          max_transaction_amount?: number | null
+          require_2fa?: boolean | null
+          require_device_binding?: boolean | null
+          require_dual_approval_above?: number | null
+          require_email_verification?: boolean | null
+          risk_level?: string | null
+          session_timeout_minutes?: number | null
+          suspicious_activity_count?: number | null
+          timezone?: string | null
+          total_investment?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_attributes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -1513,6 +1988,28 @@ export type Database = {
     }
     Functions: {
       check_passive_timer_expiry: { Args: never; Returns: undefined }
+      cleanup_expired_sessions: { Args: never; Returns: undefined }
+      get_user_abac_attributes: {
+        Args: { p_user_id: string }
+        Returns: {
+          investment_tier: string
+          max_concurrent_sessions: number
+          require_2fa: boolean
+          require_device_binding: boolean
+          total_investment: number
+        }[]
+      }
+      record_login_attempt: {
+        Args: {
+          p_device_fingerprint: string
+          p_email: string
+          p_ip_address: unknown
+          p_status: string
+          p_user_agent: string
+          p_user_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
