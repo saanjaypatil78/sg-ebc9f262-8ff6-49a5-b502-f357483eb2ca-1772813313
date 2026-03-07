@@ -66,7 +66,7 @@ export default function LoginPage() {
       if (!result.success) {
         toast({
           title: "Login Failed",
-          description: result.error || "Invalid credentials",
+          description: result.error || "Invalid credentials. Please check your email and password.",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -78,15 +78,17 @@ export default function LoginPage() {
         description: `Welcome back, ${result.user?.name}!`,
       });
 
-      router.push(result.redirectTo || "/dashboard");
+      // Short delay for better UX
+      setTimeout(() => {
+        router.push(result.redirectTo || "/dashboard");
+      }, 500);
     } catch (error) {
       console.error("Login error:", error);
       toast({
         title: "Login Error",
-        description: "An unexpected error occurred",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };
