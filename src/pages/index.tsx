@@ -205,11 +205,9 @@ export default function Home() {
             </div>
             
             <div className="relative rounded-2xl overflow-hidden bg-white/5 border border-white/10 p-4 md:p-8 backdrop-blur-sm">
-              <Image 
+              <img 
                 src="/global-reach-map.png" 
                 alt="Global Dropshipping Reach" 
-                width={1200} 
-                height={600} 
                 className="w-full h-auto object-cover rounded-xl"
               />
             </div>
