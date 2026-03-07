@@ -16,6 +16,7 @@ import {
   BarChart3,
   ArrowRight,
 } from "lucide-react";
+import Image from "next/image";
 
 export default function HomePage() {
   const router = useRouter();
@@ -36,6 +37,23 @@ export default function HomePage() {
       <div className="relative bg-slate-950 min-h-screen">
         {/* Hero Section - Full 3D Parallax */}
         <Hero3DParallax />
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8 }}
+          className="mb-12 flex justify-center"
+        >
+          <div className="relative w-32 h-32">
+            <Image
+              src="/bravecom-logo-cart.png"
+              alt="Brave Ecom"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+        </motion.div>
 
         {/* Stats Section with Camera Effects */}
         <section className="relative py-24 bg-slate-900/50 overflow-hidden">

@@ -12,18 +12,21 @@ import { investmentService } from "@/services/investmentService";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
   Building2, QrCode, CheckCircle2, ArrowRight, 
-  ShieldCheck, Banknote, Search, AlertCircle 
+  ShieldCheck, Banknote, Search, AlertCircle, Scale, FileText 
 } from "lucide-react";
 import Image from "next/image";
 import { formatCurrency } from "@/lib/utils";
 import { Confetti } from "@/components/Confetti";
 import { useRouter } from "next/router";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function InvestPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
+  const [selectedTier, setSelectedTier] = useState<InvestmentTier | null>(null);
+  const [showAgreement, setShowAgreement] = useState(false);
   
   // Form State
   const [amount, setAmount] = useState<string>("51111");
@@ -200,6 +203,114 @@ export default function InvestPage() {
               </p>
             </motion.div>
           </div>
+
+          {/* Legal Agreement Notice */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-gradient-to-r from-orange-900/20 to-amber-900/20 border border-orange-700/50 rounded-2xl p-8"
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-orange-600/20 flex items-center justify-center flex-shrink-0">
+                <Scale className="w-6 h-6 text-orange-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-2">
+                  Legally Binding Agreement
+                </h3>
+                <p className="text-slate-300 mb-4">
+                  All investments are governed by a <strong>12-month notarized agreement</strong> executed before a licensed Advocate. 
+                  This ensures complete legal protection and enforceability of investment terms.
+                </p>
+                <div className="grid md:grid-cols-3 gap-4 mt-4">
+                  <div className="bg-slate-800/50 rounded-lg p-4">
+                    <div className="text-orange-400 font-semibold mb-1">Agreement Term</div>
+                    <div className="text-white text-2xl font-bold">12 Months</div>
+                  </div>
+                  <div className="bg-slate-800/50 rounded-lg p-4">
+                    <div className="text-green-400 font-semibold mb-1">Monthly ROI</div>
+                    <div className="text-white text-2xl font-bold">15%</div>
+                  </div>
+                  <div className="bg-slate-800/50 rounded-lg p-4">
+                    <div className="text-cyan-400 font-semibold mb-1">Total Return</div>
+                    <div className="text-white text-2xl font-bold">280%</div>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  className="mt-4 border-orange-700/50 hover:bg-orange-900/20"
+                  onClick={() => setShowAgreement(true)}
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  View Agreement Terms
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Agreement Terms Dialog */}
+          <Dialog open={showAgreement} onOpenChange={setShowAgreement}>
+            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-slate-900 border-slate-700">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-white">
+                  12-Month Investment Agreement Terms
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6 text-slate-300">
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-2">1. Agreement Duration</h3>
+                  <p>This investment agreement is valid for exactly <strong className="text-orange-400">12 months</strong> from the date of investment.</p>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-2">2. Monthly Returns</h3>
+                  <p>The investor shall receive <strong className="text-green-400">15% monthly returns</strong> on the principal investment amount for 12 consecutive months.</p>
+                  <div className="mt-2 p-4 bg-slate-800/50 rounded-lg">
+                    <div className="font-mono text-sm">
+                      <div>First Payout: 45 days after investment date</div>
+                      <div>Subsequent Payouts: Every 30 days thereafter</div>
+                      <div>Total Payouts: 12 monthly payments</div>
+                      <div className="mt-2 text-green-400">Total Profit: 180% of principal</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-2">3. Principal Return</h3>
+                  <p>At the end of the 12-month term, the <strong className="text-cyan-400">full principal amount</strong> shall be returned to the investor along with the final monthly profit payment.</p>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-2">4. Lock-in Period</h3>
+                  <p>This agreement includes a <strong className="text-orange-400">12-month lock-in period</strong>. Early withdrawal or termination of the agreement is <strong>not permitted</strong> except under extraordinary circumstances with written consent from both parties.</p>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-2">5. Legal Notarization</h3>
+                  <p>This agreement is <strong className="text-purple-400">legally notarized</strong> before a licensed Advocate and registered with appropriate authorities. All terms are legally binding and enforceable under Indian law.</p>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-2">6. Re-investment Option</h3>
+                  <p>Upon completion of the 12-month term, the investor may choose to:</p>
+                  <ul className="list-disc list-inside mt-2 space-y-1">
+                    <li>Re-invest with a new 12-month agreement</li>
+                    <li>Withdraw the total payout (principal + profit)</li>
+                    <li>Partially re-invest and withdraw remaining amount</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-orange-900/20 border border-orange-700/50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-orange-400 mb-2">Important Notice</h3>
+                  <p className="text-sm">
+                    By proceeding with this investment, you acknowledge that you have read, understood, and agree to all terms and conditions outlined in the notarized agreement. 
+                    This is a legally binding contract executed before a licensed Advocate.
+                  </p>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
 
           <div className="grid md:grid-cols-2 gap-8 relative z-10">
             {/* Left Column: Input Form */}

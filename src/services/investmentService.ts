@@ -1,186 +1,190 @@
 import { supabase } from "@/integrations/supabase/client";
-import { getNextPayoutDate, isPayoutExcluded } from "@/lib/calendar/payout-exclusions";
 
 export interface InvestmentAgreement {
   id: string;
-  agreement_number: number;
-  investor_id: string;
-  agreement_value: number;
-  investment_date: string;
-  maturity_date: string;
-  status: 'active' | 'matured' | 'cancelled';
-  monthly_payout_rate: number;
-  total_paid_out: number;
-  next_payout_date: string | null;
+  investmentId: string;
+  agreementNumber: string;
+  agreementDate: string;
+  startDate: string;
+  endDate: string;
+  monthlyRoiRate: number;
+  totalMonths: number;
+  principalAmount: number;
+  totalExpectedProfit: number;
+  totalExpectedPayout: number;
+  notarizedBy?: string;
+  notarizationDate?: string;
+  advocateName?: string;
+  advocateLicense?: string;
+  agreementStatus: 'ACTIVE' | 'COMPLETED' | 'TERMINATED';
+  earlyTerminationAllowed: boolean;
+  earlyTerminationPenalty: number;
 }
 
-export interface MonthlyPayout {
-  id: string;
-  agreement_id: string;
-  investor_id: string;
-  payout_month: string;
-  principal_amount: number;
-  payout_percentage: number;
-  payout_amount: number;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  payment_method: string;
-  transaction_id: string | null;
-  processed_at: string | null;
+export interface MonthlyPayoutSchedule {
+  month: number;
+  payoutDate: string;
+  payoutAmount: number;
+  isPrincipalIncluded: boolean;
+  status: 'PENDING' | 'PROCESSED' | 'COMPLETED';
 }
 
 export const investmentService = {
   /**
-   * Calculate agreement value (₹12 Cr / 28 contracts)
+   * Calculate 12-month payout schedule
    */
-  calculateAgreementValue(): number {
-    const totalCorpus = 120000000; // ₹12 Crore
-    const totalContracts = 28;
-    const baseValue = totalCorpus / totalContracts;
-    // Round to nearest lakh for clean figures
-    return Math.round(baseValue / 100000) * 100000;
+  async calculatePayoutSchedule(
+    principalAmount: number,
+    startDate: Date
+  ): Promise<MonthlyPayoutSchedule[]> {
+    const monthlyProfit = principalAmount * 0.15; // 15% monthly
+    const schedule: MonthlyPayoutSchedule[] = [];
+
+    // First payout: 45 days after investment
+    const firstPayoutDate = new Date(startDate);
+    firstPayoutDate.setDate(firstPayoutDate.getDate() + 45);
+
+    schedule.push({
+      month: 1,
+      payoutDate: firstPayoutDate.toISOString().split('T')[0],
+      payoutAmount: monthlyProfit,
+      isPrincipalIncluded: false,
+      status: 'PENDING',
+    });
+
+    // Months 2-11: Every 30 days
+    for (let month = 2; month <= 11; month++) {
+      const payoutDate = new Date(firstPayoutDate);
+      payoutDate.setDate(payoutDate.getDate() + (30 * (month - 1)));
+
+      schedule.push({
+        month,
+        payoutDate: payoutDate.toISOString().split('T')[0],
+        payoutAmount: monthlyProfit,
+        isPrincipalIncluded: false,
+        status: 'PENDING',
+      });
+    }
+
+    // Month 12: Final payout includes principal
+    const finalPayoutDate = new Date(firstPayoutDate);
+    finalPayoutDate.setDate(finalPayoutDate.getDate() + (30 * 11));
+
+    schedule.push({
+      month: 12,
+      payoutDate: finalPayoutDate.toISOString().split('T')[0],
+      payoutAmount: principalAmount + monthlyProfit, // Principal + last month profit
+      isPrincipalIncluded: true,
+      status: 'PENDING',
+    });
+
+    return schedule;
   },
 
   /**
-   * Create new investment agreement
+   * Get investment agreement details
    */
-  async createAgreement(investorId: string, customValue?: number): Promise<InvestmentAgreement> {
-    const agreementValue = customValue || this.calculateAgreementValue();
+  async getAgreement(investmentId: string): Promise<InvestmentAgreement | null> {
+    try {
+      const { data, error } = await supabase
+        .from('investment_agreements')
+        .select('*')
+        .eq('investment_id', investmentId)
+        .single();
+
+      if (error) throw error;
+      if (!data) return null;
+
+      return {
+        id: data.id,
+        investmentId: data.investment_id,
+        agreementNumber: data.agreement_number,
+        agreementDate: data.agreement_date,
+        startDate: data.start_date,
+        endDate: data.end_date,
+        monthlyRoiRate: data.monthly_roi_rate,
+        totalMonths: data.total_months,
+        principalAmount: data.principal_amount,
+        totalExpectedProfit: data.total_expected_profit,
+        totalExpectedPayout: data.total_expected_payout,
+        notarizedBy: data.notarized_by,
+        notarizationDate: data.notarization_date,
+        advocateName: data.advocate_name,
+        advocateLicense: data.advocate_license,
+        agreementStatus: data.agreement_status,
+        earlyTerminationAllowed: data.early_termination_allowed,
+        earlyTerminationPenalty: data.early_termination_penalty,
+      };
+    } catch (error) {
+      console.error('Failed to fetch agreement:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Check if agreement term has ended
+   */
+  async checkAgreementStatus(investmentId: string): Promise<{
+    isCompleted: boolean;
+    daysRemaining: number;
+    endDate: string;
+  }> {
+    const agreement = await this.getAgreement(investmentId);
     
-    // Get next agreement number
-    const { data: lastAgreement } = await supabase
-      .from('investment_agreements')
-      .select('agreement_number')
-      .order('agreement_number', { ascending: false })
-      .limit(1)
-      .single();
+    if (!agreement) {
+      return {
+        isCompleted: false,
+        daysRemaining: 0,
+        endDate: '',
+      };
+    }
 
-    const agreementNumber = (lastAgreement?.agreement_number || 0) + 1;
-
-    // Calculate maturity (1 year from now)
-    const maturityDate = new Date();
-    maturityDate.setFullYear(maturityDate.getFullYear() + 1);
-
-    const { data, error } = await supabase
-      .from('investment_agreements')
-      .insert({
-        agreement_number: agreementNumber,
-        investor_id: investorId,
-        agreement_value: agreementValue,
-        maturity_date: maturityDate.toISOString(),
-        monthly_payout_rate: 0.15, // 15%
-        next_payout_date: this.calculateNextPayoutDate()
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as unknown as InvestmentAgreement;
-  },
-
-  /**
-   * Calculate next payout date (1st-5th of next month, excluding weekends/holidays)
-   */
-  calculateNextPayoutDate(): Date {
-    const now = new Date();
-    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    
-    // Use calendar exclusion logic
-    return getNextPayoutDate(nextMonth);
-  },
-
-  /**
-   * Calculate monthly payout (15% of principal)
-   */
-  calculateMonthlyPayout(principalAmount: number): number {
-    return principalAmount * 0.15;
-  },
-
-  /**
-   * Get investor's active agreements
-   */
-  async getInvestorAgreements(investorId: string): Promise<InvestmentAgreement[]> {
-    const { data, error } = await supabase
-      .from('investment_agreements')
-      .select('*')
-      .eq('investor_id', investorId)
-      .eq('status', 'active')
-      .order('investment_date', { ascending: false });
-
-    if (error) throw error;
-    return (data || []) as unknown as InvestmentAgreement[];
-  },
-
-  /**
-   * Get payout history
-   */
-  async getPayoutHistory(investorId: string): Promise<MonthlyPayout[]> {
-    const { data, error } = await supabase
-      .from('monthly_payouts')
-      .select('*')
-      .eq('investor_id', investorId)
-      .order('payout_month', { ascending: false });
-
-    if (error) throw error;
-    return (data || []) as unknown as MonthlyPayout[];
-  },
-
-  /**
-   * Create monthly payout record
-   */
-  async createMonthlyPayout(agreementId: string, investorId: string, month: string): Promise<MonthlyPayout> {
-    // Get agreement details
-    const { data: agreement } = await supabase
-      .from('investment_agreements')
-      .select('*')
-      .eq('id', agreementId)
-      .single();
-
-    if (!agreement) throw new Error('Agreement not found');
-
-    const payoutAmount = this.calculateMonthlyPayout(agreement.agreement_value);
-
-    const { data, error } = await supabase
-      .from('monthly_payouts')
-      .insert({
-        agreement_id: agreementId,
-        investor_id: investorId,
-        payout_month: month,
-        principal_amount: agreement.agreement_value,
-        payout_percentage: agreement.monthly_payout_rate,
-        payout_amount: payoutAmount,
-        status: 'pending'
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as unknown as MonthlyPayout;
-  },
-
-  /**
-   * Get total portfolio value for investor
-   */
-  async getPortfolioSummary(investorId: string) {
-    const agreements = await this.getInvestorAgreements(investorId);
-    const payouts = await this.getPayoutHistory(investorId);
-
-    const totalInvested = agreements.reduce((sum, a) => sum + a.agreement_value, 0);
-    const totalReceived = payouts
-      .filter(p => p.status === 'completed')
-      .reduce((sum, p) => sum + p.payout_amount, 0);
-
-    const monthlyReturn = agreements.reduce(
-      (sum, a) => sum + this.calculateMonthlyPayout(a.agreement_value),
-      0
-    );
+    const endDate = new Date(agreement.endDate);
+    const today = new Date();
+    const diffTime = endDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     return {
-      totalInvested,
-      totalReceived,
-      monthlyReturn,
-      activeAgreements: agreements.length,
-      totalPayouts: payouts.length,
-      roi: totalInvested > 0 ? (totalReceived / totalInvested) * 100 : 0
+      isCompleted: diffDays <= 0,
+      daysRemaining: Math.max(0, diffDays),
+      endDate: agreement.endDate,
     };
-  }
+  },
+
+  /**
+   * Calculate total returns
+   */
+  calculateTotalReturns(principalAmount: number): {
+    monthlyProfit: number;
+    totalMonthlyPayouts: number;
+    totalProfit: number;
+    finalPayout: number;
+    roi: number;
+  } {
+    const monthlyProfit = principalAmount * 0.15;
+    const totalMonthlyPayouts = 12;
+    const totalProfit = monthlyProfit * totalMonthlyPayouts; // 180% of principal
+    const finalPayout = principalAmount + totalProfit; // 280% total return
+
+    return {
+      monthlyProfit,
+      totalMonthlyPayouts,
+      totalProfit,
+      finalPayout,
+      roi: 180, // 180% profit over 12 months
+    };
+  },
+
+  /**
+   * Format currency
+   */
+  formatCurrency(amount: number): string {
+    if (amount >= 10000000) {
+      return `₹${(amount / 10000000).toFixed(2)} Cr`;
+    }
+    if (amount >= 100000) {
+      return `₹${(amount / 100000).toFixed(2)} L`;
+    }
+    return `₹${amount.toLocaleString('en-IN')}`;
+  },
 };

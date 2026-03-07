@@ -14,6 +14,7 @@ import { DashboardCharts } from "@/components/DashboardCharts";
 import { MobileMenu } from "@/components/MobileMenu";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export type DashboardRole = "investor" | "vendor" | "admin" | "bdm" | "client" | "franchise_partner";
 
@@ -80,12 +81,15 @@ export function DashboardLayout({ children, showCharts = false, role = "investor
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img 
-                src="/bravecom-logo-hex.png" 
-                alt="Brave Ecom Logo" 
-                className="w-8 h-8 object-contain"
-              />
-              <span className="font-bold text-xl tracking-tight text-white hidden sm:inline">Brave Ecom</span>
+              <div className="relative w-10 h-10">
+                <Image
+                  src="/bravecom-logo-cart.png"
+                  alt="Brave Ecom"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <span className="font-bold text-xl text-white hidden sm:inline">Brave Ecom</span>
             </div>
             
             <div className="flex items-center gap-2 md:gap-4">

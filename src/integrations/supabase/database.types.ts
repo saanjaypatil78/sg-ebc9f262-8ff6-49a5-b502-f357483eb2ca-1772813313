@@ -445,6 +445,83 @@ export type Database = {
           },
         ]
       }
+      investment_agreements: {
+        Row: {
+          advocate_license: string | null
+          advocate_name: string | null
+          agreement_date: string
+          agreement_number: string
+          agreement_status: string | null
+          created_at: string | null
+          early_termination_allowed: boolean | null
+          early_termination_penalty: number | null
+          end_date: string
+          id: string
+          investment_id: string
+          monthly_roi_rate: number | null
+          notarization_date: string | null
+          notarized_by: string | null
+          principal_amount: number
+          start_date: string
+          total_expected_payout: number
+          total_expected_profit: number
+          total_months: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          advocate_license?: string | null
+          advocate_name?: string | null
+          agreement_date?: string
+          agreement_number: string
+          agreement_status?: string | null
+          created_at?: string | null
+          early_termination_allowed?: boolean | null
+          early_termination_penalty?: number | null
+          end_date: string
+          id?: string
+          investment_id: string
+          monthly_roi_rate?: number | null
+          notarization_date?: string | null
+          notarized_by?: string | null
+          principal_amount: number
+          start_date: string
+          total_expected_payout: number
+          total_expected_profit: number
+          total_months?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          advocate_license?: string | null
+          advocate_name?: string | null
+          agreement_date?: string
+          agreement_number?: string
+          agreement_status?: string | null
+          created_at?: string | null
+          early_termination_allowed?: boolean | null
+          early_termination_penalty?: number | null
+          end_date?: string
+          id?: string
+          investment_id?: string
+          monthly_roi_rate?: number | null
+          notarization_date?: string | null
+          notarized_by?: string | null
+          principal_amount?: number
+          start_date?: string
+          total_expected_payout?: number
+          total_expected_profit?: number
+          total_months?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investment_agreements_investment_id_fkey"
+            columns: ["investment_id"]
+            isOneToOne: false
+            referencedRelation: "investments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       investments: {
         Row: {
           amount: number
@@ -2233,6 +2310,14 @@ export type Database = {
       calculate_total_business_volume: {
         Args: { investor_user_id: string }
         Returns: number
+      }
+      check_and_complete_agreements: {
+        Args: never
+        Returns: {
+          agreement_id: string
+          final_payout: number
+          investment_id: string
+        }[]
       }
       check_passive_timer_expiry: { Args: never; Returns: undefined }
       cleanup_expired_sessions: { Args: never; Returns: undefined }
