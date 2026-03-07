@@ -1,10 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { productGenerator } from "@/lib/mock-data/product-generator";
 
-// Use mock data generator as primary source (no database dependency)
-const USE_MOCK_DATA = true;
-
-// Cache for mock products
+// Use mock data generator as fallback
 let mockProductsCache: any[] | null = null;
 
 export const productService = {
@@ -29,28 +26,25 @@ export const productService = {
         return data;
       }
 
-      // Fallback: Generate mock products with relevant images
-      console.log("⚠️ Database empty, generating mock products with real images...");
-      const products = await productGenerator.generateAllProductsAsync();
-      return products;
+      // Fallback: Use mock data
+      console.log("⚠️ Database empty or error, using mock products...");
+      if (!mockProductsCache) {
+        mockProductsCache = productGenerator.generateAllProducts(200); // Generate 200 for quick preview
+      }
+      return mockProductsCache;
     } catch (error) {
-      console.error("Database error, using mock data:", error);
+      console.error("Database error:", error);
       
-      // Generate mock products with relevant images
-      const products = await productGenerator.generateAllProductsAsync();
-      return products;
+      // Generate mock products
+      if (!mockProductsCache) {
+        mockProductsCache = productGenerator.generateAllProducts(200);
+      }
+      return mockProductsCache;
     }
   },
 
   // Get products by vendor
   async getVendorProducts(vendorId: string) {
-    if (USE_MOCK_DATA) {
-      if (!mockProductsCache) {
-        mockProductsCache = productGenerator.generateAllProducts();
-      }
-      return mockProductsCache.filter(p => p.vendor_id === vendorId);
-    }
-
     const { data, error } = await supabase
       .from("vendor_products")
       .select("*")
@@ -66,15 +60,6 @@ export const productService = {
 
   // Get single product
   async getProduct(productId: string) {
-    if (USE_MOCK_DATA) {
-      if (!mockProductsCache) {
-        mockProductsCache = productGenerator.generateAllProducts();
-      }
-      const product = mockProductsCache.find(p => p.id === productId);
-      if (!product) throw new Error("Product not found");
-      return product;
-    }
-
     const { data, error } = await supabase
       .from("vendor_products")
       .select(`
@@ -156,18 +141,6 @@ export const productService = {
 
   // Search products
   async searchProducts(query: string) {
-    if (USE_MOCK_DATA) {
-      if (!mockProductsCache) {
-        mockProductsCache = productGenerator.generateAllProducts();
-      }
-      const lowerQuery = query.toLowerCase();
-      return mockProductsCache.filter(p => 
-        p.product_name?.toLowerCase().includes(lowerQuery) ||
-        p.product_description?.toLowerCase().includes(lowerQuery) ||
-        p.category?.toLowerCase().includes(lowerQuery)
-      ).slice(0, 20);
-    }
-
     const { data, error } = await supabase
       .from("vendor_products")
       .select(`
@@ -186,10 +159,6 @@ export const productService = {
   },
 
   async getProductDetails(productId: string) {
-    if (USE_MOCK_DATA) {
-      return this.getProduct(productId);
-    }
-
     const { data, error } = await supabase
       .from("vendor_products")
       .select(`
