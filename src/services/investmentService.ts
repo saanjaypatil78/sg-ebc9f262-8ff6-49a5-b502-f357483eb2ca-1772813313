@@ -31,6 +31,26 @@ export interface MonthlyPayoutSchedule {
 
 export const investmentService = {
   /**
+   * Create new investment and trigger notarized agreement generation
+   */
+  async createAgreement(userId: string, amount: number): Promise<boolean> {
+    try {
+      // Inserting into 'investments' automatically triggers 'trigger_create_investment_agreement'
+      // which generates the 12-month fixed notarized agreement in the DB.
+      const { error } = await supabase.from('investments').insert({
+        user_id: userId,
+        amount: amount,
+        status: 'ACTIVE'
+      });
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Failed to create agreement:', error);
+      return false;
+    }
+  },
+
+  /**
    * Calculate 12-month payout schedule
    */
   async calculatePayoutSchedule(

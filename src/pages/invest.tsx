@@ -25,7 +25,6 @@ export default function InvestPage() {
   const { toast } = useToast();
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [selectedTier, setSelectedTier] = useState<InvestmentTier | null>(null);
   const [showAgreement, setShowAgreement] = useState(false);
   
   // Form State
