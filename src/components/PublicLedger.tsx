@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
   Users, TrendingUp, DollarSign, Award, MapPin, Calendar, 
-  Eye, Search, Filter, Download 
+  Eye, Search 
 } from "lucide-react";
 import { comprehensiveLedger, ledgerStats } from "@/lib/mock-data/comprehensive-ledger";
+import { useRef } from "react";
 
 export function PublicLedger() {
   const [isMounted, setIsMounted] = useState(false);
@@ -16,6 +17,18 @@ export function PublicLedger() {
   const [selectedRank, setSelectedRank] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Parallax effects
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  });
+  
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -400]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, 300]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0.6]);
 
   // Filter logic
   const filteredInvestors = comprehensiveLedger.filter(investor => {
@@ -54,7 +67,19 @@ export function PublicLedger() {
   if (!isMounted) return null; // Prevent hydration mismatch
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white py-16 px-4">
+    <div ref={containerRef} className="relative min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white py-16 px-4 overflow-hidden">
+      {/* Parallax Background */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <motion.div 
+          style={{ y: y1, opacity }}
+          className="absolute -top-[40%] -right-[20%] w-[800px] h-[800px] rounded-full bg-cyan-700/20 blur-[180px]" 
+        />
+        <motion.div 
+          style={{ y: y2, opacity }}
+          className="absolute top-[60%] -left-[20%] w-[700px] h-[700px] rounded-full bg-purple-600/15 blur-[160px]" 
+        />
+      </div>
+      
       {/* Header with Parallax */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
