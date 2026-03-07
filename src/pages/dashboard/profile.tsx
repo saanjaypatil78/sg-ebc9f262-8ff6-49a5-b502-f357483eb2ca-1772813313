@@ -115,7 +115,7 @@ export default function ProfilePage() {
               <div className="mt-12 flex justify-between items-start">
                 <div>
                   <h2 className="text-2xl font-bold text-white">
-                    {user?.user_metadata?.first_name || 'Strategic'} {user?.user_metadata?.last_name || 'User'}
+                    {(user as Record<string, any>)?.first_name || (user as Record<string, any>)?.user_metadata?.first_name || 'Strategic'} {(user as Record<string, any>)?.last_name || (user as Record<string, any>)?.user_metadata?.last_name || 'User'}
                   </h2>
                   <div className="flex items-center space-x-3 mt-2">
                     <Badge variant="outline" className="bg-cyan-500/10 text-cyan-400 border-cyan-500/20">
