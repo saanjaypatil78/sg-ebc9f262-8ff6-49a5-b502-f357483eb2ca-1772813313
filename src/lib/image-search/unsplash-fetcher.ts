@@ -271,7 +271,7 @@ function buildUnsplashUrls(queryCommaSeparated: string, count: number, seed: str
   const urls: string[] = [];
   for (let i = 0; i < count; i++) {
     const sig = (baseSig + i * 97) % 10000;
-    urls.push(`https://source.unsplash.com/featured/800x800?${q}&sig=${sig}`);
+    urls.push(`https://source.unsplash.com/800x800/?${q}&sig=${sig}`);
   }
   return urls;
 }

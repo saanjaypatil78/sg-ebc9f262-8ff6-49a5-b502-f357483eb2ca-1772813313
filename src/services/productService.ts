@@ -162,6 +162,10 @@ export const productService = {
     return (data || []) as unknown as PublicProduct[];
   },
 
+  async getProductDetails(productId: string): Promise<PublicProduct> {
+    return this.getProduct(productId);
+  },
+
   clearMockCache() {
     mockProductsCache = null;
   },

@@ -39,7 +39,7 @@ export default function ProductDetailPage() {
   const loadProduct = async (productId: string) => {
     try {
       setLoading(true);
-      const data = await productService.getProductDetails(productId);
+      const data = await productService.getProduct(productId);
       setProduct(data);
       if (data?.images?.length > 0) {
         setSelectedImage(data.images[0]);
@@ -100,12 +100,12 @@ export default function ProductDetailPage() {
     );
   }
 
-  const discount = product.mrp > product.price 
-    ? Math.round(((product.mrp - product.price) / product.mrp) * 100) 
-    : 0;
+  const price = parseFloat(String(product.price ?? 0));
+  const mrp = parseFloat(String((product as any).mrp ?? price));
+  const discount = mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
 
   // We hide the source platform by standardizing the reviewer display
-  const reviews = product.product_aggregated_reviews || [];
+  const reviews = (product as any).product_aggregated_reviews || [];
 
   return (
     <>
@@ -205,12 +205,12 @@ export default function ProductDetailPage() {
                   {discount > 0 && (
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-red-500 font-bold text-lg">-{discount}%</span>
-                      <span className="text-slate-500 line-through text-sm">₹{parseFloat(product.mrp || 0).toLocaleString("en-IN")}</span>
+                      <span className="text-slate-500 line-through text-sm">₹{mrp.toLocaleString("en-IN")}</span>
                     </div>
                   )}
                   <div className="flex items-end gap-2">
                     <span className="text-4xl font-bold text-slate-900 dark:text-white">
-                      ₹{parseFloat(product.price).toLocaleString("en-IN")}
+                      ₹{price.toLocaleString("en-IN")}
                     </span>
                     <span className="text-sm text-slate-500 mb-1">+15% platform fee</span>
                   </div>
@@ -233,12 +233,12 @@ export default function ProductDetailPage() {
                     size="lg" 
                     className="w-full h-14 text-lg font-semibold bg-cyan-600 hover:bg-cyan-700 shadow-lg shadow-cyan-500/20"
                     onClick={handleAddToCart}
-                    disabled={product.stock_quantity <= 0 && product.stock <= 0}
+                    disabled={(product.stock_quantity ?? (product as any).stock ?? 0) <= 0}
                   >
                     <ShoppingCart className="w-5 h-5 mr-2" />
-                    {(product.stock_quantity > 0 || product.stock > 0) ? "Add to Cart" : "Out of Stock"}
+                    {(product.stock_quantity ?? (product as any).stock ?? 0) > 0 ? "Add to Cart" : "Out of Stock"}
                   </Button>
-                  {(product.stock_quantity > 0 || product.stock > 0) && (
+                  {(product.stock_quantity ?? (product as any).stock ?? 0) > 0 && (
                     <p className="text-center mt-3 text-sm text-emerald-600 font-medium">
                       In Stock. Ships usually within 24 hours.
                     </p>
