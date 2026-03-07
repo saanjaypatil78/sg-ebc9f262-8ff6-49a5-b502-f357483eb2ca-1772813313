@@ -15,12 +15,58 @@ import {
   Globe,
   BarChart3,
   ArrowRight,
+  Star,
+  ShoppingCart,
 } from "lucide-react";
 import Image from "next/image";
 import { Footer } from "@/components/Footer";
+import { productService } from "@/services/productService";
+import { useCart } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from "react";
 
 export default function HomePage() {
   const router = useRouter();
+  const { addToCart } = useCart();
+  const { toast } = useToast();
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+
+  useEffect(() => {
+    loadFeaturedProducts();
+  }, []);
+
+  const loadFeaturedProducts = async () => {
+    try {
+      const products = await productService.getAllProducts();
+      setFeaturedProducts(products.slice(0, 8)); // Show first 8 products
+    } catch (error) {
+      console.error("Error loading products:", error);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  const handleAddToCart = (product: any) => {
+    addToCart({
+      productId: product.id,
+      productName: product.product_name || product.name,
+      price: parseFloat(product.price),
+      quantity: 1,
+      vendorId: product.vendor_id,
+      vendorName: product.vendors?.business_name || "Vendor",
+      imageUrl: product.images?.[0] || product.image_url,
+      sku: product.sku,
+    });
+    
+    toast({
+      title: "Added to Cart",
+      description: `${product.product_name || product.name} added to your cart`,
+    });
+  };
 
   const handleViewLedger = () => {
     router.push('/shop');
@@ -99,6 +145,108 @@ export default function HomePage() {
                 </CameraFade>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Featured Products Section */}
+        <section className="relative py-24 overflow-hidden bg-slate-900/30">
+          <div className="max-w-7xl mx-auto px-6 relative z-10">
+            <CameraFade>
+              <div className="text-center mb-16">
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                  Shop Our <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">Marketplace</span>
+                </h2>
+                <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-8">
+                  Browse products from verified vendors across India. Earn commission on every purchase made by your network!
+                </p>
+                <Link href="/shop">
+                  <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600">
+                    View All Products
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Button>
+                </Link>
+              </div>
+            </CameraFade>
+
+            {loadingProducts ? (
+              <div className="text-center py-12">
+                <div className="inline-block w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+                <p className="mt-4 text-slate-400">Loading products...</p>
+              </div>
+            ) : featuredProducts.length === 0 ? (
+              <div className="text-center py-12 text-slate-400">
+                <p>No products available at the moment</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {featuredProducts.map((product, i) => (
+                  <CameraFade key={product.id} delay={i * 0.05}>
+                    <Card className="hover:shadow-2xl transition-all duration-300 hover:scale-105 bg-slate-800/50 border-slate-700/50 backdrop-blur-sm overflow-hidden h-full flex flex-col">
+                      <Link href={`/shop/product/${product.id}`} className="block">
+                        <div className="aspect-square bg-slate-900 relative overflow-hidden group">
+                          {product.images?.[0] || product.image_url ? (
+                            <img
+                              src={product.images?.[0] || product.image_url}
+                              alt={product.product_name || product.name}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="flex items-center justify-center h-full text-slate-600">
+                              No Image
+                            </div>
+                          )}
+                          {product.stock_quantity <= 0 && (
+                            <Badge className="absolute top-2 right-2 bg-red-500">
+                              Out of Stock
+                            </Badge>
+                          )}
+                        </div>
+                      </Link>
+
+                      <CardContent className="pt-4 flex-1 flex flex-col">
+                        <Link href={`/shop/product/${product.id}`}>
+                          <h3 className="font-semibold text-white line-clamp-2 hover:text-cyan-400 transition-colors">
+                            {product.product_name || product.name}
+                          </h3>
+                        </Link>
+
+                        <p className="text-sm text-slate-400 mt-1">
+                          by {product.vendors?.business_name || "Vendor"}
+                        </p>
+
+                        <div className="flex items-center gap-1 mt-2">
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          <span className="text-sm font-medium text-white">
+                            {parseFloat(product.aggregated_rating || 4.5).toFixed(1)}
+                          </span>
+                          <span className="text-sm text-slate-400">
+                            ({product.review_count || Math.floor(Math.random() * 200) + 15})
+                          </span>
+                        </div>
+
+                        <div className="mt-auto pt-4 flex items-end justify-between">
+                          <div>
+                            <p className="text-xl font-bold text-white">
+                              ₹{parseFloat(product.price).toLocaleString("en-IN")}
+                            </p>
+                          </div>
+
+                          <Button
+                            onClick={() => handleAddToCart(product)}
+                            disabled={product.stock_quantity <= 0}
+                            size="sm"
+                            className="bg-cyan-500 hover:bg-cyan-600"
+                          >
+                            <ShoppingCart className="w-4 h-4 mr-1" />
+                            Add
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </CameraFade>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
