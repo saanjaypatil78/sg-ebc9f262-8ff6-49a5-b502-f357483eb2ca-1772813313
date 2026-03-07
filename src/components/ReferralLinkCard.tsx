@@ -14,7 +14,7 @@ interface ReferralLinkCardProps {
 }
 
 function toNumber(input: string): number {
-  const cleaned = input.replace(/[^\d.]/g, "");
+  const cleaned = String(input || "").replace(/[^\d.]/g, "");
   const n = parseFloat(cleaned);
   return Number.isFinite(n) ? n : 0;
 }
@@ -23,6 +23,7 @@ export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
   const [copied, setCopied] = useState(false);
   const [previewAmount, setPreviewAmount] = useState("100000");
   const [rank, setRank] = useState<string>("BASE");
+  const [levelRates, setLevelRates] = useState<number[] | null>(null);
   const [referralCode, setReferralCode] = useState<string>(userId);
 
   const { toast } = useToast();
@@ -62,6 +63,20 @@ export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
     };
   }, [userId]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadRates = async () => {
+      const rates = await commissionService.getCommissionRatesForRank(rank);
+      if (!cancelled) setLevelRates(rates);
+    };
+
+    loadRates();
+    return () => {
+      cancelled = true;
+    };
+  }, [rank]);
+
   const referralLink = useMemo(() => referralService.getReferralLink(referralCode), [referralCode]);
 
   const copyToClipboard = async () => {
@@ -98,8 +113,12 @@ export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
 
   const preview = useMemo(() => {
     const amount = toNumber(previewAmount);
-    return commissionService.calculateCommissionPreview({ baseAmount: amount });
-  }, [previewAmount]);
+    return commissionService.calculateCommissionPreview({
+      baseAmount: amount,
+      levelRates: levelRates ?? undefined,
+      adminChargeRate: commissionService.adminChargeRate,
+    });
+  }, [previewAmount, levelRates]);
 
   return (
     <Card>
@@ -137,7 +156,7 @@ export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
             <strong className="text-cyan-400">Current Rank:</strong> {rank}
           </p>
           <p className="text-xs text-slate-400">
-            Use this code/link for registrations. Commission preview below is calculated with strict paise rounding (gross → admin charge → net).
+            Preview uses paise rounding per level: gross → admin fee ({(preview.adminChargeRate * 100).toFixed(0)}%) → net.
           </p>
         </div>
 
@@ -154,7 +173,7 @@ export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
               value={previewAmount}
               onChange={(e) => setPreviewAmount(e.target.value)}
               inputMode="numeric"
-              placeholder="Enter base amount (e.g., 100000)"
+              placeholder="Enter downline investment amount (e.g., 100000)"
               className="bg-slate-900/50 border-slate-700 text-white"
             />
           </div>
@@ -180,9 +199,15 @@ export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
 
             <div className="grid grid-cols-5 gap-2 px-3 py-2 text-sm border-t border-white/10 bg-slate-900/30">
               <div className="col-span-2 text-slate-300 font-semibold">Totals</div>
-              <div className="text-right text-slate-200 font-semibold">{commissionService.formatCurrency(preview.totals.grossCommission)}</div>
-              <div className="text-right text-slate-300 font-semibold">{commissionService.formatCurrency(preview.totals.adminCharge)}</div>
-              <div className="text-right text-emerald-300 font-semibold">{commissionService.formatCurrency(preview.totals.netCommission)}</div>
+              <div className="text-right text-slate-200 font-semibold">
+                {commissionService.formatCurrency(preview.totals.grossCommission)}
+              </div>
+              <div className="text-right text-slate-300 font-semibold">
+                {commissionService.formatCurrency(preview.totals.adminCharge)}
+              </div>
+              <div className="text-right text-emerald-300 font-semibold">
+                {commissionService.formatCurrency(preview.totals.netCommission)}
+              </div>
             </div>
           </div>
         </div>

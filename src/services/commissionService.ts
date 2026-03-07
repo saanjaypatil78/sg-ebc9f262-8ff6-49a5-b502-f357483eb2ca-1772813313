@@ -29,6 +29,9 @@ export interface CommissionPreviewLine {
   netCommission: number;
 }
 
+const DEFAULT_LEVEL_RATES = [0.2, 0.1, 0.07, 0.05, 0.02, 0.01] as const;
+const DEFAULT_ADMIN_CHARGE_RATE = 0.1;
+
 function roundMoney(value: number): number {
   if (!Number.isFinite(value)) return 0;
   return Math.round((value + Number.EPSILON) * 100) / 100;
@@ -43,12 +46,15 @@ function toPercent(rate: number): number {
   return roundMoney(normalizeRate(rate) * 100);
 }
 
-const DEFAULT_LEVEL_RATES = [0.2, 0.1, 0.07, 0.05, 0.02, 0.01] as const;
-const DEFAULT_ADMIN_CHARGE_RATE = 0.1;
+function sumMoney(values: number[]): number {
+  return roundMoney(values.reduce((a, b) => a + b, 0));
+}
 
 export const commissionService = {
+  adminChargeRate: DEFAULT_ADMIN_CHARGE_RATE,
+
   calculateMonthlyROI(investmentAmount: number): number {
-    return roundMoney(investmentAmount * 0.15);
+    return roundMoney(roundMoney(investmentAmount) * 0.15);
   },
 
   calculateCommissionPreview(params: {
@@ -57,6 +63,7 @@ export const commissionService = {
     adminChargeRate?: number;
   }): {
     baseAmount: number;
+    adminChargeRate: number;
     lines: CommissionPreviewLine[];
     totals: {
       grossCommission: number;
@@ -83,16 +90,13 @@ export const commissionService = {
       };
     });
 
-    const totals = lines.reduce(
-      (acc, l) => ({
-        grossCommission: roundMoney(acc.grossCommission + l.grossCommission),
-        adminCharge: roundMoney(acc.adminCharge + l.adminCharge),
-        netCommission: roundMoney(acc.netCommission + l.netCommission),
-      }),
-      { grossCommission: 0, adminCharge: 0, netCommission: 0 }
-    );
+    const totals = {
+      grossCommission: sumMoney(lines.map((l) => l.grossCommission)),
+      adminCharge: sumMoney(lines.map((l) => l.adminCharge)),
+      netCommission: sumMoney(lines.map((l) => l.netCommission)),
+    };
 
-    return { baseAmount, lines, totals };
+    return { baseAmount, adminChargeRate, lines, totals };
   },
 
   async getCommissionRatesForRank(rank: string): Promise<number[]> {
@@ -122,7 +126,7 @@ export const commissionService = {
 
   async calculateLevelCommission(
     investorUserId: string,
-    downlineProfit: number,
+    downlineInvestmentAmount: number,
     relationshipLevel: number
   ): Promise<CommissionCalculation> {
     const rankInfo = await rankProgressionService.getInvestorRank(investorUserId);
@@ -158,7 +162,7 @@ export const commissionService = {
     }
 
     const commissionRate = normalizeRate(rateRaw);
-    const baseAmount = roundMoney(downlineProfit);
+    const baseAmount = roundMoney(downlineInvestmentAmount);
     const commissionAmount = roundMoney(baseAmount * commissionRate);
     const adminCharge = roundMoney(commissionAmount * DEFAULT_ADMIN_CHARGE_RATE);
     const netCommission = roundMoney(commissionAmount - adminCharge);
@@ -180,34 +184,26 @@ export const commissionService = {
     primaryInvestment: number,
     referrals: Array<{ userId: string; investment: number; level: number }>
   ): Promise<WealthDistribution> {
-    const investorProfit = this.calculateMonthlyROI(primaryInvestment);
+    const totalInvestment = roundMoney(primaryInvestment);
+    const investorProfit = this.calculateMonthlyROI(totalInvestment);
 
     const referralCommissions: CommissionCalculation[] = [];
-
     for (const referral of referrals) {
-      const downlineProfit = this.calculateMonthlyROI(referral.investment);
       const commission = await this.calculateLevelCommission(
         primaryInvestorId,
-        downlineProfit,
+        referral.investment,
         referral.level
       );
       referralCommissions.push(commission);
     }
 
-    const totalCommissionPaid = roundMoney(
-      referralCommissions.reduce((sum, c) => sum + c.commissionAmount, 0)
-    );
+    const totalCommissionPaid = sumMoney(referralCommissions.map((c) => c.commissionAmount));
+    const adminCharges = sumMoney(referralCommissions.map((c) => c.adminCharge));
 
-    const adminCharges = roundMoney(
-      referralCommissions.reduce((sum, c) => sum + c.adminCharge, 0)
-    );
-
-    const netPayout = roundMoney(
-      investorProfit + (totalCommissionPaid - adminCharges)
-    );
+    const netPayout = roundMoney(investorProfit + (totalCommissionPaid - adminCharges));
 
     return {
-      totalInvestment: roundMoney(primaryInvestment),
+      totalInvestment,
       investorProfit,
       referralCommissions,
       totalCommissionPaid,
