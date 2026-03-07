@@ -7,13 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { 
   Shield, TrendingUp, Users, DollarSign, Award, Zap,
-  BarChart3, Lock, Globe, Key, CheckCircle, Network, ArrowUpRight, ArrowRight, ChevronRight, Activity
+  BarChart3, Lock, Globe, Key, CheckCircle, Network, ArrowUpRight, ArrowRight, ChevronRight, Activity, LogIn, UserPlus
 } from "lucide-react";
 import { useRef } from "react";
 import { useScroll, useTransform, motion } from "framer-motion";
 import { ScrollProgressIndicator } from "@/components/ScrollProgressIndicator";
 import Image from "next/image";
-import Head from 'next/head';
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -25,15 +24,15 @@ export default function Home() {
   });
 
   // Ultra-strong parallax transforms for maximum visibility (2x stronger)
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, -800]);   // 2x stronger (was -400)
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, 600]);   // 2x stronger (was 300)
-  const y3 = useTransform(scrollYProgress, [0, 1], [0, -500]);    // 2x stronger (was -250)
-  const y4 = useTransform(scrollYProgress, [0, 1], [0, 300]);    // 2x stronger (was 150)
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -800]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, 600]);
+  const y3 = useTransform(scrollYProgress, [0, 1], [0, -500]);
+  const y4 = useTransform(scrollYProgress, [0, 1], [0, 300]);
   
   // Advanced cinematic effects
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.5, 0.8, 1], [1, 0.95, 0.85, 0.7, 0.5]);
   const scale = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [1, 1.02, 0.98, 0.95]);
-  const rotate = useTransform(scrollYProgress, [0, 0.5, 1], [0, 4, -8]); // Stronger rotation
+  const rotate = useTransform(scrollYProgress, [0, 0.5, 1], [0, 4, -8]);
   const scaleHero = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
 
   const stats = [
@@ -41,13 +40,6 @@ export default function Home() {
     { label: "Contract Slots", value: "28", icon: Users },
     { label: "Monthly Return", value: "15%", icon: TrendingUp },
     { label: "Commission Rate", value: "45%", icon: Award }
-  ];
-
-  const demoRoles = [
-    { role: "Super Admin", email: "admin@sunray.eco" },
-    { role: "Finance Head", email: "finance@sunray.eco" },
-    { role: "Elite Vendor", email: "vendor@sunray.eco" },
-    { role: "Active Investor", email: "investor@sunray.eco" }
   ];
 
   return (
@@ -60,31 +52,55 @@ export default function Home() {
       <div ref={containerRef} className="relative min-h-screen bg-slate-950">
         {/* Parallax Background - Behind Everything */}
         <div className="fixed inset-0 pointer-events-none -z-[999] overflow-hidden">
-          {/* Layer 1: Copper (Ultra Fast) - 2x stronger */}
           <motion.div 
             style={{ y: y1, rotate, scale }}
             className="absolute -top-[40%] -right-[20%] w-[900px] h-[900px] rounded-full bg-orange-700/20 blur-[180px]" 
           />
-          {/* Layer 2: Bronze (Slow Reverse) - 2x stronger */}
           <motion.div 
             style={{ y: y2, opacity }}
             className="absolute top-[60%] -left-[20%] w-[800px] h-[800px] rounded-full bg-amber-600/15 blur-[160px]" 
           />
-          {/* Layer 3: Gold (Medium Fast) - 2x stronger */}
           <motion.div 
             style={{ y: y3, scale }}
             className="absolute top-[15%] right-[15%] w-[700px] h-[700px] rounded-full bg-yellow-500/10 blur-[140px]" 
           />
-          {/* Layer 4: Deep Blue (Subtle Slow) - 2x stronger */}
           <motion.div 
             style={{ y: y4, opacity }}
             className="absolute top-[70%] right-[30%] w-[600px] h-[600px] rounded-full bg-slate-500/10 blur-[120px]" 
           />
-          {/* Static Floor Glow */}
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] rounded-full bg-gradient-to-t from-orange-900/20 via-slate-800/20 to-transparent blur-[120px]" />
         </div>
 
         <ScrollProgressIndicator />
+
+        {/* Top Navigation Bar */}
+        <motion.nav
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/10"
+        >
+          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <RotatingHexLogo size={40} showTick={false} playSound={false} />
+              <span className="text-xl font-bold tracking-tight text-white">BRAVECOM</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <Link href="/auth/login">
+                <Button variant="ghost" className="text-white hover:bg-white/10">
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Login
+                </Button>
+              </Link>
+              <Link href="/auth/register">
+                <Button className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500">
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Register
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </motion.nav>
 
         {/* Hero Section */}
         <motion.div
@@ -92,12 +108,9 @@ export default function Home() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="relative z-10 text-center max-w-5xl mx-auto px-4 pt-24 pb-16"
+          className="relative z-10 text-center max-w-5xl mx-auto px-4 pt-32 pb-16"
         >
-          {/* Logo */}
-          <motion.div 
-            className="mb-8 relative z-20 flex justify-center"
-          >
+          <motion.div className="mb-8 relative z-20 flex justify-center">
             <RotatingHexLogo size={200} showTick={true} playSound={true} />
           </motion.div>
 
@@ -139,13 +152,30 @@ export default function Home() {
             </Link>
             
             <a 
-              href="https://www.bravecom.info/#transparency"
+              href="#transparency"
               className="px-8 py-4 bg-white/5 backdrop-blur-sm border border-white/10 text-white font-semibold rounded-lg hover:bg-white/10 transition-all duration-300"
             >
               View Public Ledger
             </a>
           </motion.div>
         </motion.div>
+
+        {/* Stats Section */}
+        <section className="py-16 px-4 relative z-10">
+          <div className="container mx-auto max-w-7xl">
+            <GlassmorphicCard className="p-8 border-orange-500/20">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                {stats.map((stat, i) => (
+                  <div key={i} className="text-center">
+                    <stat.icon className="w-8 h-8 mx-auto mb-3 text-orange-400" />
+                    <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
+                    <div className="text-sm text-slate-400">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </GlassmorphicCard>
+          </div>
+        </section>
 
         {/* Pre-IPO vs IPO Market Growth */}
         <section className="py-24 px-4 relative z-10 bg-slate-950/50 backdrop-blur-sm border-y border-white/5">
@@ -299,25 +329,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Stats Section */}
-        <section className="py-16 px-4 relative z-10">
-          <div className="container mx-auto max-w-7xl">
-            <GlassmorphicCard className="p-8 border-orange-500/20">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                {stats.map((stat, i) => (
-                  <div key={i} className="text-center">
-                    <stat.icon className="w-8 h-8 mx-auto mb-3 text-orange-400" />
-                    <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
-                    <div className="text-sm text-slate-400">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </GlassmorphicCard>
-          </div>
-        </section>
-
-        {/* Public Ledger - MAXIMUM VISIBILITY */}
-        <div className="relative z-[999] bg-slate-950 py-20">
+        {/* Public Ledger Section with Anchor */}
+        <div id="transparency" className="relative z-[999] bg-slate-950 py-20">
           <PublicLedger />
         </div>
 
@@ -333,18 +346,18 @@ export default function Home() {
                 Only 28 institutional-grade slots available for retail participation.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/auth/register?role=investor">
+                <Link href="/auth/register">
                   <Button size="lg" className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white text-lg px-8 py-6 rounded-xl shadow-[0_0_30px_rgba(249,115,22,0.3)]">
                     <TrendingUp className="mr-2 h-5 w-5" />
                     Enter Ecosystem
                   </Button>
                 </Link>
-                <Link href="https://www.bravecom.info/#transparency">
+                <a href="#transparency">
                   <Button size="lg" variant="outline" className="border-2 border-white/20 backdrop-blur-xl bg-white/5 hover:bg-white/10 text-white text-lg px-8 py-6 rounded-xl">
                     <Globe className="mr-2 h-5 w-5" />
                     View Live Ledger
                   </Button>
-                </Link>
+                </a>
               </div>
             </GlassmorphicCard>
           </div>

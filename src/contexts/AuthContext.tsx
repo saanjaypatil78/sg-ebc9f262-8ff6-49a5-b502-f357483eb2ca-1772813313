@@ -1,37 +1,32 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { useRouter } from "next/router";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { authService } from "@/services/authService";
-import { UserRole, UserSession } from "@/lib/rbac/rbac-system";
+import type { User } from "@/integrations/supabase/types";
 
 interface AuthContextType {
-  user: UserSession | null;
+  user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, fullName: string, role?: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
-  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<UserSession | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
-  // Load user on mount
   useEffect(() => {
     loadUser();
   }, []);
 
   async function loadUser() {
     try {
-      const sessionUser = authService.getSession();
+      const sessionUser = authService.getCurrentUser();
       if (sessionUser) {
         setUser(sessionUser);
       }
     } catch (error) {
-      console.error("Error loading user:", error);
+      console.error("Failed to load user:", error);
       setUser(null);
     } finally {
       setLoading(false);
@@ -39,69 +34,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function login(email: string, password: string) {
-    try {
-      const { success, user: sessionUser, error } = await authService.login(email, password);
-      if (success && sessionUser) {
-        setUser(sessionUser);
-      } else if (error) {
-        throw new Error(error);
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      throw error;
-    }
-  }
-
-  async function register(email: string, password: string, fullName: string, role: string = UserRole.CLIENT) {
-    try {
-      const result = await authService.register({ 
-        email, 
-        password, 
-        full_name: fullName, 
-        role: role as UserRole 
-      });
-      
-      if (!result.success) {
-        throw new Error(result.error || "Registration failed");
-      }
-      
-      // Attempt login after registration
-      await login(email, password);
-      
-      // Redirect to appropriate dashboard
-      const roleRoutes: Record<string, string> = {
-        [UserRole.CLIENT]: "/dashboard/client",
-        [UserRole.VENDOR]: "/dashboard/vendor",
-        [UserRole.ADMIN]: "/dashboard/admin",
-        [UserRole.SUPER_ADMIN]: "/dashboard/admin",
-        [UserRole.FINANCE]: "/dashboard/admin",
-        [UserRole.COMPLIANCE]: "/dashboard/admin",
-        [UserRole.BDM]: "/dashboard/bdm",
-        [UserRole.INVESTOR]: "/dashboard/investor"
-      };
-      
-      router.push(roleRoutes[role] || "/dashboard/client");
-    } catch (error) {
-      throw error;
-    }
+    const result = await authService.login(email, password);
+    if (!result.user) throw new Error("Login failed");
+    setUser(result.user);
+    return result.user;
   }
 
   async function logout() {
-    try {
-      await authService.logout();
-      setUser(null);
-      router.push("/auth/login");
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async function refreshUser() {
-    await loadUser();
+    await authService.logout();
+    setUser(null);
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -109,8 +54,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 }
