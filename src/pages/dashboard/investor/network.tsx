@@ -85,7 +85,7 @@ export default function InvestorNetworkPage() {
   );
 
   const isCurrentUser = (member: InvestorNetworkMember) => {
-    return currentUser?.id === member.id;
+    return currentUser?.user_id === member.user_id;
   };
 
   if (loading) {
@@ -103,11 +103,11 @@ export default function InvestorNetworkPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Investor Network</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Investor Network & Ledger</h1>
           <p className="text-slate-400">
             {currentUser?.is_team_leader
               ? "View all investors in your referral network"
-              : `View Level ${currentUser?.investor_level} investor network`}
+              : `View Level ${currentUser?.investor_level} investor network & payout history`}
           </p>
         </div>
 
@@ -210,7 +210,7 @@ export default function InvestorNetworkPage() {
 
                   return (
                     <motion.tr
-                      key={member.id}
+                      key={member.user_id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
@@ -336,7 +336,7 @@ export default function InvestorNetworkPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {payoutHistory.map((payout, index) => (
+                    {payoutHistory.map((payout) => (
                       <TableRow key={payout.id} className="border-slate-700">
                         <TableCell className="text-white font-medium">
                           {payout.month_year}
@@ -352,7 +352,7 @@ export default function InvestorNetworkPage() {
                         </TableCell>
                         <TableCell>
                           <Badge className={`${
-                            payout.status === 'completed' ? 'bg-green-500' : 
+                            payout.status === 'processed' ? 'bg-green-500' : 
                             payout.status === 'pending' ? 'bg-orange-500' : 'bg-red-500'
                           } text-white`}>
                             {payout.status}

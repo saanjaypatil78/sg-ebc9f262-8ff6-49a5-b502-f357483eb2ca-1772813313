@@ -1,5 +1,4 @@
 import { SEO } from "@/components/SEO";
-import { PublicLedger } from "@/components/PublicLedger";
 import { Hero3DParallax } from "@/components/Hero3DParallax";
 import { ScrollProgressIndicator } from "@/components/ScrollProgressIndicator";
 import Link from "next/link";
@@ -163,10 +162,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Public Ledger Section */}
-        <section id="transparency" className="relative py-24 bg-slate-900/30">
-          <PublicLedger />
-        </section>
+        {/* REMOVED: Public Ledger Section - Now in role-based dashboards */}
 
         {/* Final CTA Section */}
         <section className="relative py-32 overflow-hidden">

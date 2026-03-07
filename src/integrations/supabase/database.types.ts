@@ -474,6 +474,57 @@ export type Database = {
           },
         ]
       }
+      investor_network: {
+        Row: {
+          created_at: string | null
+          currency: string
+          email: string
+          full_name: string
+          id: string
+          investment_amount: number
+          investor_level: number
+          is_team_leader: boolean | null
+          location: string
+          referral_code: string
+          referred_by: string | null
+          total_payout: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: string
+          email: string
+          full_name: string
+          id?: string
+          investment_amount?: number
+          investor_level?: number
+          is_team_leader?: boolean | null
+          location: string
+          referral_code: string
+          referred_by?: string | null
+          total_payout?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string
+          email?: string
+          full_name?: string
+          id?: string
+          investment_amount?: number
+          investor_level?: number
+          is_team_leader?: boolean | null
+          location?: string
+          referral_code?: string
+          referred_by?: string | null
+          total_payout?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       kyc_documents: {
         Row: {
           created_at: string | null
@@ -838,8 +889,10 @@ export type Database = {
         Row: {
           amount: number
           created_at: string | null
+          currency: string | null
           id: string
           investment_id: string | null
+          month_year: string | null
           payout_date: string
           payout_type: string | null
           processed_at: string | null
@@ -850,8 +903,10 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string | null
+          currency?: string | null
           id?: string
           investment_id?: string | null
+          month_year?: string | null
           payout_date: string
           payout_type?: string | null
           processed_at?: string | null
@@ -862,8 +917,10 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string | null
+          currency?: string | null
           id?: string
           investment_id?: string | null
+          month_year?: string | null
           payout_date?: string
           payout_type?: string | null
           processed_at?: string | null
