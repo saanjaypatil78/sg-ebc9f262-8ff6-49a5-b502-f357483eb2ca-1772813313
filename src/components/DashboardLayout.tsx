@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { DashboardCharts } from "@/components/DashboardCharts";
+import { MobileMenu } from "@/components/MobileMenu";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import { Button } from "@/components/ui/button";
 
 export type DashboardRole = "investor" | "vendor" | "admin" | "bdm" | "client" | "franchise_partner";
@@ -76,18 +78,21 @@ export function DashboardLayout({ children, showCharts = false, role = "investor
       <nav className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
-              <span className="font-bold text-white text-xl leading-none">B</span>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                <span className="font-bold text-white text-xl leading-none">B</span>
+              </div>
+              <span className="font-bold text-xl tracking-tight text-white hidden sm:inline">Brave Ecom</span>
             </div>
-            <span className="font-bold text-xl tracking-tight text-white">Brave Ecom</span>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
+              <NotificationCenter />
               <ThemeToggle />
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setProfileEditorOpen(true)}
-                className="border-slate-700 bg-slate-800/50 hover:bg-slate-800"
+                className="hidden md:flex border-slate-700 bg-slate-800/50 hover:bg-slate-800"
               >
                 <Edit className="w-4 h-4 mr-2" />
                 Edit Profile
@@ -96,11 +101,12 @@ export function DashboardLayout({ children, showCharts = false, role = "investor
                 variant="outline"
                 size="sm"
                 onClick={handleLogout}
-                className="border-slate-700 bg-slate-800/50 hover:bg-slate-800"
+                className="hidden md:flex border-slate-700 bg-slate-800/50 hover:bg-slate-800"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
               </Button>
+              <MobileMenu />
             </div>
           </div>
         </div>

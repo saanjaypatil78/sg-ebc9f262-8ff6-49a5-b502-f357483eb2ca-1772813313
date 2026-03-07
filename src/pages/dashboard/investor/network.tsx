@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { ExportTools } from "@/components/ExportTools";
+import { DashboardWidgets } from "@/components/DashboardWidgets";
 import {
   Dialog,
   DialogContent,
@@ -102,14 +104,20 @@ export default function InvestorNetworkPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Investor Network & Ledger</h1>
-          <p className="text-slate-400">
-            {currentUser?.is_team_leader
-              ? "View all investors in your referral network"
-              : `View Level ${currentUser?.investor_level} investor network & payout history`}
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">Investor Network & Ledger</h1>
+            <p className="text-slate-400">
+              {currentUser?.is_team_leader
+                ? "View all investors in your referral network"
+                : `View Level ${currentUser?.investor_level} investor network & payout history`}
+            </p>
+          </div>
+          <ExportTools data={filteredMembers} filename="investor-network" />
         </div>
+
+        {/* Dashboard Widgets */}
+        <DashboardWidgets />
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
