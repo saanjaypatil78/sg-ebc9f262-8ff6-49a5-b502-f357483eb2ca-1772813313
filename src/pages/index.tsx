@@ -2,45 +2,32 @@ import { SEO } from "@/components/SEO";
 import { PublicLedger } from "@/components/PublicLedger";
 import { GlassmorphicCard } from "@/components/GlassmorphicCard";
 import { RotatingHexLogo } from "@/components/RotatingHexLogo";
+import { ParallaxHero } from "@/components/ParallaxHero";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { 
   Shield, TrendingUp, Users, DollarSign, Award, Zap,
-  BarChart3, Lock, Globe, Key, CheckCircle, Network, ArrowUpRight, ArrowRight, ChevronRight, Activity, LogIn, UserPlus
+  BarChart3, Lock, Globe, Key, CheckCircle, Network, ArrowRight, Activity, LogIn, UserPlus
 } from "lucide-react";
-import { useRef } from "react";
-import { useScroll, useTransform, motion } from "framer-motion";
 import { ScrollProgressIndicator } from "@/components/ScrollProgressIndicator";
 import Image from "next/image";
 
 export default function Home() {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // ULTRA-ENHANCED parallax scroll effects - MAXIMUM INTENSITY (2x stronger)
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"]
-  });
-
-  // Ultra-strong parallax transforms for maximum visibility (2x stronger)
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, -800]);
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, 600]);
-  const y3 = useTransform(scrollYProgress, [0, 1], [0, -500]);
-  const y4 = useTransform(scrollYProgress, [0, 1], [0, 300]);
-  
-  // Advanced cinematic effects
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.5, 0.8, 1], [1, 0.95, 0.85, 0.7, 0.5]);
-  const scale = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [1, 1.02, 0.98, 0.95]);
-  const rotate = useTransform(scrollYProgress, [0, 0.5, 1], [0, 4, -8]);
-  const scaleHero = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
-
   const stats = [
     { label: "Total Corpus", value: "₹12 Cr", icon: BarChart3 },
     { label: "Contract Slots", value: "28", icon: Users },
     { label: "Monthly Return", value: "15%", icon: TrendingUp },
     { label: "Commission Rate", value: "45%", icon: Award }
   ];
+
+  const scrollToLedger = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const element = document.getElementById('transparency');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <>
@@ -49,37 +36,11 @@ export default function Home() {
         description="Join the exclusive ₹12 Crore investment opportunity. 15% monthly returns with full transparency. Only 28 slots available."
       />
       
-      <div ref={containerRef} className="relative min-h-screen bg-slate-950">
-        {/* Parallax Background - Behind Everything */}
-        <div className="fixed inset-0 pointer-events-none -z-[999] overflow-hidden">
-          <motion.div 
-            style={{ y: y1, rotate, scale }}
-            className="absolute -top-[40%] -right-[20%] w-[900px] h-[900px] rounded-full bg-orange-700/20 blur-[180px]" 
-          />
-          <motion.div 
-            style={{ y: y2, opacity }}
-            className="absolute top-[60%] -left-[20%] w-[800px] h-[800px] rounded-full bg-amber-600/15 blur-[160px]" 
-          />
-          <motion.div 
-            style={{ y: y3, scale }}
-            className="absolute top-[15%] right-[15%] w-[700px] h-[700px] rounded-full bg-yellow-500/10 blur-[140px]" 
-          />
-          <motion.div 
-            style={{ y: y4, opacity }}
-            className="absolute top-[70%] right-[30%] w-[600px] h-[600px] rounded-full bg-slate-500/10 blur-[120px]" 
-          />
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] rounded-full bg-gradient-to-t from-orange-900/20 via-slate-800/20 to-transparent blur-[120px]" />
-        </div>
-
+      <div className="relative bg-slate-950">
         <ScrollProgressIndicator />
 
         {/* Top Navigation Bar */}
-        <motion.nav
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6 }}
-          className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/10"
-        >
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <RotatingHexLogo size={40} showTick={false} playSound={false} />
@@ -100,65 +61,46 @@ export default function Home() {
               </Link>
             </div>
           </div>
-        </motion.nav>
+        </nav>
 
-        {/* Hero Section */}
-        <motion.div
-          style={{ scale: scaleHero, opacity: opacity }}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-10 text-center max-w-5xl mx-auto px-4 pt-32 pb-16"
-        >
-          <motion.div className="mb-8 relative z-20 flex justify-center">
-            <RotatingHexLogo size={200} showTick={true} playSound={true} />
-          </motion.div>
+        {/* Hero Section with Advanced Parallax */}
+        <ParallaxHero height="min-h-screen" intensity={1.5}>
+          <div className="relative z-10 text-center max-w-5xl mx-auto px-4 pt-32 pb-16">
+            <div className="mb-8 relative z-20 flex justify-center">
+              <RotatingHexLogo size={200} showTick={true} playSound={true} />
+            </div>
 
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="text-4xl md:text-6xl font-bold mb-6 leading-tight text-white"
-          >
-            The Future of Frictionless <br/>
-            <span className="text-orange-500">Dropshipping.</span>
-          </motion.h2>
+            <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight text-white">
+              The Future of Frictionless <br/>
+              <span className="text-orange-500">Dropshipping.</span>
+            </h2>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="text-slate-300 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed"
-          >
-            Join 1,200+ investors earning guaranteed 15% monthly returns through our transparent, 
-            blockchain-verified investment ecosystem. Every transaction publicly auditable.
-          </motion.p>
+            <p className="text-slate-300 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
+              Join 184 investors earning guaranteed 15% monthly returns through our transparent, 
+              blockchain-verified investment ecosystem. Every transaction publicly auditable.
+            </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
-          >
-            <Link 
-              href="/invest"
-              className="group relative px-8 py-4 bg-gradient-to-r from-orange-600 to-yellow-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                Start Investing Today
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity -z-10" />
-            </Link>
-            
-            <a 
-              href="#transparency"
-              className="px-8 py-4 bg-white/5 backdrop-blur-sm border border-white/10 text-white font-semibold rounded-lg hover:bg-white/10 transition-all duration-300"
-            >
-              View Public Ledger
-            </a>
-          </motion.div>
-        </motion.div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+              <Link href="/invest">
+                <Button size="lg" className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white text-lg px-8 py-6 rounded-xl shadow-[0_0_30px_rgba(249,115,22,0.3)]">
+                  <TrendingUp className="mr-2 h-5 w-5" />
+                  Start Investing Today
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-2 border-white/20 backdrop-blur-sm bg-white/5 hover:bg-white/10 text-white text-lg px-8 py-6 rounded-xl"
+                onClick={scrollToLedger}
+              >
+                <Globe className="mr-2 h-5 w-5" />
+                View Public Ledger
+              </Button>
+            </div>
+          </div>
+        </ParallaxHero>
 
         {/* Stats Section */}
         <section className="py-16 px-4 relative z-10">
@@ -262,13 +204,7 @@ export default function Home() {
               </p>
             </div>
             
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="relative rounded-2xl overflow-hidden bg-white/5 border border-white/10 p-4 md:p-8 backdrop-blur-sm"
-            >
+            <div className="relative rounded-2xl overflow-hidden bg-white/5 border border-white/10 p-4 md:p-8 backdrop-blur-sm">
               <Image 
                 src="/global-reach-map.png" 
                 alt="Global Dropshipping Reach" 
@@ -276,7 +212,7 @@ export default function Home() {
                 height={600} 
                 className="w-full h-auto object-cover rounded-xl"
               />
-            </motion.div>
+            </div>
           </div>
         </section>
 
@@ -352,12 +288,15 @@ export default function Home() {
                     Enter Ecosystem
                   </Button>
                 </Link>
-                <a href="#transparency">
-                  <Button size="lg" variant="outline" className="border-2 border-white/20 backdrop-blur-xl bg-white/5 hover:bg-white/10 text-white text-lg px-8 py-6 rounded-xl">
-                    <Globe className="mr-2 h-5 w-5" />
-                    View Live Ledger
-                  </Button>
-                </a>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="border-2 border-white/20 backdrop-blur-xl bg-white/5 hover:bg-white/10 text-white text-lg px-8 py-6 rounded-xl"
+                  onClick={scrollToLedger}
+                >
+                  <Globe className="mr-2 h-5 w-5" />
+                  View Live Ledger
+                </Button>
               </div>
             </GlassmorphicCard>
           </div>
