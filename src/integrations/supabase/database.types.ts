@@ -199,6 +199,48 @@ export type Database = {
         }
         Relationships: []
       }
+      commission_rates: {
+        Row: {
+          business_target: number
+          created_at: string | null
+          id: string
+          level_1_rate: number
+          level_2_rate: number
+          level_3_rate: number
+          level_4_rate: number
+          level_5_rate: number
+          level_6_rate: number
+          rank: string
+          royalty_addon: number
+        }
+        Insert: {
+          business_target: number
+          created_at?: string | null
+          id?: string
+          level_1_rate: number
+          level_2_rate: number
+          level_3_rate: number
+          level_4_rate: number
+          level_5_rate: number
+          level_6_rate: number
+          rank: string
+          royalty_addon: number
+        }
+        Update: {
+          business_target?: number
+          created_at?: string | null
+          id?: string
+          level_1_rate?: number
+          level_2_rate?: number
+          level_3_rate?: number
+          level_4_rate?: number
+          level_5_rate?: number
+          level_6_rate?: number
+          rank?: string
+          royalty_addon?: number
+        }
+        Relationships: []
+      }
       daily_payout_accumulation: {
         Row: {
           accumulated_items: Json | null
@@ -520,6 +562,42 @@ export type Database = {
           referral_code?: string
           referred_by?: string | null
           total_payout?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      investor_ranks: {
+        Row: {
+          created_at: string | null
+          current_rank: string
+          id: string
+          previous_rank: string | null
+          rank_achieved_at: string | null
+          rank_upgraded_at: string | null
+          total_business_volume: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_rank?: string
+          id?: string
+          previous_rank?: string | null
+          rank_achieved_at?: string | null
+          rank_upgraded_at?: string | null
+          total_business_volume?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_rank?: string
+          id?: string
+          previous_rank?: string | null
+          rank_achieved_at?: string | null
+          rank_upgraded_at?: string | null
+          total_business_volume?: number | null
           updated_at?: string | null
           user_id?: string
         }
@@ -2029,6 +2107,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      auto_upgrade_rank: { Args: { investor_user_id: string }; Returns: string }
+      calculate_commission_with_rank: {
+        Args: {
+          downline_profit: number
+          investor_user_id: string
+          relationship_level: number
+        }
+        Returns: number
+      }
+      calculate_total_business_volume: {
+        Args: { investor_user_id: string }
+        Returns: number
+      }
       check_passive_timer_expiry: { Args: never; Returns: undefined }
       cleanup_expired_sessions: { Args: never; Returns: undefined }
       get_user_abac_attributes: {

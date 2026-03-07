@@ -80,9 +80,11 @@ export function DashboardLayout({ children, showCharts = false, role = "investor
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
-                <span className="font-bold text-white text-xl leading-none">B</span>
-              </div>
+              <img 
+                src="/bravecom-logo-hex.png" 
+                alt="Brave Ecom Logo" 
+                className="w-8 h-8 object-contain"
+              />
               <span className="font-bold text-xl tracking-tight text-white hidden sm:inline">Brave Ecom</span>
             </div>
             

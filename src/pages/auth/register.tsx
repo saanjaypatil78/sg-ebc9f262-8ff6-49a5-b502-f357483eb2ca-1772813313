@@ -228,20 +228,24 @@ export default function RegisterPage() {
                     </div>
                   </motion.div>
 
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.7 }}
-                  >
-                    <Label className="text-slate-300">Referral Code (Optional)</Label>
+                  {/* Referral Code - MANDATORY */}
+                  <div className="space-y-2">
+                    <Label htmlFor="referralCode" className="text-sm font-medium">
+                      Referral Code <span className="text-red-500">*</span>
+                    </Label>
                     <Input
+                      id="referralCode"
                       type="text"
+                      placeholder="Enter referral code"
                       value={formData.referralCode}
                       onChange={(e) => setFormData({ ...formData, referralCode: e.target.value })}
-                      className="mt-2 bg-white/5 border-white/10 text-white"
-                      placeholder="Enter referral code"
+                      className="bg-slate-900/50 border-slate-700 text-white"
+                      required
                     />
-                  </motion.div>
+                    <p className="text-xs text-slate-400">
+                      Referral code is required to join Brave Ecom
+                    </p>
+                  </div>
 
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}

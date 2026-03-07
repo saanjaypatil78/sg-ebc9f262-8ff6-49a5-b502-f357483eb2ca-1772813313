@@ -1,28 +1,29 @@
-import { useState, useEffect } from "react";
+import { SEO } from "@/components/SEO";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { 
-  TrendingUp, ArrowUpRight, DollarSign, Calendar, 
-  PieChart, Download, AlertCircle, Shield, Smartphone,
-  CheckCircle2
-} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import Link from "next/link";
+import { RankProgressCard } from "@/components/RankProgressCard";
 
 export default function InvestorDashboardPage() {
+  const { user } = useAuth();
+
   return (
-    <DashboardLayout showCharts={true} role="investor">
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Investor Dashboard</h1>
-          <p className="text-slate-400">
-            Welcome back! Here's your investment overview.
-          </p>
+    <>
+      <SEO title="Investor Dashboard - Brave Ecom" />
+      <DashboardLayout role="investor" showCharts={true}>
+        <div className="space-y-8">
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-2">Welcome back!</h2>
+            <p className="text-slate-400">
+              Track your investments, earnings, and network growth
+            </p>
+          </div>
+
+          {/* Rank Progress Card */}
+          {user && <RankProgressCard userId={user.id} />}
+
+          {/* Rest of dashboard content */}
         </div>
-      </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </>
   );
 }

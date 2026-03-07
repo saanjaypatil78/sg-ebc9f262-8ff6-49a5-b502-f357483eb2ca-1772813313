@@ -13,9 +13,18 @@ import {
   Zap,
   Globe,
   BarChart3,
+  ArrowRight,
+  Eye,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
+  const router = useRouter();
+
+  const handleViewLedger = () => {
+    router.push('/auth/login');
+  };
+
   return (
     <>
       <SEO
