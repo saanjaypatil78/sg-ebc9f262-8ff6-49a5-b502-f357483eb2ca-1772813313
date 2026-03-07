@@ -1,22 +1,33 @@
-import { SEO } from "@/components/SEO";
+import { useAuth } from "@/contexts/AuthContext";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { DashboardFilters, FilterState } from "@/components/DashboardFilters";
-import { DashboardWidgets } from "@/components/DashboardWidgets";
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
-import { CommissionReports } from "@/components/CommissionReports";
+import { SystemHealthWidget } from "@/components/SystemHealthWidget";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
-export default function AdminDashboardPage() {
+export default function AdminDashboard() {
+  const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/auth/login");
+    }
+  }, [user, router]);
+
+  if (!user) return null;
+
   return (
-    <DashboardLayout showCharts={true} role="admin">
-      <div className="space-y-6">
+    <DashboardLayout>
+      <div className="p-6 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Admin Dashboard</h1>
-          <p className="text-slate-400">
-            Manage the entire platform ecosystem.
-          </p>
+          <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+          <p className="text-slate-400">System monitoring and management</p>
         </div>
+
+        {/* System Health Monitor */}
+        <SystemHealthWidget />
+
+        {/* Other dashboard widgets can go here */}
       </div>
     </DashboardLayout>
   );

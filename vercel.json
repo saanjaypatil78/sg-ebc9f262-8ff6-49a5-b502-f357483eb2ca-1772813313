@@ -1,23 +1,8 @@
 {
-  "framework": "nextjs",
-  "redirects": [
+  "crons": [
     {
-      "source": "/old-path",
-      "destination": "/new-path",
-      "permanent": true
+      "path": "/api/monitoring/health-check",
+      "schedule": "0 * * * *"
     }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        }
-      ]
-    }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  ]
 }
