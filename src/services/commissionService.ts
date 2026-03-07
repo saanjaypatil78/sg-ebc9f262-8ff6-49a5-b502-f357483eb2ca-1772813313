@@ -7,83 +7,183 @@ export interface CommissionCalculation {
   baseAmount: number;
   commissionRate: number;
   commissionAmount: number;
+  adminCharge: number;
+  netCommission: number;
   rank: string;
 }
 
 export interface WealthDistribution {
   totalInvestment: number;
-  investorProfit: number; // 15% monthly
+  investorProfit: number;
   referralCommissions: CommissionCalculation[];
   totalCommissionPaid: number;
-  adminCharges: number; // 10% of commission
+  adminCharges: number;
   netPayout: number;
 }
 
+export interface CommissionPreviewLine {
+  level: number;
+  ratePercent: number;
+  grossCommission: number;
+  adminCharge: number;
+  netCommission: number;
+}
+
+function roundMoney(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function normalizeRate(rate: number): number {
+  if (!Number.isFinite(rate) || rate <= 0) return 0;
+  return rate > 1 ? rate / 100 : rate;
+}
+
+function toPercent(rate: number): number {
+  return roundMoney(normalizeRate(rate) * 100);
+}
+
+const DEFAULT_LEVEL_RATES = [0.2, 0.1, 0.07, 0.05, 0.02, 0.01] as const;
+const DEFAULT_ADMIN_CHARGE_RATE = 0.1;
+
 export const commissionService = {
-  /**
-   * Calculate 15% monthly ROI for investor
-   */
   calculateMonthlyROI(investmentAmount: number): number {
-    return investmentAmount * 0.15;
+    return roundMoney(investmentAmount * 0.15);
   },
 
-  /**
-   * Calculate commission for a specific level based on downline's profit
-   * Commission is calculated on the PROFIT (15% of investment), not the principal
-   */
+  calculateCommissionPreview(params: {
+    baseAmount: number;
+    levelRates?: number[];
+    adminChargeRate?: number;
+  }): {
+    baseAmount: number;
+    lines: CommissionPreviewLine[];
+    totals: {
+      grossCommission: number;
+      adminCharge: number;
+      netCommission: number;
+    };
+  } {
+    const baseAmount = roundMoney(params.baseAmount);
+    const levelRates = (params.levelRates?.length ? params.levelRates : [...DEFAULT_LEVEL_RATES]).slice(0, 6);
+    const adminChargeRate = normalizeRate(params.adminChargeRate ?? DEFAULT_ADMIN_CHARGE_RATE);
+
+    const lines: CommissionPreviewLine[] = levelRates.map((rateRaw, idx) => {
+      const rate = normalizeRate(rateRaw);
+      const grossCommission = roundMoney(baseAmount * rate);
+      const adminCharge = roundMoney(grossCommission * adminChargeRate);
+      const netCommission = roundMoney(grossCommission - adminCharge);
+
+      return {
+        level: idx + 1,
+        ratePercent: toPercent(rate),
+        grossCommission,
+        adminCharge,
+        netCommission,
+      };
+    });
+
+    const totals = lines.reduce(
+      (acc, l) => ({
+        grossCommission: roundMoney(acc.grossCommission + l.grossCommission),
+        adminCharge: roundMoney(acc.adminCharge + l.adminCharge),
+        netCommission: roundMoney(acc.netCommission + l.netCommission),
+      }),
+      { grossCommission: 0, adminCharge: 0, netCommission: 0 }
+    );
+
+    return { baseAmount, lines, totals };
+  },
+
+  async getCommissionRatesForRank(rank: string): Promise<number[]> {
+    const safeRank = String(rank || "").trim().toUpperCase();
+    if (!safeRank) return [...DEFAULT_LEVEL_RATES];
+
+    const { data, error } = await supabase
+      .from("commission_rates")
+      .select("level_1_rate, level_2_rate, level_3_rate, level_4_rate, level_5_rate, level_6_rate")
+      .eq("rank", safeRank)
+      .maybeSingle();
+
+    if (error || !data) return [...DEFAULT_LEVEL_RATES];
+
+    const rates = [
+      parseFloat(String((data as any).level_1_rate ?? 0)),
+      parseFloat(String((data as any).level_2_rate ?? 0)),
+      parseFloat(String((data as any).level_3_rate ?? 0)),
+      parseFloat(String((data as any).level_4_rate ?? 0)),
+      parseFloat(String((data as any).level_5_rate ?? 0)),
+      parseFloat(String((data as any).level_6_rate ?? 0)),
+    ].map((r) => normalizeRate(r));
+
+    const hasAny = rates.some((r) => r > 0);
+    return hasAny ? rates : [...DEFAULT_LEVEL_RATES];
+  },
+
   async calculateLevelCommission(
     investorUserId: string,
     downlineProfit: number,
     relationshipLevel: number
   ): Promise<CommissionCalculation> {
-    // Get investor's current rank
     const rankInfo = await rankProgressionService.getInvestorRank(investorUserId);
     const allRanks = await rankProgressionService.getAllRanks();
-    const currentRankData = allRanks.find(r => r.rank === rankInfo.currentRank);
+    const currentRankData = allRanks.find((r) => r.rank === rankInfo.currentRank);
 
     if (!currentRankData) {
       throw new Error(`Rank data not found for ${rankInfo.currentRank}`);
     }
 
-    // Get commission rate based on level
-    let commissionRate = 0;
+    let rateRaw = 0;
     switch (relationshipLevel) {
-      case 1: commissionRate = currentRankData.level1Rate; break;
-      case 2: commissionRate = currentRankData.level2Rate; break;
-      case 3: commissionRate = currentRankData.level3Rate; break;
-      case 4: commissionRate = currentRankData.level4Rate; break;
-      case 5: commissionRate = currentRankData.level5Rate; break;
-      case 6: commissionRate = currentRankData.level6Rate; break;
-      default: commissionRate = 0;
+      case 1:
+        rateRaw = currentRankData.level1Rate;
+        break;
+      case 2:
+        rateRaw = currentRankData.level2Rate;
+        break;
+      case 3:
+        rateRaw = currentRankData.level3Rate;
+        break;
+      case 4:
+        rateRaw = currentRankData.level4Rate;
+        break;
+      case 5:
+        rateRaw = currentRankData.level5Rate;
+        break;
+      case 6:
+        rateRaw = currentRankData.level6Rate;
+        break;
+      default:
+        rateRaw = 0;
     }
 
-    const commissionAmount = downlineProfit * commissionRate;
+    const commissionRate = normalizeRate(rateRaw);
+    const baseAmount = roundMoney(downlineProfit);
+    const commissionAmount = roundMoney(baseAmount * commissionRate);
+    const adminCharge = roundMoney(commissionAmount * DEFAULT_ADMIN_CHARGE_RATE);
+    const netCommission = roundMoney(commissionAmount - adminCharge);
 
     return {
       investorId: investorUserId,
       level: relationshipLevel,
-      baseAmount: downlineProfit,
+      baseAmount,
       commissionRate,
       commissionAmount,
+      adminCharge,
+      netCommission,
       rank: rankInfo.currentRank,
     };
   },
 
-  /**
-   * Calculate complete wealth distribution for an investment scenario
-   * Example: Mr. A invests ₹1L and refers 5 clients with ₹45L total
-   */
   async calculateWealthDistribution(
     primaryInvestorId: string,
     primaryInvestment: number,
     referrals: Array<{ userId: string; investment: number; level: number }>
   ): Promise<WealthDistribution> {
-    // 1. Calculate investor's own profit (15% monthly)
     const investorProfit = this.calculateMonthlyROI(primaryInvestment);
 
-    // 2. Calculate referral commissions
     const referralCommissions: CommissionCalculation[] = [];
-    
+
     for (const referral of referrals) {
       const downlineProfit = this.calculateMonthlyROI(referral.investment);
       const commission = await this.calculateLevelCommission(
@@ -94,20 +194,20 @@ export const commissionService = {
       referralCommissions.push(commission);
     }
 
-    // 3. Calculate totals
-    const totalCommissionPaid = referralCommissions.reduce(
-      (sum, c) => sum + c.commissionAmount,
-      0
+    const totalCommissionPaid = roundMoney(
+      referralCommissions.reduce((sum, c) => sum + c.commissionAmount, 0)
     );
 
-    // 4. Admin charges (10% of commission only)
-    const adminCharges = totalCommissionPaid * 0.10;
+    const adminCharges = roundMoney(
+      referralCommissions.reduce((sum, c) => sum + c.adminCharge, 0)
+    );
 
-    // 5. Net payout to investor
-    const netPayout = investorProfit + totalCommissionPaid - adminCharges;
+    const netPayout = roundMoney(
+      investorProfit + (totalCommissionPaid - adminCharges)
+    );
 
     return {
-      totalInvestment: primaryInvestment,
+      totalInvestment: roundMoney(primaryInvestment),
       investorProfit,
       referralCommissions,
       totalCommissionPaid,
@@ -116,41 +216,27 @@ export const commissionService = {
     };
   },
 
-  /**
-   * Auto-upgrade rank when business volume threshold is reached
-   */
   async checkAndUpgradeRank(investorUserId: string): Promise<boolean> {
-    const { data, error } = await supabase.rpc('auto_upgrade_rank', {
+    const { data, error } = await supabase.rpc("auto_upgrade_rank", {
       investor_user_id: investorUserId,
     });
 
     if (error) {
-      console.error('Rank upgrade error:', error);
+      console.error("Rank upgrade error:", error);
       return false;
     }
 
-    return data; // Returns true if rank was upgraded
+    return Boolean(data);
   },
 
-  /**
-   * Format currency for display
-   */
   formatCurrency(amount: number): string {
-    if (amount >= 10000000) {
-      return `₹${(amount / 10000000).toFixed(2)} Cr`;
-    }
-    if (amount >= 100000) {
-      return `₹${(amount / 100000).toFixed(2)} L`;
-    }
-    if (amount >= 1000) {
-      return `₹${(amount / 1000).toFixed(2)} K`;
-    }
-    return `₹${amount.toLocaleString('en-IN')}`;
+    const safe = Number.isFinite(amount) ? amount : 0;
+    if (safe >= 10000000) return `₹${(safe / 10000000).toFixed(2)} Cr`;
+    if (safe >= 100000) return `₹${(safe / 100000).toFixed(2)} L`;
+    if (safe >= 1000) return `₹${(safe / 1000).toFixed(2)} K`;
+    return `₹${safe.toLocaleString("en-IN")}`;
   },
 
-  /**
-   * Get commission breakdown for display
-   */
   getCommissionBreakdown(calculation: WealthDistribution): Array<{
     label: string;
     amount: number;
@@ -158,21 +244,21 @@ export const commissionService = {
   }> {
     return [
       {
-        label: 'Personal Investment ROI (15%)',
+        label: "Personal Investment ROI (15%)",
         amount: calculation.investorProfit,
         percentage: 15,
       },
       {
-        label: 'Referral Commissions',
+        label: "Referral Commissions (Gross)",
         amount: calculation.totalCommissionPaid,
       },
       {
-        label: 'Admin Charges (10% of commission)',
+        label: "Admin Charges (10% of commission)",
         amount: -calculation.adminCharges,
         percentage: -10,
       },
       {
-        label: 'Net Monthly Payout',
+        label: "Net Monthly Payout",
         amount: calculation.netPayout,
       },
     ];

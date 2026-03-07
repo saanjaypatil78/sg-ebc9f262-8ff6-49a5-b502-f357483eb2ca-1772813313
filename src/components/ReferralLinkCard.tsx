@@ -1,19 +1,68 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { referralService } from "@/services/referralService";
-import { Copy, Check, Share2 } from "lucide-react";
+import { commissionService } from "@/services/commissionService";
+import { Copy, Check, Share2, Calculator } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Separator } from "@/components/ui/separator";
 
 interface ReferralLinkCardProps {
   userId: string;
 }
 
+function toNumber(input: string): number {
+  const cleaned = input.replace(/[^\d.]/g, "");
+  const n = parseFloat(cleaned);
+  return Number.isFinite(n) ? n : 0;
+}
+
 export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
   const [copied, setCopied] = useState(false);
+  const [previewAmount, setPreviewAmount] = useState("100000");
+  const [rank, setRank] = useState<string>("BASE");
+  const [referralCode, setReferralCode] = useState<string>(userId);
+
   const { toast } = useToast();
-  const referralLink = referralService.getReferralLink(userId);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const { data: userRow } = await supabase
+          .from("users")
+          .select("referral_code")
+          .eq("id", userId)
+          .maybeSingle();
+
+        if (!cancelled && userRow?.referral_code) {
+          setReferralCode(String(userRow.referral_code));
+        }
+      } catch {}
+
+      try {
+        const { data: bv } = await supabase
+          .from("user_business_volume")
+          .select("current_rank")
+          .eq("user_id", userId)
+          .maybeSingle();
+
+        if (!cancelled && bv?.current_rank) {
+          setRank(String(bv.current_rank).toUpperCase());
+        }
+      } catch {}
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
+  const referralLink = useMemo(() => referralService.getReferralLink(referralCode), [referralCode]);
 
   const copyToClipboard = async () => {
     try {
@@ -24,7 +73,7 @@ export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
         description: "Referral link copied to clipboard",
       });
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch {
       toast({
         title: "Failed to copy",
         description: "Please copy the link manually",
@@ -37,17 +86,20 @@ export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Join Brave Ecom",
-          text: "Grow your wealth with 15% monthly returns!",
+          title: "Join the platform",
+          text: "Register with my referral link to get started.",
           url: referralLink,
         });
-      } catch (err) {
-        console.log("Share cancelled");
-      }
+      } catch {}
     } else {
       copyToClipboard();
     }
   };
+
+  const preview = useMemo(() => {
+    const amount = toNumber(previewAmount);
+    return commissionService.calculateCommissionPreview({ baseAmount: amount });
+  }, [previewAmount]);
 
   return (
     <Card>
@@ -57,24 +109,12 @@ export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
           Your Referral Link
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+
+      <CardContent className="space-y-5">
         <div className="flex gap-2">
-          <Input
-            value={referralLink}
-            readOnly
-            className="bg-slate-800 border-slate-700"
-          />
-          <Button
-            onClick={copyToClipboard}
-            variant="outline"
-            size="icon"
-            className="shrink-0"
-          >
-            {copied ? (
-              <Check className="h-4 w-4 text-green-400" />
-            ) : (
-              <Copy className="h-4 w-4" />
-            )}
+          <Input value={referralLink} readOnly className="bg-slate-800 border-slate-700" />
+          <Button onClick={copyToClipboard} variant="outline" size="icon" className="shrink-0">
+            {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
           </Button>
         </div>
 
@@ -89,13 +129,62 @@ export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
           </Button>
         </div>
 
-        <div className="p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
+        <div className="p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-lg space-y-1">
           <p className="text-sm text-slate-300">
-            <strong className="text-cyan-400">Your User ID:</strong> {userId}
+            <strong className="text-cyan-400">Referral Code:</strong> {referralCode}
           </p>
-          <p className="text-xs text-slate-400 mt-2">
-            Your User ID is your referral code. Anyone who registers with your link will be added to your network.
+          <p className="text-sm text-slate-300">
+            <strong className="text-cyan-400">Current Rank:</strong> {rank}
           </p>
+          <p className="text-xs text-slate-400">
+            Use this code/link for registrations. Commission preview below is calculated with strict paise rounding (gross → admin charge → net).
+          </p>
+        </div>
+
+        <Separator className="bg-white/10" />
+
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Calculator className="h-4 w-4 text-cyan-400" />
+            <div className="text-sm font-semibold text-slate-200">Commission Preview (6 Levels)</div>
+          </div>
+
+          <div className="flex gap-2">
+            <Input
+              value={previewAmount}
+              onChange={(e) => setPreviewAmount(e.target.value)}
+              inputMode="numeric"
+              placeholder="Enter base amount (e.g., 100000)"
+              className="bg-slate-900/50 border-slate-700 text-white"
+            />
+          </div>
+
+          <div className="rounded-lg border border-white/10 overflow-hidden">
+            <div className="grid grid-cols-5 gap-2 px-3 py-2 text-xs text-slate-400 bg-slate-900/40">
+              <div>Level</div>
+              <div>Rate</div>
+              <div className="text-right">Gross</div>
+              <div className="text-right">Admin</div>
+              <div className="text-right">Net</div>
+            </div>
+
+            {preview.lines.map((l) => (
+              <div key={l.level} className="grid grid-cols-5 gap-2 px-3 py-2 text-sm border-t border-white/5">
+                <div className="text-slate-200">{l.level}</div>
+                <div className="text-slate-300">{l.ratePercent.toFixed(2)}%</div>
+                <div className="text-right text-slate-200">{commissionService.formatCurrency(l.grossCommission)}</div>
+                <div className="text-right text-slate-300">{commissionService.formatCurrency(l.adminCharge)}</div>
+                <div className="text-right text-emerald-300">{commissionService.formatCurrency(l.netCommission)}</div>
+              </div>
+            ))}
+
+            <div className="grid grid-cols-5 gap-2 px-3 py-2 text-sm border-t border-white/10 bg-slate-900/30">
+              <div className="col-span-2 text-slate-300 font-semibold">Totals</div>
+              <div className="text-right text-slate-200 font-semibold">{commissionService.formatCurrency(preview.totals.grossCommission)}</div>
+              <div className="text-right text-slate-300 font-semibold">{commissionService.formatCurrency(preview.totals.adminCharge)}</div>
+              <div className="text-right text-emerald-300 font-semibold">{commissionService.formatCurrency(preview.totals.netCommission)}</div>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>

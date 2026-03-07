@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,17 @@ export default function RegisterPage() {
     referralCode: "",
   });
 
+  useEffect(() => {
+    if (!router.isReady) return;
+    const ref = typeof router.query.ref === "string" ? router.query.ref.trim() : "";
+    if (!ref) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      referralCode: prev.referralCode ? prev.referralCode : ref,
+    }));
+  }, [router.isReady, router.query.ref]);
+
   // Parallax effects
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -55,7 +66,8 @@ export default function RegisterPage() {
       return;
     }
 
-    if (!formData.referralCode) {
+    const referralCode = String(formData.referralCode || "").trim();
+    if (!referralCode) {
       toast({
         title: "Referral Required",
         description: "Referral code is required to join",
@@ -71,7 +83,7 @@ export default function RegisterPage() {
         email: formData.email,
         password: formData.password,
         fullName: formData.fullName,
-        referredByUserId: formData.referralCode, // User ID = Referral Code
+        referredByUserId: referralCode,
       });
 
       if (result.success && result.user) {

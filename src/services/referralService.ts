@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { commissionService } from "@/services/commissionService";
 
 export interface NetworkMember {
   userId: string;
@@ -33,6 +34,12 @@ export interface CommissionRecord {
   netCommission: number;
   status: string;
   createdAt: string;
+}
+
+function isUuid(input: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    input
+  );
 }
 
 export const referralService = {
@@ -127,40 +134,46 @@ export const referralService = {
   // Get referral link (USER ID = REFERRAL CODE)
   getReferralLink(userId: string): string {
     const baseUrl =
-      typeof window !== "undefined"
-        ? window.location.origin
-        : "https://bravecom.info";
+      typeof window !== "undefined" ? window.location.origin : "https://bravecom.info";
     return `${baseUrl}/auth/register?ref=${userId}`;
   },
 
   // Validate referral code (USER ID)
-  async validateReferralCode(userId: string): Promise<boolean> {
-    const { data, error } = await supabase
+  async validateReferralCode(code: string): Promise<boolean> {
+    const cleaned = String(code || "").trim();
+    if (!cleaned) return false;
+
+    if (isUuid(cleaned)) {
+      const { data, error } = await supabase
+        .from("users")
+        .select("id")
+        .eq("id", cleaned)
+        .maybeSingle();
+
+      if (!error && data) return true;
+    }
+
+    const { data: byCode, error: byCodeError } = await supabase
       .from("users")
       .select("id")
-      .eq("id", userId)
-      .single();
+      .eq("referral_code", cleaned)
+      .maybeSingle();
 
-    return !error && !!data;
+    return !byCodeError && !!byCode;
   },
 
   // Calculate commission breakdown preview (6 levels)
-  calculateCommissionBreakdown(investmentAmount: number) {
-    const rates = [0.2, 0.1, 0.07, 0.05, 0.02, 0.01]; // 6 levels: 20%, 10%, 7%, 5%, 2%, 1%
-    const adminFee = 0.1; // 10% admin fee
-
-    return rates.map((rate, index) => {
-      const grossCommission = investmentAmount * rate;
-      const adminDeduction = grossCommission * adminFee;
-      const netCommission = grossCommission - adminDeduction;
-
-      return {
-        level: index + 1,
-        rate: rate * 100,
-        grossCommission,
-        adminFee: adminDeduction,
-        netCommission,
-      };
+  calculateCommissionBreakdown(baseAmount: number) {
+    const preview = commissionService.calculateCommissionPreview({
+      baseAmount,
     });
+
+    return preview.lines.map((l) => ({
+      level: l.level,
+      rate: l.ratePercent,
+      grossCommission: l.grossCommission,
+      adminFee: l.adminCharge,
+      netCommission: l.netCommission,
+    }));
   },
 };
