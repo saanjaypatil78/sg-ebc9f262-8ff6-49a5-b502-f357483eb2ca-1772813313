@@ -18,7 +18,7 @@ export interface InvestorNetworkMember {
 
 export interface PayoutHistoryRecord {
   id: string;
-  investor_id: string;
+  user_id: string;
   payout_amount: number;
   currency: string;
   payout_date: string;
@@ -45,7 +45,7 @@ export const investorNetworkService = {
 
     let query = supabase.from('investor_network').select('*');
 
-    // Team Leader: See all referrals under their code
+    // Team Leader: See all referrals under their code only
     if (currentInvestor.is_team_leader) {
       query = query.or(`referral_code.eq.${currentInvestor.referral_code},referred_by.eq.${currentInvestor.referral_code}`);
     } 
@@ -70,11 +70,11 @@ export const investorNetworkService = {
   /**
    * Get payout history for a specific investor
    */
-  async getPayoutHistory(investorId: string): Promise<PayoutHistoryRecord[]> {
+  async getPayoutHistory(userId: string): Promise<PayoutHistoryRecord[]> {
     const { data, error } = await supabase
       .from('payout_history')
       .select('*')
-      .eq('investor_id', investorId)
+      .eq('user_id', userId)
       .order('payout_date', { ascending: false });
 
     if (error) throw error;

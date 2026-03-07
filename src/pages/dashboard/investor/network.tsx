@@ -69,7 +69,7 @@ export default function InvestorNetworkPage() {
     setSelectedInvestor(investor);
     setHistoryLoading(true);
     try {
-      const history = await investorNetworkService.getPayoutHistory(investor.id);
+      const history = await investorNetworkService.getPayoutHistory(investor.user_id);
       setPayoutHistory(history);
     } catch (error) {
       console.error('Error loading payout history:', error);
