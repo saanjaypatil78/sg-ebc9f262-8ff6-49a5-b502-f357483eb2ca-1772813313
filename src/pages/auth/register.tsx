@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { GlassmorphicCard } from "@/components/GlassmorphicCard";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/authService";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -12,6 +13,7 @@ import { UserPlus, Mail, Lock, User, ArrowRight, CheckCircle2 } from "lucide-rea
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { emailNotifications } from "@/lib/email/notifications";
+import Image from "next/image";
 
 const Confetti = dynamic(() => import("@/components/Confetti").then(mod => ({ default: mod.Confetti })), { ssr: false });
 

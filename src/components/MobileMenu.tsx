@@ -9,6 +9,7 @@ import {
   LogOut, ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -86,10 +87,17 @@ export function MobileMenu() {
               {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-slate-800">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
-                    <span className="font-bold text-white text-xl">B</span>
+                  <div className="relative w-10 h-10">
+                    <Image
+                      src="/bravecom-logo-cart.png"
+                      alt="Brave Ecom"
+                      fill
+                      className="object-contain"
+                    />
                   </div>
-                  <span className="font-bold text-xl text-white">Brave Ecom</span>
+                  <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                    Brave Ecom
+                  </span>
                 </div>
                 <Button
                   variant="ghost"

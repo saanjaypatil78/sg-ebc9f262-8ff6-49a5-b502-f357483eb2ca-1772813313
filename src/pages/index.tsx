@@ -17,6 +17,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import Image from "next/image";
+import { Footer } from "@/components/Footer";
 
 export default function HomePage() {
   const router = useRouter();
@@ -38,18 +39,19 @@ export default function HomePage() {
         {/* Hero Section - Full 3D Parallax */}
         <Hero3DParallax />
 
+        {/* Logo Showcase */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8 }}
-          className="mb-12 flex justify-center"
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="mb-8"
         >
-          <div className="relative w-32 h-32">
+          <div className="relative w-32 h-32 mx-auto">
             <Image
               src="/bravecom-logo-cart.png"
-              alt="Brave Ecom"
+              alt="Brave Ecom Logo"
               fill
-              className="object-contain"
+              className="object-contain drop-shadow-2xl"
               priority
             />
           </div>
@@ -247,16 +249,7 @@ export default function HomePage() {
         </section>
 
         {/* Footer */}
-        <footer className="relative border-t border-slate-800 py-12">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center text-slate-400">
-              <p className="mb-2">© 2026 Brave Ecom. All rights reserved.</p>
-              <p className="text-sm">
-                Transparent investing for a brighter financial future
-              </p>
-            </div>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </>
   );

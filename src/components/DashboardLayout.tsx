@@ -80,6 +80,7 @@ export function DashboardLayout({ children, showCharts = false, role = "investor
       <nav className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
+            {/* Logo */}
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10">
                 <Image
@@ -87,9 +88,10 @@ export function DashboardLayout({ children, showCharts = false, role = "investor
                   alt="Brave Ecom"
                   fill
                   className="object-contain"
+                  priority
                 />
               </div>
-              <span className="font-bold text-xl text-white hidden sm:inline">Brave Ecom</span>
+              <span className="text-xl font-bold text-white hidden sm:inline">Brave Ecom</span>
             </div>
             
             <div className="flex items-center gap-2 md:gap-4">

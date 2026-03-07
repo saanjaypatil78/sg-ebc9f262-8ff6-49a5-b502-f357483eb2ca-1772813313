@@ -8,9 +8,8 @@ export default function Document() {
         <SEOElements />
         
         {/* Favicon - BRAVECOM Hexagonal Logo */}
-        <link rel="icon" type="image/png" href="/bravecom-logo-favicon.png" />
-        <link rel="apple-touch-icon" href="/bravecom-logo-favicon.png" />
-        <link rel="shortcut icon" href="/bravecom-logo-favicon.png" />
+        <link rel="icon" href="/bravecom-logo-cart.png" />
+        <meta name="theme-color" content="#0f172a" />
       </Head>
       <body className="antialiased">
         <Main />
