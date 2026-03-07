@@ -36,7 +36,7 @@ export interface CommissionRecord {
 }
 
 export const referralService = {
-  // Get network tree for visualization
+  // Get network tree for visualization (6 levels)
   async getNetworkTree(userId: string): Promise<NetworkMember[]> {
     const { data, error } = await supabase.rpc("get_network_tree", {
       p_user_id: userId,
@@ -61,46 +61,47 @@ export const referralService = {
 
   // Get network statistics
   async getNetworkStats(userId: string): Promise<NetworkStats | null> {
-    const { data, error } = await supabase
-      .from("network_stats")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
+    const { data, error } = await supabase.rpc("get_network_stats", {
+      p_user_id: userId,
+    });
 
     if (error) {
       console.error("Error fetching network stats:", error);
       return null;
     }
 
+    if (!data || data.length === 0) return null;
+
+    const stats = data[0];
     return {
-      totalNetworkSize: data.total_network_size,
-      level1Count: data.level_1_count,
-      level2Count: data.level_2_count,
-      level3Count: data.level_3_count,
-      level4Count: data.level_4_count,
-      level5Count: data.level_5_count,
-      level6Count: data.level_6_count,
-      totalNetworkInvestment: parseFloat(data.total_network_investment || 0),
-      totalCommissionsEarned: parseFloat(data.total_commissions_earned || 0),
-      rank: data.rank,
-      rankProgress: parseFloat(data.rank_progress || 0),
+      totalNetworkSize: stats.total_network_size,
+      level1Count: stats.level_1_count,
+      level2Count: stats.level_2_count,
+      level3Count: stats.level_3_count,
+      level4Count: stats.level_4_count,
+      level5Count: stats.level_5_count,
+      level6Count: stats.level_6_count,
+      totalNetworkInvestment: parseFloat(stats.total_network_investment || 0),
+      totalCommissionsEarned: parseFloat(stats.total_commissions_earned || 0),
+      rank: stats.rank,
+      rankProgress: parseFloat(stats.rank_progress || 0),
     };
   },
 
   // Get commission history
   async getCommissionHistory(userId: string): Promise<CommissionRecord[]> {
     const { data, error } = await supabase
-      .from("commission_ledger")
+      .from("commission_accumulation_ledger")
       .select(
         `
         id,
         commission_level,
-        investment_amount,
-        commission_amount,
+        source_amount,
+        gross_commission,
         net_commission,
         status,
         created_at,
-        from_user:from_user_id (full_name)
+        referral_user:referral_user_id (full_name)
       `
       )
       .eq("user_id", userId)
@@ -113,17 +114,17 @@ export const referralService = {
 
     return (data || []).map((record: any) => ({
       id: record.id,
-      fromUserName: record.from_user?.full_name || "Unknown",
+      fromUserName: record.referral_user?.full_name || "Unknown",
       commissionLevel: record.commission_level,
-      investmentAmount: parseFloat(record.investment_amount),
-      commissionAmount: parseFloat(record.commission_amount),
-      netCommission: parseFloat(record.net_commission),
+      investmentAmount: parseFloat(record.source_amount || 0),
+      commissionAmount: parseFloat(record.gross_commission || 0),
+      netCommission: parseFloat(record.net_commission || 0),
       status: record.status,
       createdAt: record.created_at,
     }));
   },
 
-  // Get referral link (user_id = referral code)
+  // Get referral link (USER ID = REFERRAL CODE)
   getReferralLink(userId: string): string {
     const baseUrl =
       typeof window !== "undefined"
@@ -132,7 +133,7 @@ export const referralService = {
     return `${baseUrl}/auth/register?ref=${userId}`;
   },
 
-  // Validate referral code (user_id)
+  // Validate referral code (USER ID)
   async validateReferralCode(userId: string): Promise<boolean> {
     const { data, error } = await supabase
       .from("users")
@@ -143,9 +144,9 @@ export const referralService = {
     return !error && !!data;
   },
 
-  // Calculate commission breakdown preview
+  // Calculate commission breakdown preview (6 levels)
   calculateCommissionBreakdown(investmentAmount: number) {
-    const rates = [0.2, 0.1, 0.07, 0.05, 0.02, 0.01]; // 6 levels
+    const rates = [0.2, 0.1, 0.07, 0.05, 0.02, 0.01]; // 6 levels: 20%, 10%, 7%, 5%, 2%, 1%
     const adminFee = 0.1; // 10% admin fee
 
     return rates.map((rate, index) => {

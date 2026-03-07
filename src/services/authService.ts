@@ -51,9 +51,9 @@ export const authService = {
           id: authData.user.id,
           email: data.email,
           full_name: data.fullName,
-          role: "investor",
-          referred_by_user_id: data.referredByUserId || null,
-          kyc_status: "pending",
+          role: "INVESTOR",
+          referred_by: data.referredByUserId || null,
+          kyc_status: "PENDING",
         })
         .select()
         .single();

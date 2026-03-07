@@ -4,26 +4,34 @@ import { NetworkTreeVisualization } from "@/components/NetworkTreeVisualization"
 import { ReferralLinkCard } from "@/components/ReferralLinkCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { referralService, NetworkStats, CommissionRecord } from "@/services/referralService";
+import { authService } from "@/services/authService";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingUp, DollarSign, Award, Users } from "lucide-react";
+import { useRouter } from "next/router";
 
 export default function InvestorNetwork() {
+  const router = useRouter();
   const [stats, setStats] = useState<NetworkStats | null>(null);
   const [commissions, setCommissions] = useState<CommissionRecord[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Mock user ID - replace with real auth
-  const userId = "mock-investor-id";
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    // Get current user
+    const user = authService.getCurrentUser();
+    if (!user) {
+      router.push("/auth/login");
+      return;
+    }
+    setUserId(user.id);
+    loadData(user.id);
+  }, [router]);
 
-  const loadData = async () => {
+  const loadData = async (uid: string) => {
     setLoading(true);
     const [statsData, commissionsData] = await Promise.all([
-      referralService.getNetworkStats(userId),
-      referralService.getCommissionHistory(userId),
+      referralService.getNetworkStats(uid),
+      referralService.getCommissionHistory(uid),
     ]);
     setStats(statsData);
     setCommissions(commissionsData);
@@ -31,6 +39,8 @@ export default function InvestorNetwork() {
   };
 
   const commissionBreakdown = referralService.calculateCommissionBreakdown(100000);
+
+  if (!userId) return null;
 
   return (
     <DashboardLayout role="investor">

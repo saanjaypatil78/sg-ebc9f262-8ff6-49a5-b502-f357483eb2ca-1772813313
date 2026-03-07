@@ -2313,6 +2313,14 @@ export type Database = {
     }
     Functions: {
       auto_upgrade_rank: { Args: { investor_user_id: string }; Returns: string }
+      calculate_6_level_commission: {
+        Args: {
+          p_amount: number
+          p_investment_id: string
+          p_investor_id: string
+        }
+        Returns: undefined
+      }
       calculate_commission_with_rank: {
         Args: {
           downline_profit: number
@@ -2346,6 +2354,34 @@ export type Database = {
           amount: number
           payout_number: number
           scheduled_date: string
+        }[]
+      }
+      get_network_stats: {
+        Args: { p_user_id: string }
+        Returns: {
+          level_1_count: number
+          level_2_count: number
+          level_3_count: number
+          level_4_count: number
+          level_5_count: number
+          level_6_count: number
+          rank: string
+          rank_progress: number
+          total_commissions_earned: number
+          total_network_investment: number
+          total_network_size: number
+        }[]
+      }
+      get_network_tree: {
+        Args: { p_max_level?: number; p_user_id: string }
+        Returns: {
+          direct_referrals: number
+          email: string
+          full_name: string
+          investment_total: number
+          joined_at: string
+          level: number
+          user_id: string
         }[]
       }
       get_user_abac_attributes: {
