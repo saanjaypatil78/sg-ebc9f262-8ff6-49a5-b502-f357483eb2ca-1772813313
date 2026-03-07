@@ -1928,6 +1928,8 @@ export type Database = {
           last_login_at: string | null
           password_hash: string
           phone: string | null
+          referral_code: string | null
+          referred_by: string | null
           role: string
           two_factor_enabled: boolean | null
           updated_at: string | null
@@ -1946,6 +1948,8 @@ export type Database = {
           last_login_at?: string | null
           password_hash: string
           phone?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           role?: string
           two_factor_enabled?: boolean | null
           updated_at?: string | null
@@ -1964,11 +1968,21 @@ export type Database = {
           last_login_at?: string | null
           password_hash?: string
           phone?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           role?: string
           two_factor_enabled?: boolean | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vendor_orders: {
         Row: {

@@ -9,7 +9,7 @@ export interface User {
 
 export const authService = {
   // Register new user
-  async register(data: { email: string; password: string; full_name: string; referral_code?: string }) {
+  async register(data: { email: string; password: string; full_name: string; referral_code?: string; role?: string; referred_by?: string }) {
     try {
       // 1. Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -32,8 +32,9 @@ export const authService = {
           id: authData.user?.id,
           email: data.email,
           full_name: data.full_name,
-          role: 'client',
+          role: data.role || 'client',
           referral_code: data.referral_code || `REF${Date.now()}`,
+          referred_by: data.referred_by
         });
 
       if (profileError) throw profileError;

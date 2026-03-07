@@ -14,6 +14,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { emailNotifications } from "@/lib/email/notifications";
 import Image from "next/image";
+import { supabase } from "@/integrations/supabase/client";
 
 const Confetti = dynamic(() => import("@/components/Confetti").then(mod => ({ default: mod.Confetti })), { ssr: false });
 
@@ -66,11 +67,25 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      // First create user auth
+      // Validate referral code and get role
+      const { data: referrer, error: referralError } = await supabase
+        .from('users')
+        .select('id, role, referral_code')
+        .eq('referral_code', formData.referralCode.toUpperCase())
+        .single();
+
+      if (referralError || !referrer) {
+        throw new Error("Invalid referral code");
+      }
+
+      // Register with Supabase Auth
       const result = await authService.register({
         email: formData.email,
         password: formData.password,
-        full_name: formData.fullName
+        full_name: formData.fullName,
+        referral_code: formData.referralCode.toUpperCase(),
+        referred_by: referrer.id,
+        role: referrer.role // Assign same role as referrer
       });
 
       if (!result.success) {
@@ -83,15 +98,6 @@ export default function RegisterPage() {
         title: "🎉 Account Created Successfully!",
         description: "Please check your email to verify your account. Redirecting...",
       });
-
-      // Send welcome email
-      try {
-        // You might want to implement a sendWelcomeEmail in emailNotifications
-        // For now we'll just log it or skip if not implemented
-        console.log("Welcome email would be sent here");
-      } catch (emailError) {
-        console.error("Failed to send welcome email:", emailError);
-      }
 
       setTimeout(() => {
         router.push("/auth/onboarding");
