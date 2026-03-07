@@ -94,6 +94,36 @@ export type Database = {
           },
         ]
       }
+      api_schema_versions: {
+        Row: {
+          detected_at: string | null
+          field_mappings: Json
+          id: string
+          is_active: boolean | null
+          platform_name: string
+          schema_definition: Json
+          schema_version: string
+        }
+        Insert: {
+          detected_at?: string | null
+          field_mappings: Json
+          id?: string
+          is_active?: boolean | null
+          platform_name: string
+          schema_definition: Json
+          schema_version: string
+        }
+        Update: {
+          detected_at?: string | null
+          field_mappings?: Json
+          id?: string
+          is_active?: boolean | null
+          platform_name?: string
+          schema_definition?: Json
+          schema_version?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -141,6 +171,56 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      auto_healing_config: {
+        Row: {
+          alert_threshold: number | null
+          created_at: string | null
+          enabled: boolean | null
+          error_type: string
+          fallback_action: string | null
+          healing_strategy: string
+          id: string
+          integration_id: string
+          max_retry_attempts: number | null
+          retry_delay_seconds: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          alert_threshold?: number | null
+          created_at?: string | null
+          enabled?: boolean | null
+          error_type: string
+          fallback_action?: string | null
+          healing_strategy: string
+          id?: string
+          integration_id: string
+          max_retry_attempts?: number | null
+          retry_delay_seconds?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          alert_threshold?: number | null
+          created_at?: string | null
+          enabled?: boolean | null
+          error_type?: string
+          fallback_action?: string | null
+          healing_strategy?: string
+          id?: string
+          integration_id?: string
+          max_retry_attempts?: number | null
+          retry_delay_seconds?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auto_healing_config_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "platform_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       commission_accumulation_ledger: {
         Row: {
@@ -1198,6 +1278,134 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_integrations: {
+        Row: {
+          access_token: string | null
+          api_key: string | null
+          api_secret: string | null
+          auto_evolve_enabled: boolean | null
+          auto_healing_enabled: boolean | null
+          created_at: string | null
+          error_count: number | null
+          id: string
+          last_error: string | null
+          last_sync_at: string | null
+          next_sync_at: string | null
+          platform_name: string
+          platform_store_id: string
+          refresh_token: string | null
+          sync_enabled: boolean | null
+          sync_frequency: string | null
+          sync_status: string | null
+          updated_at: string | null
+          vendor_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          api_key?: string | null
+          api_secret?: string | null
+          auto_evolve_enabled?: boolean | null
+          auto_healing_enabled?: boolean | null
+          created_at?: string | null
+          error_count?: number | null
+          id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          next_sync_at?: string | null
+          platform_name: string
+          platform_store_id: string
+          refresh_token?: string | null
+          sync_enabled?: boolean | null
+          sync_frequency?: string | null
+          sync_status?: string | null
+          updated_at?: string | null
+          vendor_id: string
+        }
+        Update: {
+          access_token?: string | null
+          api_key?: string | null
+          api_secret?: string | null
+          auto_evolve_enabled?: boolean | null
+          auto_healing_enabled?: boolean | null
+          created_at?: string | null
+          error_count?: number | null
+          id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          next_sync_at?: string | null
+          platform_name?: string
+          platform_store_id?: string
+          refresh_token?: string | null
+          sync_enabled?: boolean | null
+          sync_frequency?: string | null
+          sync_status?: string | null
+          updated_at?: string | null
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_integrations_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_conflicts: {
+        Row: {
+          bravecom_value: Json | null
+          conflict_type: string
+          created_at: string | null
+          external_value: Json | null
+          id: string
+          mapping_id: string
+          resolution_strategy: string | null
+          resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+        }
+        Insert: {
+          bravecom_value?: Json | null
+          conflict_type: string
+          created_at?: string | null
+          external_value?: Json | null
+          id?: string
+          mapping_id: string
+          resolution_strategy?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+        }
+        Update: {
+          bravecom_value?: Json | null
+          conflict_type?: string
+          created_at?: string | null
+          external_value?: Json | null
+          id?: string
+          mapping_id?: string
+          resolution_strategy?: string | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_conflicts_mapping_id_fkey"
+            columns: ["mapping_id"]
+            isOneToOne: false
+            referencedRelation: "product_sync_mapping"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_conflicts_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_listing_strategy: {
         Row: {
           analysis_completed_at: string | null
@@ -1263,6 +1471,134 @@ export type Database = {
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_sync_logs: {
+        Row: {
+          conflicts_detected: number | null
+          conflicts_resolved: number | null
+          created_at: string | null
+          duration_seconds: number | null
+          error_message: string | null
+          errors_healed: number | null
+          id: string
+          integration_id: string
+          products_created: number | null
+          products_failed: number | null
+          products_fetched: number | null
+          products_updated: number | null
+          status: string
+          sync_details: Json | null
+          sync_type: string
+        }
+        Insert: {
+          conflicts_detected?: number | null
+          conflicts_resolved?: number | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          error_message?: string | null
+          errors_healed?: number | null
+          id?: string
+          integration_id: string
+          products_created?: number | null
+          products_failed?: number | null
+          products_fetched?: number | null
+          products_updated?: number | null
+          status: string
+          sync_details?: Json | null
+          sync_type: string
+        }
+        Update: {
+          conflicts_detected?: number | null
+          conflicts_resolved?: number | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          error_message?: string | null
+          errors_healed?: number | null
+          id?: string
+          integration_id?: string
+          products_created?: number | null
+          products_failed?: number | null
+          products_fetched?: number | null
+          products_updated?: number | null
+          status?: string
+          sync_details?: Json | null
+          sync_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_sync_logs_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "platform_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_sync_mapping: {
+        Row: {
+          auto_resolve_conflicts: boolean | null
+          bravecom_product_id: string
+          conflict_reason: string | null
+          created_at: string | null
+          error_count: number | null
+          external_product_id: string
+          external_sku: string | null
+          id: string
+          integration_id: string
+          last_conflict_at: string | null
+          last_synced_at: string | null
+          sync_count: number | null
+          sync_status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          auto_resolve_conflicts?: boolean | null
+          bravecom_product_id: string
+          conflict_reason?: string | null
+          created_at?: string | null
+          error_count?: number | null
+          external_product_id: string
+          external_sku?: string | null
+          id?: string
+          integration_id: string
+          last_conflict_at?: string | null
+          last_synced_at?: string | null
+          sync_count?: number | null
+          sync_status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          auto_resolve_conflicts?: boolean | null
+          bravecom_product_id?: string
+          conflict_reason?: string | null
+          created_at?: string | null
+          error_count?: number | null
+          external_product_id?: string
+          external_sku?: string | null
+          id?: string
+          integration_id?: string
+          last_conflict_at?: string | null
+          last_synced_at?: string | null
+          sync_count?: number | null
+          sync_status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_sync_mapping_bravecom_product_id_fkey"
+            columns: ["bravecom_product_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_sync_mapping_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "platform_integrations"
             referencedColumns: ["id"]
           },
         ]
@@ -2343,6 +2679,15 @@ export type Database = {
       }
       check_passive_timer_expiry: { Args: never; Returns: undefined }
       cleanup_expired_sessions: { Args: never; Returns: undefined }
+      detect_product_conflict: {
+        Args: {
+          p_bravecom_value: Json
+          p_conflict_type: string
+          p_external_value: Json
+          p_mapping_id: string
+        }
+        Returns: string
+      }
       generate_payout_schedule: {
         Args: {
           p_investment_amount: number
@@ -2384,6 +2729,15 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_pending_syncs: {
+        Args: never
+        Returns: {
+          integration_id: string
+          platform_name: string
+          sync_frequency: string
+          vendor_id: string
+        }[]
+      }
       get_user_abac_attributes: {
         Args: { p_user_id: string }
         Returns: {
@@ -2414,6 +2768,23 @@ export type Database = {
         }
         Returns: string
       }
+      record_sync_result: {
+        Args: {
+          p_error_message?: string
+          p_integration_id: string
+          p_products_created: number
+          p_products_failed: number
+          p_products_fetched: number
+          p_products_updated: number
+          p_status: string
+          p_sync_type: string
+        }
+        Returns: string
+      }
+      resolve_product_conflict: {
+        Args: { p_conflict_id: string }
+        Returns: boolean
+      }
       schedule_investment_payouts: {
         Args: {
           p_investment_amount: number
@@ -2422,6 +2793,10 @@ export type Database = {
           p_user_id: string
         }
         Returns: undefined
+      }
+      schedule_next_sync: {
+        Args: { p_integration_id: string }
+        Returns: string
       }
     }
     Enums: {
