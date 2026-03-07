@@ -25,7 +25,7 @@ const categories = [
   "Electronics",
   "Fashion",
   "Home & Kitchen",
-  "Beauty",
+  "Beauty & Personal Care",
   "Sports",
   "Books",
   "Toys",
@@ -108,9 +108,11 @@ export default function ShopPage() {
 
   const filteredProducts = products.filter((p) => {
     const pPrice = parseFloat(p.price || 0);
+    const name = String(p.product_name || p.name || "");
+    const description = String(p.product_description || p.description || "");
     const matchesSearch =
-      p.product_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.product_description?.toLowerCase().includes(searchQuery.toLowerCase());
+      name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory =
       selectedCategory === "All" || p.category === selectedCategory;
     const matchesPrice = pPrice >= priceRange[0] && pPrice <= priceRange[1];

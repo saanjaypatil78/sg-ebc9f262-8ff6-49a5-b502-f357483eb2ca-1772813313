@@ -1,239 +1,298 @@
-/**
- * Unsplash Image Fetcher
- * Fetches real product images matching titles without API key requirement
- */
-
-interface UnsplashImage {
-  id: string;
-  urls: {
-    raw: string;
-    full: string;
-    regular: string;
-    small: string;
-    thumb: string;
-  };
-  alt_description: string;
-  description: string;
+interface ImageMatchContext {
+  productName: string;
+  category?: string;
+  count?: number;
+  seed?: string;
 }
 
-interface ImageSearchResult {
-  images: string[];
-  source: string;
+const STOP_WORDS = new Set([
+  "for",
+  "with",
+  "pack",
+  "of",
+  "set",
+  "combo",
+  "online",
+  "buy",
+  "best",
+  "top",
+  "premium",
+  "quality",
+  "original",
+  "genuine",
+  "latest",
+  "new",
+  "sale",
+  "offer",
+  "discount",
+  "price",
+  "india",
+  "indian",
+  "branded",
+  "edition",
+  "series",
+  "model",
+  "plus",
+  "max",
+  "pro",
+  "mini",
+  "ultra",
+]);
+
+const BRAND_TOKENS = new Set([
+  "samsung",
+  "xiaomi",
+  "redmi",
+  "poco",
+  "oneplus",
+  "realme",
+  "vivo",
+  "oppo",
+  "pixel",
+  "apple",
+  "dell",
+  "hp",
+  "lenovo",
+  "asus",
+  "boat",
+  "noise",
+  "philips",
+  "bajaj",
+  "prestige",
+  "butterfly",
+  "havells",
+  "minimalist",
+  "plum",
+  "lakme",
+  "maybelline",
+  "loreal",
+  "pantene",
+  "dove",
+  "nike",
+  "adidas",
+  "puma",
+  "wrangler",
+  "levis",
+]);
+
+function normalizeText(input: string): string {
+  return input
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^\w\s-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function isMostlyNumericToken(token: string): boolean {
+  if (!token) return true;
+  const hasDigit = /\d/.test(token);
+  const letters = token.replace(/[^a-z]/gi, "").length;
+  return hasDigit && letters < 2;
+}
+
+function extractTokens(productName: string): string[] {
+  const text = normalizeText(productName);
+  const tokens = text
+    .split(" ")
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .filter((t) => t.length >= 3)
+    .filter((t) => !STOP_WORDS.has(t))
+    .filter((t) => !isMostlyNumericToken(t));
+
+  return tokens.slice(0, 12);
+}
+
+type ProductKind =
+  | "smartphone"
+  | "laptop"
+  | "earbuds"
+  | "headphones"
+  | "speaker"
+  | "smartwatch"
+  | "powerbank"
+  | "tshirt"
+  | "shirt"
+  | "jeans"
+  | "saree"
+  | "kurti"
+  | "dress"
+  | "shoes"
+  | "mixergrinder"
+  | "iron"
+  | "bedsheet"
+  | "wallclock"
+  | "faceserum"
+  | "lipstick"
+  | "shampoo"
+  | "trimmer"
+  | "book"
+  | "toy"
+  | "generic";
+
+function detectKind(productName: string, category?: string): ProductKind {
+  const t = normalizeText(productName);
+  const c = normalizeText(category || "");
+
+  const has = (re: RegExp) => re.test(t);
+
+  if (has(/\b(iphone|smartphone|mobile|phone|galaxy|redmi|oneplus|realme|vivo|oppo|pixel)\b/)) return "smartphone";
+  if (has(/\b(laptop|notebook|macbook|thinkpad|vivobook|ideapad|inspiron|pavilion|victus|rog)\b/)) return "laptop";
+  if (has(/\b(earbuds|airdopes|tws|buds)\b/)) return "earbuds";
+  if (has(/\b(headphone|headphones|rockerz|over-ear|overear)\b/)) return "headphones";
+  if (has(/\b(speaker|soundbar)\b/)) return "speaker";
+  if (has(/\b(smartwatch|watch|band|colorfit)\b/)) return "smartwatch";
+  if (has(/\b(power\s?bank|powerbank)\b/)) return "powerbank";
+
+  if (has(/\b(t-?shirt|tee)\b/)) return "tshirt";
+  if (has(/\b(formal\s?shirt|shirt)\b/)) return "shirt";
+  if (has(/\b(jeans|denim)\b/)) return "jeans";
+  if (has(/\b(saree)\b/)) return "saree";
+  if (has(/\b(kurti)\b/)) return "kurti";
+  if (has(/\b(dress|gown)\b/)) return "dress";
+  if (has(/\b(shoe|shoes|sneaker|sneakers|footwear|running\s?shoes)\b/)) return "shoes";
+
+  if (has(/\b(mixer|grinder|mixergrinder)\b/)) return "mixergrinder";
+  if (has(/\b(iron)\b/)) return "iron";
+  if (has(/\b(bedsheet|bed\s?sheet)\b/)) return "bedsheet";
+  if (has(/\b(wall\s?clock|clock)\b/)) return "wallclock";
+
+  if (has(/\b(serum|face\s?serum)\b/)) return "faceserum";
+  if (has(/\b(lipstick)\b/)) return "lipstick";
+  if (has(/\b(shampoo)\b/)) return "shampoo";
+  if (has(/\b(trimmer)\b/)) return "trimmer";
+
+  if (c.includes("books")) return "book";
+  if (c.includes("toys")) return "toy";
+
+  return "generic";
+}
+
+function kindToQuery(kind: ProductKind): string {
+  switch (kind) {
+    case "smartphone":
+      return "smartphone,android phone,product photography,isolated";
+    case "laptop":
+      return "laptop,computer,product photography,isolated";
+    case "earbuds":
+      return "wireless earbuds,earphones,product photography,isolated";
+    case "headphones":
+      return "headphones,audio,product photography,isolated";
+    case "speaker":
+      return "bluetooth speaker,audio,product photography,isolated";
+    case "smartwatch":
+      return "smartwatch,wearable,product photography,isolated";
+    case "powerbank":
+      return "power bank,portable charger,product photography,isolated";
+    case "tshirt":
+      return "tshirt,clothing,product photography,flat lay";
+    case "shirt":
+      return "shirt,formal shirt,clothing,product photography,flat lay";
+    case "jeans":
+      return "jeans,denim,clothing,product photography,flat lay";
+    case "saree":
+      return "saree,indian clothing,fabric,product photography";
+    case "kurti":
+      return "kurti,indian clothing,product photography";
+    case "dress":
+      return "dress,fashion,product photography";
+    case "shoes":
+      return "sneakers,shoes,footwear,product photography,isolated";
+    case "mixergrinder":
+      return "mixer grinder,kitchen appliance,product photography,isolated";
+    case "iron":
+      return "electric iron,home appliance,product photography,isolated";
+    case "bedsheet":
+      return "bedsheet,home textile,product photography";
+    case "wallclock":
+      return "wall clock,home decor,product photography,isolated";
+    case "faceserum":
+      return "face serum,skincare bottle,product photography,isolated";
+    case "lipstick":
+      return "lipstick,makeup,product photography,isolated";
+    case "shampoo":
+      return "shampoo bottle,haircare,product photography,isolated";
+    case "trimmer":
+      return "electric trimmer,grooming,product photography,isolated";
+    case "book":
+      return "book cover,book,product photography,isolated";
+    case "toy":
+      return "toy,children toy,product photography,isolated";
+    default:
+      return "product,shopping,product photography";
+  }
+}
+
+function buildHumanQuery(productName: string, category?: string): string {
+  const kind = detectKind(productName, category);
+  const base = kindToQuery(kind);
+
+  const tokens = extractTokens(productName);
+  const brand = tokens.find((t) => BRAND_TOKENS.has(t)) || "";
+
+  const categoryHint = normalizeText(category || "");
+  const categoryTag =
+    categoryHint.includes("home") || categoryHint.includes("kitchen")
+      ? "home"
+      : categoryHint.includes("fashion")
+        ? "fashion"
+        : categoryHint.includes("beauty")
+          ? "beauty"
+          : categoryHint.includes("electronics")
+            ? "technology"
+            : categoryHint.includes("books")
+              ? "books"
+              : categoryHint.includes("toys")
+                ? "toys"
+                : "";
+
+  const queryParts = [
+    base,
+    brand ? `${brand},product` : "",
+    categoryTag ? `${categoryTag}` : "",
+  ].filter(Boolean);
+
+  return queryParts.join(",");
+}
+
+function buildUnsplashUrls(queryCommaSeparated: string, count: number, seed: string): string[] {
+  const baseSig = hashString(seed);
+  const q = encodeURIComponent(queryCommaSeparated);
+  const urls: string[] = [];
+  for (let i = 0; i < count; i++) {
+    const sig = (baseSig + i * 97) % 10000;
+    urls.push(`https://source.unsplash.com/featured/800x800?${q}&sig=${sig}`);
+  }
+  return urls;
 }
 
 export class ImageSearchEngine {
-  private cache: Map<string, string[]> = new Map();
+  private cache = new Map<string, string[]>();
 
-  /**
-   * Extract keywords from product title for image search
-   */
-  private extractKeywords(productName: string): string[] {
-    // Remove common e-commerce words
-    const stopWords = [
-      "for", "with", "pack", "of", "set", "combo", "online", "buy",
-      "best", "top", "premium", "quality", "original", "genuine",
-      "latest", "new", "sale", "offer", "discount", "price",
-      "india", "indian", "imported", "branded"
-    ];
+  getProductImages(context: ImageMatchContext): string[] {
+    const count = Math.max(1, Math.min(context.count ?? 3, 6));
+    const seed = context.seed ?? context.productName;
+    const query = buildHumanQuery(context.productName, context.category);
 
-    const words = productName
-      .toLowerCase()
-      .replace(/[^\w\s]/g, " ")
-      .split(/\s+/)
-      .filter(word => word.length > 2 && !stopWords.includes(word));
+    const cacheKey = `${query}|${count}|${seed}`;
+    const cached = this.cache.get(cacheKey);
+    if (cached) return cached;
 
-    // Prioritize: Brand + Product Type
-    const keywords: string[] = [];
-    
-    // Extract brand (usually first word or after "by")
-    if (words.length > 0) {
-      keywords.push(words[0]);
-    }
-    
-    // Extract product type (usually second word or key descriptor)
-    if (words.length > 1) {
-      keywords.push(words[1]);
-    }
-
-    // Add remaining important words (max 2 more)
-    const remaining = words.slice(2).filter(w => w.length > 3);
-    keywords.push(...remaining.slice(0, 2));
-
-    return keywords.slice(0, 4); // Max 4 keywords
+    const urls = buildUnsplashUrls(query, count, seed);
+    this.cache.set(cacheKey, urls);
+    return urls;
   }
 
-  /**
-   * Fetch images from Unsplash (no API key required for basic usage)
-   */
-  async fetchFromUnsplash(query: string): Promise<string[]> {
-    try {
-      // Use Unsplash Source API (no key required, direct image URLs)
-      // Format: https://source.unsplash.com/1600x900/?keyword1,keyword2
-      const keywords = query.split(" ").join(",");
-      
-      // Generate multiple image variations
-      const images: string[] = [];
-      
-      // Primary image
-      images.push(`https://source.unsplash.com/1600x900/?${keywords}`);
-      
-      // Variant angles/styles
-      images.push(`https://source.unsplash.com/1600x900/?${keywords},product`);
-      images.push(`https://source.unsplash.com/1600x900/?${keywords},closeup`);
-      
-      return images;
-    } catch (error) {
-      console.error("Unsplash fetch error:", error);
-      return [];
-    }
-  }
-
-  /**
-   * Fetch images from Picsum (Lorem Picsum - free placeholder images)
-   */
-  private fetchFromPicsum(seed: string): string[] {
-    // Generate deterministic images based on product name
-    const hash = this.hashString(seed);
-    const imageIds = [
-      hash % 1000,
-      (hash + 1) % 1000,
-      (hash + 2) % 1000,
-    ];
-
-    return imageIds.map(id => `https://picsum.photos/seed/${id}/800/800`);
-  }
-
-  /**
-   * Simple hash function for deterministic image selection
-   */
-  private hashString(str: string): number {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
-    }
-    return Math.abs(hash);
-  }
-
-  /**
-   * Category-specific fallback images
-   */
-  private getCategoryImages(category: string): string[] {
-    const categoryMap: Record<string, string[]> = {
-      Electronics: [
-        "https://source.unsplash.com/1600x900/?smartphone,technology",
-        "https://source.unsplash.com/1600x900/?laptop,computer",
-        "https://source.unsplash.com/1600x900/?electronics,gadget"
-      ],
-      Fashion: [
-        "https://source.unsplash.com/1600x900/?fashion,clothing",
-        "https://source.unsplash.com/1600x900/?tshirt,apparel",
-        "https://source.unsplash.com/1600x900/?dress,style"
-      ],
-      "Home & Kitchen": [
-        "https://source.unsplash.com/1600x900/?kitchen,appliances",
-        "https://source.unsplash.com/1600x900/?home,decor",
-        "https://source.unsplash.com/1600x900/?furniture,interior"
-      ],
-      Beauty: [
-        "https://source.unsplash.com/1600x900/?skincare,beauty",
-        "https://source.unsplash.com/1600x900/?makeup,cosmetics",
-        "https://source.unsplash.com/1600x900/?perfume,fragrance"
-      ],
-      Sports: [
-        "https://source.unsplash.com/1600x900/?sports,fitness",
-        "https://source.unsplash.com/1600x900/?gym,exercise",
-        "https://source.unsplash.com/1600x900/?running,shoes"
-      ],
-      Books: [
-        "https://source.unsplash.com/1600x900/?books,reading",
-        "https://source.unsplash.com/1600x900/?novel,literature",
-        "https://source.unsplash.com/1600x900/?education,study"
-      ],
-      Toys: [
-        "https://source.unsplash.com/1600x900/?toys,kids",
-        "https://source.unsplash.com/1600x900/?baby,children",
-        "https://source.unsplash.com/1600x900/?play,games"
-      ],
-    };
-
-    return categoryMap[category] || categoryMap.Electronics;
-  }
-
-  /**
-   * Main method: Get relevant images for product
-   */
-  async getProductImages(
-    productName: string,
-    category: string
-  ): Promise<ImageSearchResult> {
-    // Check cache first
-    const cacheKey = `${productName}-${category}`;
-    if (this.cache.has(cacheKey)) {
-      return {
-        images: this.cache.get(cacheKey)!,
-        source: "cache"
-      };
-    }
-
-    try {
-      // Extract keywords from product name
-      const keywords = this.extractKeywords(productName);
-      const searchQuery = keywords.join(" ");
-
-      // Try Unsplash first
-      let images = await this.fetchFromUnsplash(searchQuery);
-
-      // Fallback to category images if Unsplash fails
-      if (images.length === 0) {
-        images = this.getCategoryImages(category);
-      }
-
-      // Add unique timestamp to prevent caching issues
-      const uniqueImages = images.map(url => `${url}&t=${Date.now()}`);
-
-      // Cache results
-      this.cache.set(cacheKey, uniqueImages);
-
-      return {
-        images: uniqueImages,
-        source: "unsplash"
-      };
-    } catch (error) {
-      console.error("Image search error:", error);
-      
-      // Ultimate fallback: category images
-      const fallbackImages = this.getCategoryImages(category);
-      return {
-        images: fallbackImages,
-        source: "category-fallback"
-      };
-    }
-  }
-
-  /**
-   * Batch process multiple products
-   */
-  async batchFetchImages(
-    products: Array<{ name: string; category: string }>
-  ): Promise<Map<string, string[]>> {
-    const results = new Map<string, string[]>();
-
-    for (const product of products) {
-      const result = await this.getProductImages(product.name, product.category);
-      results.set(product.name, result.images);
-      
-      // Add small delay to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-
-    return results;
-  }
-
-  /**
-   * Clear cache
-   */
   clearCache() {
     this.cache.clear();
   }
