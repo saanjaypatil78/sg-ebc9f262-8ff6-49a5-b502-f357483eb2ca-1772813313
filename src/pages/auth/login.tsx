@@ -36,7 +36,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const result = await authService.login(email, password);
+      const result = await authService.login({ email, password });
 
       if (!result.success || !result.user) {
         throw new Error(result.error || "Login failed");

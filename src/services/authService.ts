@@ -1,5 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
 
+export interface User {
+  id: string;
+  email: string;
+  name?: string;
+  role?: string;
+}
+
 export const authService = {
   // Register new user
   async register(data: { email: string; password: string; full_name: string; referral_code?: string }) {
@@ -141,12 +148,12 @@ export const authService = {
   },
 
   // Verify 2FA
-  async verify2FA(code: string) {
+  async verify2FA(userId: string, code: string) {
     return { success: true, error: undefined };
   },
 
   // Register device
-  async registerDevice(fingerprint: string) {
+  async registerDevice(userId: string, fingerprint: string) {
     return { success: true, deviceId: `device_${Date.now()}`, error: undefined };
   },
 };
