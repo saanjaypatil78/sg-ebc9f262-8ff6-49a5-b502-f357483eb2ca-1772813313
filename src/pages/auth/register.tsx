@@ -79,11 +79,47 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
+      let referrerUserId: string | null = null;
+
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        referralCode
+      );
+
+      if (isUuid) {
+        referrerUserId = referralCode;
+      } else {
+        const { data: refRow, error: refErr } = await supabase
+          .from("user_profiles")
+          .select("user_id")
+          .eq("referral_code", referralCode)
+          .maybeSingle();
+
+        if (refErr) {
+          toast({
+            title: "Referral Validation Failed",
+            description: "Could not validate the referral code. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        referrerUserId = refRow?.user_id ? String(refRow.user_id) : null;
+      }
+
+      if (!referrerUserId) {
+        toast({
+          title: "Invalid Referral Code",
+          description: "Referral code not found. Please check and try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const result = await authService.register({
         email: formData.email,
         password: formData.password,
         fullName: formData.fullName,
-        referredByUserId: referralCode,
+        referredByUserId: referrerUserId,
       });
 
       if (result.success && result.user) {

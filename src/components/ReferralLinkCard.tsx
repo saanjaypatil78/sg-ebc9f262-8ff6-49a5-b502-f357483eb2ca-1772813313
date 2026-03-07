@@ -2,12 +2,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { referralService } from "@/services/referralService";
 import { commissionService } from "@/services/commissionService";
-import { Copy, Check, Share2, Calculator } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Separator } from "@/components/ui/separator";
+import { Check, Copy, Calculator, Share2 } from "lucide-react";
 
 interface ReferralLinkCardProps {
   userId: string;
@@ -20,29 +20,34 @@ function toNumber(input: string): number {
 }
 
 export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
+  const { toast } = useToast();
+
   const [copied, setCopied] = useState(false);
   const [previewAmount, setPreviewAmount] = useState("100000");
+
   const [rank, setRank] = useState<string>("BASE");
   const [levelRates, setLevelRates] = useState<number[] | null>(null);
-  const [referralCode, setReferralCode] = useState<string>(userId);
 
-  const { toast } = useToast();
+  const [referralCode, setReferralCode] = useState<string>("");
 
   useEffect(() => {
     let cancelled = false;
 
     const load = async () => {
       try {
-        const { data: userRow } = await supabase
-          .from("users")
+        const { data: profileRow } = await supabase
+          .from("user_profiles")
           .select("referral_code")
-          .eq("id", userId)
+          .eq("user_id", userId)
           .maybeSingle();
 
-        if (!cancelled && userRow?.referral_code) {
-          setReferralCode(String(userRow.referral_code));
+        if (!cancelled) {
+          const code = String(profileRow?.referral_code || "").trim();
+          setReferralCode(code || userId);
         }
-      } catch {}
+      } catch {
+        if (!cancelled) setReferralCode(userId);
+      }
 
       try {
         const { data: bv } = await supabase
@@ -77,7 +82,7 @@ export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
     };
   }, [rank]);
 
-  const referralLink = useMemo(() => referralService.getReferralLink(referralCode), [referralCode]);
+  const referralLink = useMemo(() => referralService.getReferralLink(referralCode || userId), [referralCode, userId]);
 
   const copyToClipboard = async () => {
     try {
@@ -132,7 +137,7 @@ export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
       <CardContent className="space-y-5">
         <div className="flex gap-2">
           <Input value={referralLink} readOnly className="bg-slate-800 border-slate-700" />
-          <Button onClick={copyToClipboard} variant="outline" size="icon" className="shrink-0">
+          <Button onClick={copyToClipboard} variant="outline" size="icon" className="shrink-0" aria-label="Copy referral link">
             {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
           </Button>
         </div>
@@ -150,13 +155,13 @@ export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
 
         <div className="p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-lg space-y-1">
           <p className="text-sm text-slate-300">
-            <strong className="text-cyan-400">Referral Code:</strong> {referralCode}
+            <strong className="text-cyan-400">Referral Code:</strong> {referralCode || userId}
           </p>
           <p className="text-sm text-slate-300">
             <strong className="text-cyan-400">Current Rank:</strong> {rank}
           </p>
           <p className="text-xs text-slate-400">
-            Preview uses paise rounding per level: gross → admin fee ({(preview.adminChargeRate * 100).toFixed(0)}%) → net.
+            Preview rounds at each step: gross → admin fee ({(preview.adminChargeRate * 100).toFixed(0)}%) → net.
           </p>
         </div>
 
@@ -168,15 +173,13 @@ export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
             <div className="text-sm font-semibold text-slate-200">Commission Preview (6 Levels)</div>
           </div>
 
-          <div className="flex gap-2">
-            <Input
-              value={previewAmount}
-              onChange={(e) => setPreviewAmount(e.target.value)}
-              inputMode="numeric"
-              placeholder="Enter downline investment amount (e.g., 100000)"
-              className="bg-slate-900/50 border-slate-700 text-white"
-            />
-          </div>
+          <Input
+            value={previewAmount}
+            onChange={(e) => setPreviewAmount(e.target.value)}
+            inputMode="numeric"
+            placeholder="Enter downline investment amount (e.g., 100000)"
+            className="bg-slate-900/50 border-slate-700 text-white"
+          />
 
           <div className="rounded-lg border border-white/10 overflow-hidden">
             <div className="grid grid-cols-5 gap-2 px-3 py-2 text-xs text-slate-400 bg-slate-900/40">
