@@ -10,8 +10,10 @@ interface ChartData {
   color: string;
 }
 
+export type DashboardRole = "investor" | "vendor" | "admin" | "bdm" | "client" | "franchise_partner";
+
 interface DashboardChartsProps {
-  role?: "investor" | "vendor" | "admin" | "bdm";
+  role?: DashboardRole;
 }
 
 export function DashboardCharts({ role = "investor" }: DashboardChartsProps) {

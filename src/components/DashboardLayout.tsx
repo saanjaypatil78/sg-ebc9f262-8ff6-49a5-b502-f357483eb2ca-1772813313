@@ -13,10 +13,12 @@ import { ProfileEditor } from "@/components/ProfileEditor";
 import { DashboardCharts } from "@/components/DashboardCharts";
 import { Button } from "@/components/ui/button";
 
+export type DashboardRole = "investor" | "vendor" | "admin" | "bdm" | "client" | "franchise_partner";
+
 interface DashboardLayoutProps {
   children: ReactNode;
   showCharts?: boolean;
-  role?: "investor" | "vendor" | "admin" | "bdm";
+  role?: DashboardRole;
 }
 
 export function DashboardLayout({ children, showCharts = false, role = "investor" }: DashboardLayoutProps) {
