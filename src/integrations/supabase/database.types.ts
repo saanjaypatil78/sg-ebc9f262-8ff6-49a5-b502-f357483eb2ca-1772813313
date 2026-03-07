@@ -1467,7 +1467,7 @@ export type Database = {
           {
             foreignKeyName: "user_attributes_user_id_fkey"
             columns: ["user_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -1631,9 +1631,12 @@ export type Database = {
       }
       users: {
         Row: {
+          contact_verified: boolean | null
+          contact_verified_at: string | null
           created_at: string | null
           email: string
           email_verified: boolean | null
+          email_verified_at: string | null
           full_name: string
           id: string
           is_active: boolean | null
@@ -1642,12 +1645,16 @@ export type Database = {
           password_hash: string
           phone: string | null
           role: string
+          two_factor_enabled: boolean | null
           updated_at: string | null
         }
         Insert: {
+          contact_verified?: boolean | null
+          contact_verified_at?: string | null
           created_at?: string | null
           email: string
           email_verified?: boolean | null
+          email_verified_at?: string | null
           full_name: string
           id?: string
           is_active?: boolean | null
@@ -1656,12 +1663,16 @@ export type Database = {
           password_hash: string
           phone?: string | null
           role?: string
+          two_factor_enabled?: boolean | null
           updated_at?: string | null
         }
         Update: {
+          contact_verified?: boolean | null
+          contact_verified_at?: string | null
           created_at?: string | null
           email?: string
           email_verified?: boolean | null
+          email_verified_at?: string | null
           full_name?: string
           id?: string
           is_active?: boolean | null
@@ -1670,6 +1681,7 @@ export type Database = {
           password_hash?: string
           phone?: string | null
           role?: string
+          two_factor_enabled?: boolean | null
           updated_at?: string | null
         }
         Relationships: []
