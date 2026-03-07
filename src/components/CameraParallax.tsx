@@ -41,36 +41,21 @@ export function CameraParallax({
     restDelta: 0.001,
   });
 
-  // Calculate transforms based on direction
-  const getTransform = (progress: MotionValue<number>) => {
-    const range = [-speed, speed];
-    
-    switch (direction) {
-      case "up":
-        return useTransform(progress, [0, 1], [range[0], range[1]]);
-      case "down":
-        return useTransform(progress, [0, 1], [range[1], range[0]]);
-      case "left":
-        return useTransform(progress, [0, 1], [range[0], range[1]]);
-      case "right":
-        return useTransform(progress, [0, 1], [range[1], range[0]]);
-      default:
-        return useTransform(progress, [0, 1], [0, 0]);
-    }
-  };
-
-  const y = direction === "up" || direction === "down" ? getTransform(smoothProgress) : 0;
-  const x = direction === "left" || direction === "right" ? getTransform(smoothProgress) : 0;
+  // Call all hooks at the top level unconditionally
+  const yUp = useTransform(smoothProgress, [0, 1], [-speed, speed]);
+  const yDown = useTransform(smoothProgress, [0, 1], [speed, -speed]);
+  const xLeft = useTransform(smoothProgress, [0, 1], [-speed, speed]);
+  const xRight = useTransform(smoothProgress, [0, 1], [speed, -speed]);
   
-  // Scale effect (dolly zoom)
-  const scaleValue = scale
-    ? useTransform(smoothProgress, [0, 0.5, 1], [0.8, 1, 0.8])
-    : 1;
+  const scaleTransform = useTransform(smoothProgress, [0, 0.5, 1], [0.8, 1, 0.8]);
+  const rotateTransform = useTransform(smoothProgress, [0, 1], [-2, 2]);
 
-  // Subtle rotation for depth
-  const rotateValue = rotate
-    ? useTransform(smoothProgress, [0, 1], [-2, 2])
-    : 0;
+  // Apply conditional logic to the values, not the hooks
+  const y = direction === "up" ? yUp : direction === "down" ? yDown : 0;
+  const x = direction === "left" ? xLeft : direction === "right" ? xRight : 0;
+  
+  const scaleValue = scale ? scaleTransform : 1;
+  const rotateValue = rotate ? rotateTransform : 0;
 
   return (
     <motion.div
