@@ -1,343 +1,180 @@
 import { supabase } from "@/integrations/supabase/client";
-import { emailNotificationService } from "@/lib/email/notifications";
+import { rankProgressionService } from "./rankProgressionService";
 
-export interface CommissionRecord {
-  id: string;
-  user_id: string;
-  source_payout_id: string;
-  commission_type: 'direct_referral' | 'team_leader_bonus' | 'rank_bonus';
-  base_amount: number;
-  commission_rate: number;
-  commission_amount: number;
-  referral_level: number | null;
-  created_at: string;
+export interface CommissionCalculation {
+  investorId: string;
+  level: number;
+  baseAmount: number;
+  commissionRate: number;
+  commissionAmount: number;
+  rank: string;
 }
 
-export interface UserRanking {
-  id: string;
-  user_id: string;
-  current_rank: 'grey' | 'orange' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
-  rank_color: 'grey' | 'orange' | 'green' | 'dark_green';
-  total_network_commission: number; // Database type is numeric which maps to number
-  bronze_countdown_start: string | null;
-  bronze_countdown_end: string | null;
-  rank_upgraded_at: string | null;
-  is_team_leader: boolean;
-  team_leader_activated_by: string | null;
+export interface WealthDistribution {
+  totalInvestment: number;
+  investorProfit: number; // 15% monthly
+  referralCommissions: CommissionCalculation[];
+  totalCommissionPaid: number;
+  adminCharges: number; // 10% of commission
+  netPayout: number;
 }
-
-export const COMMISSION_RATES = {
-  DIRECT_REFERRAL: 0.20, // 20% on investor payout
-  TEAM_LEADER_BONUS: 0.20, // 20% on sub-referral payouts (pre-Bronze)
-  BRONZE_THRESHOLD: 10000000, // ₹1 Crore in total commission
-  BRONZE_COUNTDOWN_DAYS: 90,
-} as const;
 
 export const commissionService = {
   /**
-   * STEP 1: Process investor payout FIRST
-   * STEP 2: Calculate referral commissions AFTER payout
-   * 
-   * This is the core logic: Payout → Commission → Deductions
+   * Calculate 15% monthly ROI for investor
    */
-  async processPayoutAndCommissions(payoutId: string): Promise<void> {
-    // Get the payout details
-    const { data: payout } = await supabase
-      .from('monthly_payouts')
-      .select('*, investment_agreements(*)')
-      .eq('id', payoutId)
-      .single();
-
-    if (!payout) throw new Error('Payout not found');
-
-    // STEP 1: Mark payout as processed (investor receives money FIRST)
-    await supabase
-      .from('monthly_payouts')
-      .update({ 
-        status: 'completed',
-        processed_at: new Date().toISOString()
-      })
-      .eq('id', payoutId);
-
-    // STEP 2: Now calculate commissions on the PAYOUT amount
-    await this.calculateReferralCommissions(payout);
+  calculateMonthlyROI(investmentAmount: number): number {
+    return investmentAmount * 0.15;
   },
 
   /**
-   * Calculate 20% commission on investor PAYOUT (not investment)
+   * Calculate commission for a specific level based on downline's profit
+   * Commission is calculated on the PROFIT (15% of investment), not the principal
    */
-  async calculateReferralCommissions(payout: any): Promise<void> {
-    const investorId = payout.investor_id;
-    const payoutAmount = parseFloat(payout.payout_amount);
+  async calculateLevelCommission(
+    investorUserId: string,
+    downlineProfit: number,
+    relationshipLevel: number
+  ): Promise<CommissionCalculation> {
+    // Get investor's current rank
+    const rankInfo = await rankProgressionService.getInvestorRank(investorUserId);
+    const allRanks = await rankProgressionService.getAllRanks();
+    const currentRankData = allRanks.find(r => r.rank === rankInfo.currentRank);
 
-    // Get the referrer (direct upline)
-    const { data: referralData } = await supabase
-      .from('referral_tree')
-      .select('referrer_id, referral_level')
-      .eq('user_id', investorId)
-      .single();
-
-    if (!referralData?.referrer_id) return; // No referrer
-
-    const referrerId = referralData.referrer_id;
-
-    // Check if referrer is a Team Leader (pre-Bronze)
-    const { data: ranking } = await supabase
-      .from('user_rankings')
-      .select('*')
-      .eq('user_id', referrerId)
-      .single();
-
-    const isTeamLeader = ranking?.is_team_leader && ranking.current_rank === 'grey';
-
-    // Calculate commission (20% of payout)
-    const commissionAmount = payoutAmount * COMMISSION_RATES.DIRECT_REFERRAL;
-
-    // Record the commission
-    await supabase
-      .from('commission_ledger')
-      .insert({
-        user_id: referrerId,
-        source_payout_id: payout.id,
-        commission_type: isTeamLeader ? 'team_leader_bonus' : 'direct_referral',
-        base_amount: payoutAmount.toString(),
-        commission_rate: COMMISSION_RATES.DIRECT_REFERRAL.toString(),
-        commission_amount: commissionAmount.toString(),
-        referral_level: 1
-      } as any);
-
-    // Update total commission earned
-    await this.updateTotalCommission(referrerId, commissionAmount);
-
-    // If Team Leader, also process sub-referrals
-    if (isTeamLeader) {
-      await this.processTeamLeaderBonus(referrerId, payout);
-    }
-  },
-
-  /**
-   * Team Leader Bonus: Treat all sub-referrals as direct referrals
-   * Generate 20% on their payouts too
-   */
-  async processTeamLeaderBonus(teamLeaderId: string, originalPayout: any): Promise<void> {
-    // Get all sub-referrals (referrals of the direct referral)
-    const { data: subReferrals } = await supabase
-      .from('referral_tree')
-      .select('user_id')
-      .eq('referrer_id', originalPayout.investor_id);
-
-    if (!subReferrals || subReferrals.length === 0) return;
-
-    // For each sub-referral's payout, give Team Leader 20%
-    for (const subRef of subReferrals) {
-      const { data: subPayouts } = await supabase
-        .from('monthly_payouts')
-        .select('*')
-        .eq('investor_id', subRef.user_id)
-        .eq('status', 'completed')
-        .gte('processed_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()); // Last 30 days
-
-      if (!subPayouts) continue;
-
-      for (const subPayout of subPayouts) {
-        // Ensure explicit number conversion for calculation
-        const payoutVal = parseFloat(subPayout.payout_amount as string);
-        const bonusAmount = payoutVal * COMMISSION_RATES.TEAM_LEADER_BONUS;
-
-        await supabase
-          .from('commission_ledger')
-          .insert({
-            user_id: teamLeaderId,
-            source_payout_id: subPayout.id,
-            commission_type: 'team_leader_bonus',
-            base_amount: parseFloat(subPayout.payout_amount).toString(),
-            commission_rate: COMMISSION_RATES.TEAM_LEADER_BONUS.toString(),
-            commission_amount: bonusAmount.toString(),
-            referral_level: 2
-          } as any);
-
-        await this.updateTotalCommission(teamLeaderId, bonusAmount);
-      }
-    }
-  },
-
-  /**
-   * Update user's total commission and check for rank upgrades
-   */
-  async updateTotalCommission(userId: string, additionalCommission: number): Promise<void> {
-    const { data: ranking } = await supabase
-      .from('user_rankings')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-
-    if (!ranking) {
-      // Create initial ranking - total_network_commission expects number
-      await supabase
-        .from('user_rankings')
-        .insert({
-          current_rank: 'grey',
-          rank_color: 'grey',
-          total_network_commission: additionalCommission.toString(),
-          user_id: userId
-        } as any); // Type assertion to bypass strict type checking
-      return;
+    if (!currentRankData) {
+      throw new Error(`Rank data not found for ${rankInfo.currentRank}`);
     }
 
-    // Calculate new total
-    const currentTotal = parseFloat(ranking.total_network_commission as unknown as string) || 0;
-    const newTotal = currentTotal + additionalCommission;
-
-    await supabase
-      .from('user_rankings')
-      .update({ 
-        total_network_commission: newTotal.toString(),
-        updated_at: new Date().toISOString()
-      } as any)
-      .eq('user_id', userId);
-
-    // Check for Bronze qualification (₹1 Cr)
-    if (newTotal >= COMMISSION_RATES.BRONZE_THRESHOLD && ranking.current_rank === 'grey') {
-      await this.startBronzeCountdown(userId);
+    // Get commission rate based on level
+    let commissionRate = 0;
+    switch (relationshipLevel) {
+      case 1: commissionRate = currentRankData.level1Rate; break;
+      case 2: commissionRate = currentRankData.level2Rate; break;
+      case 3: commissionRate = currentRankData.level3Rate; break;
+      case 4: commissionRate = currentRankData.level4Rate; break;
+      case 5: commissionRate = currentRankData.level5Rate; break;
+      case 6: commissionRate = currentRankData.level6Rate; break;
+      default: commissionRate = 0;
     }
-  },
 
-  /**
-   * Start 90-day countdown timer for Bronze qualification
-   */
-  async startBronzeCountdown(userId: string): Promise<void> {
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + COMMISSION_RATES.BRONZE_COUNTDOWN_DAYS * 24 * 60 * 60 * 1000);
-
-    await supabase
-      .from('user_rankings')
-      .update({
-        bronze_countdown_start: now.toISOString(),
-        bronze_countdown_end: expiresAt.toISOString(),
-        updated_at: now.toISOString()
-      })
-      .eq('user_id', userId);
-
-    // Send email notification to Super Admin
-    await this.notifySuperAdminBronzeQualification(userId);
-  },
-
-  /**
-   * Notify Super Admin at 007saanjaypatil@gmail.com
-   */
-  async notifySuperAdminBronzeQualification(userId: string): Promise<void> {
-    const { data: user } = await supabase
-      .from('profiles')
-      .select('first_name, last_name, email')
-      .eq('id', userId)
-      .single();
-
-    // TODO: Integrate email service (SendGrid, Resend, etc.)
-    console.log('Email notification to 007saanjaypatil@gmail.com:', {
-      subject: 'Bronze Tier Qualification - 90 Day Countdown Started',
-      user: user,
-      message: 'User has achieved ₹1 Cr in commission and qualifies for Bronze tier'
-    });
-  },
-
-  /**
-   * Activate Orange status (passive referral) - Super Admin only
-   */
-  async activateOrangeStatus(userId: string, superAdminId: string): Promise<void> {
-    await supabase
-      .from('user_rankings')
-      .update({
-        rank_color: 'orange',
-        is_team_leader: true,
-        updated_at: new Date().toISOString()
-      })
-      .eq('user_id', userId);
-  },
-
-  /**
-   * Upgrade to Bronze after 90-day countdown expires
-   */
-  async upgradeToBronze(userId: string): Promise<void> {
-    await supabase
-      .from('user_rankings')
-      .update({
-        current_rank: 'bronze',
-        rank_color: 'green',
-        is_team_leader: false, // No longer needs Team Leader bonus
-        bronze_countdown_start: null,
-        bronze_countdown_end: null,
-        updated_at: new Date().toISOString()
-      })
-      .eq('user_id', userId);
-  },
-
-  /**
-   * Get user's commission summary
-   */
-  async getCommissionSummary(userId: string) {
-    const { data: commissions } = await supabase
-      .from('commission_ledger')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    const { data: ranking } = await supabase
-      .from('user_rankings')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-
-    const totalEarned = ranking?.total_network_commission || 0;
-    const bronzeProgress = (totalEarned / COMMISSION_RATES.BRONZE_THRESHOLD) * 100;
+    const commissionAmount = downlineProfit * commissionRate;
 
     return {
-      commissions: commissions || [],
-      ranking: ranking,
-      totalEarned,
-      bronzeProgress,
-      daysUntilBronze: ranking?.bronze_countdown_end 
-        ? Math.ceil((new Date(ranking.bronze_countdown_end).getTime() - Date.now()) / (24 * 60 * 60 * 1000))
-        : null
+      investorId: investorUserId,
+      level: relationshipLevel,
+      baseAmount: downlineProfit,
+      commissionRate,
+      commissionAmount,
+      rank: rankInfo.currentRank,
     };
   },
 
   /**
-   * Upgrade to Dark Green rank (2+ years of active payouts)
+   * Calculate complete wealth distribution for an investment scenario
+   * Example: Mr. A invests ₹1L and refers 5 clients with ₹45L total
    */
-  async checkDarkGreenEligibility(userId: string) {
-    const { data: ranking } = await supabase
-      .from('user_rankings')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
+  async calculateWealthDistribution(
+    primaryInvestorId: string,
+    primaryInvestment: number,
+    referrals: Array<{ userId: string; investment: number; level: number }>
+  ): Promise<WealthDistribution> {
+    // 1. Calculate investor's own profit (15% monthly)
+    const investorProfit = this.calculateMonthlyROI(primaryInvestment);
 
-    if (!ranking || ranking.current_rank === 'dark_green') return;
-
-    // Check if user has 24+ consecutive monthly payouts
-    const { data: payouts } = await supabase
-      .from('monthly_payouts')
-      .select('*')
-      .eq('investor_id', userId)
-      .eq('status', 'completed')
-      .order('payout_month', { ascending: false });
-
-    if (payouts && payouts.length >= 24) {
-      const oldRank = ranking.current_rank;
-      
-      await supabase
-        .from('user_rankings')
-        .update({ 
-          current_rank: 'dark_green',
-          previous_rank: oldRank,
-          rank_upgraded_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', userId);
-
-      console.log(`User ${userId} upgraded to Dark Green rank`);
-
-      // Send email notifications
-      await emailNotificationService.onRankUpgrade(userId, 'unknown@example.com', 'User', oldRank, 'dark_green');
+    // 2. Calculate referral commissions
+    const referralCommissions: CommissionCalculation[] = [];
+    
+    for (const referral of referrals) {
+      const downlineProfit = this.calculateMonthlyROI(referral.investment);
+      const commission = await this.calculateLevelCommission(
+        primaryInvestorId,
+        downlineProfit,
+        referral.level
+      );
+      referralCommissions.push(commission);
     }
-  }
+
+    // 3. Calculate totals
+    const totalCommissionPaid = referralCommissions.reduce(
+      (sum, c) => sum + c.commissionAmount,
+      0
+    );
+
+    // 4. Admin charges (10% of commission only)
+    const adminCharges = totalCommissionPaid * 0.10;
+
+    // 5. Net payout to investor
+    const netPayout = investorProfit + totalCommissionPaid - adminCharges;
+
+    return {
+      totalInvestment: primaryInvestment,
+      investorProfit,
+      referralCommissions,
+      totalCommissionPaid,
+      adminCharges,
+      netPayout,
+    };
+  },
+
+  /**
+   * Auto-upgrade rank when business volume threshold is reached
+   */
+  async checkAndUpgradeRank(investorUserId: string): Promise<boolean> {
+    const { data, error } = await supabase.rpc('auto_upgrade_rank', {
+      investor_user_id: investorUserId,
+    });
+
+    if (error) {
+      console.error('Rank upgrade error:', error);
+      return false;
+    }
+
+    return data; // Returns true if rank was upgraded
+  },
+
+  /**
+   * Format currency for display
+   */
+  formatCurrency(amount: number): string {
+    if (amount >= 10000000) {
+      return `₹${(amount / 10000000).toFixed(2)} Cr`;
+    }
+    if (amount >= 100000) {
+      return `₹${(amount / 100000).toFixed(2)} L`;
+    }
+    if (amount >= 1000) {
+      return `₹${(amount / 1000).toFixed(2)} K`;
+    }
+    return `₹${amount.toLocaleString('en-IN')}`;
+  },
+
+  /**
+   * Get commission breakdown for display
+   */
+  getCommissionBreakdown(calculation: WealthDistribution): Array<{
+    label: string;
+    amount: number;
+    percentage?: number;
+  }> {
+    return [
+      {
+        label: 'Personal Investment ROI (15%)',
+        amount: calculation.investorProfit,
+        percentage: 15,
+      },
+      {
+        label: 'Referral Commissions',
+        amount: calculation.totalCommissionPaid,
+      },
+      {
+        label: 'Admin Charges (10% of commission)',
+        amount: -calculation.adminCharges,
+        percentage: -10,
+      },
+      {
+        label: 'Net Monthly Payout',
+        amount: calculation.netPayout,
+      },
+    ];
+  },
 };

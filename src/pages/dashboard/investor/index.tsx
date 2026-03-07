@@ -2,6 +2,7 @@ import { SEO } from "@/components/SEO";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { RankProgressCard } from "@/components/RankProgressCard";
+import { CommissionReports } from "@/components/CommissionReports";
 
 export default function InvestorDashboardPage() {
   const { user } = useAuth();
@@ -20,6 +21,14 @@ export default function InvestorDashboardPage() {
 
           {/* Rank Progress Card */}
           {user && <RankProgressCard userId={user.id} />}
+
+          {/* Commission & Wealth Distribution */}
+          {user && (
+            <CommissionReports 
+              userId={user.id} 
+              primaryInvestment={1000000} // ₹10 Lakhs - fetch from DB in production
+            />
+          )}
 
           {/* Rest of dashboard content */}
         </div>
