@@ -16,7 +16,7 @@ import Image from "next/image";
 export default function Home() {
   const stats = [
     { label: "Total Corpus", value: "₹12 Cr", icon: BarChart3 },
-    { label: "Contract Slots", value: "28", icon: Users },
+    { label: "Active Investors", value: "184", icon: Users },
     { label: "Monthly Return", value: "15%", icon: TrendingUp },
     { label: "Commission Rate", value: "45%", icon: Award }
   ];
@@ -33,7 +33,7 @@ export default function Home() {
     <>
       <SEO 
         title="Brave Ecom - India's Most Transparent Investment Ecosystem"
-        description="Join the exclusive ₹12 Crore investment opportunity. 15% monthly returns with full transparency. Only 28 slots available."
+        description="Join the exclusive ₹12 Crore investment opportunity. 15% monthly returns with full transparency. 184 active investors since January 2024."
       />
       
       <div className="relative bg-slate-950">
@@ -156,7 +156,7 @@ export default function Home() {
                   </div>
                   <div className="flex justify-between items-end border-b border-white/10 pb-2">
                     <span className="text-slate-400">Accessibility</span>
-                    <span className="text-xl font-bold text-white">Limited to 28 Slots</span>
+                    <span className="text-xl font-bold text-white">Limited Slots</span>
                   </div>
                 </div>
               </GlassmorphicCard>
@@ -279,7 +279,7 @@ export default function Home() {
                 Secure Your Position <span className="text-orange-400">Before Pre-IPO Closes</span>
               </h2>
               <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-                Only 28 institutional-grade slots available for retail participation.
+                Join 184 investors who have earned consistent 15% monthly returns since January 2024.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/auth/register">
