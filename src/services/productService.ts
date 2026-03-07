@@ -11,12 +11,12 @@ export const productService = {
   // Get all products
   async getAllProducts() {
     const { data, error } = await db
-      .from("products")
+      .from("vendor_products")
       .select(`
         *,
-        vendors(business_name, status)
+        vendors(business_name, vendor_status)
       `)
-      .eq("status", "active")
+      .eq("product_status", "active")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -29,7 +29,7 @@ export const productService = {
   // Get products by vendor
   async getVendorProducts(vendorId: string) {
     const { data, error } = await db
-      .from("products")
+      .from("vendor_products")
       .select("*")
       .eq("vendor_id", vendorId)
       .order("created_at", { ascending: false });
@@ -44,10 +44,10 @@ export const productService = {
   // Get single product
   async getProduct(productId: string) {
     const { data, error } = await db
-      .from("products")
+      .from("vendor_products")
       .select(`
         *,
-        vendors(business_name, contact_email, contact_phone)
+        vendors(business_name)
       `)
       .eq("id", productId)
       .single();
@@ -62,7 +62,7 @@ export const productService = {
   // Create product
   async createProduct(product: ProductInsert) {
     const { data, error } = await db
-      .from("products")
+      .from("vendor_products")
       .insert(product)
       .select()
       .single();
@@ -77,7 +77,7 @@ export const productService = {
   // Update product
   async updateProduct(productId: string, updates: ProductUpdate) {
     const { data, error } = await db
-      .from("products")
+      .from("vendor_products")
       .update(updates)
       .eq("id", productId)
       .select()
@@ -93,7 +93,7 @@ export const productService = {
   // Update stock quantity
   async updateStock(productId: string, quantity: number) {
     const { data, error } = await db
-      .from("products")
+      .from("vendor_products")
       .update({ stock_quantity: quantity })
       .eq("id", productId)
       .select()
@@ -109,7 +109,7 @@ export const productService = {
   // Deduct stock (when order placed)
   async deductStock(productId: string, quantity: number) {
     const { data: product } = await db
-      .from("products")
+      .from("vendor_products")
       .select("stock_quantity")
       .eq("id", productId)
       .single();
@@ -125,13 +125,13 @@ export const productService = {
   // Search products
   async searchProducts(query: string) {
     const { data, error } = await db
-      .from("products")
+      .from("vendor_products")
       .select(`
         *,
         vendors(business_name)
       `)
-      .eq("status", "active")
-      .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
+      .eq("product_status", "active")
+      .or(`product_name.ilike.%${query}%,product_description.ilike.%${query}%`)
       .limit(20);
 
     if (error) {
