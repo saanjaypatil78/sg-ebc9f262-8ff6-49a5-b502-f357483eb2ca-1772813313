@@ -13,36 +13,43 @@ import { motion } from "framer-motion";
 
 interface DashboardFiltersProps {
   onSearch?: (query: string) => void;
-  onFilterChange?: (filters: FilterOptions) => void;
+  onFilterChange?: (filters: FilterState) => void;
   onExport?: () => void;
+  showSearch?: boolean;
   showDateRange?: boolean;
   showRankFilter?: boolean;
   showStatusFilter?: boolean;
+  showStatus?: boolean;
+  showRole?: boolean;
 }
 
-export interface FilterOptions {
+export interface FilterState {
   dateRange?: string;
   rank?: string;
   status?: string;
+  role?: string;
 }
 
 export function DashboardFilters({
   onSearch,
   onFilterChange,
   onExport,
+  showSearch = true,
   showDateRange = true,
   showRankFilter = false,
   showStatusFilter = false,
+  showStatus = false,
+  showRole = false,
 }: DashboardFiltersProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<FilterOptions>({});
+  const [filters, setFilters] = useState<FilterState>({});
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
     onSearch?.(value);
   };
 
-  const handleFilterChange = (key: keyof FilterOptions, value: string) => {
+  const handleFilterChange = (key: keyof FilterState, value: string) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     onFilterChange?.(newFilters);
@@ -55,16 +62,18 @@ export function DashboardFilters({
       className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 space-y-4"
     >
       {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-        <Input
-          type="text"
-          placeholder="Search by name, email, or ID..."
-          value={searchQuery}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          className="pl-10 bg-slate-900/50 border-slate-600 text-white"
-        />
-      </div>
+      {showSearch && (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <Input
+            type="text"
+            placeholder="Search by name, email, or ID..."
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="pl-10 bg-slate-900/50 border-slate-600 text-white"
+          />
+        </div>
+      )}
 
       {/* Filter Options */}
       <div className="flex flex-wrap gap-4">
@@ -104,7 +113,7 @@ export function DashboardFilters({
           </Select>
         )}
 
-        {showStatusFilter && (
+        {(showStatusFilter || showStatus) && (
           <Select onValueChange={(value) => handleFilterChange("status", value)}>
             <SelectTrigger className="w-[180px] bg-slate-900/50 border-slate-600 text-white">
               <Filter className="w-4 h-4 mr-2" />
@@ -116,6 +125,21 @@ export function DashboardFilters({
               <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="completed">Completed</SelectItem>
               <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+
+        {showRole && (
+          <Select onValueChange={(value) => handleFilterChange("role", value)}>
+            <SelectTrigger className="w-[180px] bg-slate-900/50 border-slate-600 text-white">
+              <Filter className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Role" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-800 border-slate-700">
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="investor">Investor</SelectItem>
+              <SelectItem value="vendor">Vendor</SelectItem>
+              <SelectItem value="client">Client</SelectItem>
             </SelectContent>
           </Select>
         )}
@@ -145,7 +169,7 @@ export function DashboardFilters({
               >
                 <span className="capitalize">{key}: {value}</span>
                 <button
-                  onClick={() => handleFilterChange(key as keyof FilterOptions, "")}
+                  onClick={() => handleFilterChange(key as keyof FilterState, "")}
                   className="hover:text-cyan-300"
                 >
                   ×
