@@ -1434,6 +1434,7 @@ export type Database = {
           kyc_verified_at: string | null
           last_investment_date: string | null
           risk_level: string | null
+          two_factor_required: boolean | null
           updated_at: string | null
           user_id: string
         }
@@ -1447,6 +1448,7 @@ export type Database = {
           kyc_verified_at?: string | null
           last_investment_date?: string | null
           risk_level?: string | null
+          two_factor_required?: boolean | null
           updated_at?: string | null
           user_id: string
         }
@@ -1460,6 +1462,7 @@ export type Database = {
           kyc_verified_at?: string | null
           last_investment_date?: string | null
           risk_level?: string | null
+          two_factor_required?: boolean | null
           updated_at?: string | null
           user_id?: string
         }
