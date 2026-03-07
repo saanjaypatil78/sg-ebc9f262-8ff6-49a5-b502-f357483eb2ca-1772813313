@@ -1,554 +1,289 @@
-/**
- * Email Notification Service
- * Auto-alert system for user actions
- */
+<![CDATA[
+import { supabase } from "@/integrations/supabase/client";
 
-export interface EmailConfig {
-  to: string;
-  subject: string;
-  htmlContent: string;
-  textContent: string;
+export interface RankUpgradeEmailData {
+  userEmail: string;
+  userName: string;
+  previousRank: string;
+  newRank: string;
+  newCommissionRates: {
+    level1: number;
+    level2: number;
+    level3: number;
+    level4: number;
+    level5: number;
+    level6: number;
+  };
+  totalBusinessVolume: number;
+  nextRankTarget?: number;
 }
 
-export interface NotificationTemplate {
-  welcome: (name: string, email: string) => EmailConfig;
-  investmentConfirmed: (name: string, amount: number, tier: string) => EmailConfig;
-  payoutProcessed: (name: string, amount: number, month: string) => EmailConfig;
-  rankUpgrade: (name: string, oldRank: string, newRank: string) => EmailConfig;
-  securityAlert: (name: string, action: string, ip: string) => EmailConfig;
-  twoFactorEnabled: (name: string) => EmailConfig;
-  deviceAdded: (name: string, deviceName: string) => EmailConfig;
-  passwordReset: (name: string, resetLink: string) => EmailConfig;
-  loginAlert: (name: string, location: string, device: string) => EmailConfig;
+export interface WithdrawalNotificationData {
+  userEmail: string;
+  userName: string;
+  amount: number;
+  status: "PENDING" | "ADMIN_APPROVED" | "PAYMENT_PROCESSING" | "COMPLETED" | "REJECTED";
+  referenceNumber?: string;
+  rejectionReason?: string;
 }
 
-const BRANDING = {
-  companyName: 'Brave Ecom (Sunray Ecosystem)',
-  supportEmail: 'support@bravecom.info',
-  websiteUrl: 'https://bravecom.info',
-  logoUrl: 'https://bravecom.info/bravecom-logo-hex.png',
-};
+export interface PayoutNotificationData {
+  userEmail: string;
+  userName: string;
+  amount: number;
+  month: string;
+  payoutDate: string;
+  investmentAmount: number;
+  roi: number;
+}
 
-/**
- * Email Templates
- */
-export const emailTemplates: NotificationTemplate = {
+export const emailNotifications = {
   /**
-   * Welcome Email (Registration)
+   * Send rank upgrade congratulations email
    */
-  welcome: (name: string, email: string) => ({
-    to: email,
-    subject: `Welcome to ${BRANDING.companyName}! 🎉`,
-    htmlContent: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #06b6d4 0%, #a855f7 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
-          .button { display: inline-block; background: #f97316; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
-          .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 14px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>Welcome to ${BRANDING.companyName}!</h1>
-          </div>
-          <div class="content">
-            <p>Hi <strong>${name}</strong>,</p>
-            <p>Thank you for registering with us! Your account has been successfully created.</p>
-            <p>You're now part of an exclusive investment ecosystem with:</p>
-            <ul>
-              <li>✅ 15% monthly returns</li>
-              <li>✅ Complete transparency</li>
-              <li>✅ Bank-grade security</li>
-              <li>✅ 184+ active investors</li>
-            </ul>
-            <p><strong>Next Steps:</strong></p>
-            <ol>
-              <li>Complete your KYC verification</li>
-              <li>Choose your investment tier</li>
-              <li>Start earning passive income!</li>
-            </ol>
-            <a href="${BRANDING.websiteUrl}/dashboard/investor" class="button">Go to Dashboard</a>
-          </div>
-          <div class="footer">
-            <p>${BRANDING.companyName}<br/>
-            Email: ${BRANDING.supportEmail}<br/>
-            Website: ${BRANDING.websiteUrl}</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
-    textContent: `Welcome to ${BRANDING.companyName}, ${name}!\n\nYour account has been successfully created. Visit ${BRANDING.websiteUrl}/dashboard/investor to get started.`,
-  }),
-
-  /**
-   * Investment Confirmation
-   */
-  investmentConfirmed: (name: string, amount: number, tier: string) => ({
-    to: '',
-    subject: `✅ Investment Confirmed - ₹${(amount / 100000).toFixed(2)} Lakh`,
-    htmlContent: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
-          .highlight { background: #fef3c7; padding: 20px; border-left: 4px solid #f59e0b; margin: 20px 0; border-radius: 6px; }
-          .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 14px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>🎉 Investment Confirmed!</h1>
-          </div>
-          <div class="content">
-            <p>Congratulations <strong>${name}</strong>,</p>
-            <p>Your investment has been successfully processed and confirmed!</p>
-            <div class="highlight">
-              <p><strong>Investment Details:</strong></p>
-              <ul>
-                <li><strong>Amount:</strong> ₹${(amount / 100000).toFixed(2)} Lakh</li>
-                <li><strong>Tier:</strong> ${tier}</li>
-                <li><strong>Expected Monthly Return:</strong> ₹${(amount * 0.15 / 100000).toFixed(2)} Lakh (15%)</li>
-                <li><strong>First Payout:</strong> 45 days from today</li>
-                <li><strong>Subsequent Payouts:</strong> Every 30 days</li>
-              </ul>
+  async sendRankUpgradeEmail(data: RankUpgradeEmailData): Promise<void> {
+    try {
+      const emailHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f7fafc; padding: 30px; border-radius: 0 0 10px 10px; }
+            .badge { display: inline-block; padding: 10px 20px; background: #f97316; color: white; border-radius: 20px; font-weight: bold; margin: 10px 0; }
+            .commission-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            .commission-table th, .commission-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+            .commission-table th { background: #edf2f7; font-weight: bold; }
+            .highlight { background: #fef3c7; padding: 15px; border-left: 4px solid #f59e0b; margin: 20px 0; }
+            .footer { text-align: center; color: #718096; font-size: 14px; margin-top: 20px; }
+            .cta-button { display: inline-block; background: #f97316; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🎉 Congratulations ${data.userName}!</h1>
+              <h2>You've Been Upgraded to ${data.newRank} Rank!</h2>
             </div>
-            <p><strong>What happens next?</strong></p>
-            <ol>
-              <li>Your investment is now active</li>
-              <li>Returns will be calculated monthly</li>
-              <li>Track your portfolio in the dashboard</li>
-              <li>Refer friends to boost your rank!</li>
-            </ol>
-          </div>
-          <div class="footer">
-            <p>${BRANDING.companyName}<br/>
-            Support: ${BRANDING.supportEmail}</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
-    textContent: `Investment Confirmed!\n\nAmount: ₹${(amount / 100000).toFixed(2)} Lakh\nTier: ${tier}\nExpected Monthly Return: ₹${(amount * 0.15 / 100000).toFixed(2)} Lakh`,
-  }),
-
-  /**
-   * Payout Processed
-   */
-  payoutProcessed: (name: string, amount: number, month: string) => ({
-    to: '',
-    subject: `💰 Payout Processed - ₹${(amount / 100000).toFixed(2)} Lakh`,
-    htmlContent: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
-          .amount { font-size: 36px; color: #10b981; font-weight: bold; text-align: center; margin: 20px 0; }
-          .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 14px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>💰 Payout Processed!</h1>
-          </div>
-          <div class="content">
-            <p>Great news, <strong>${name}</strong>!</p>
-            <p>Your ${month} payout has been successfully processed.</p>
-            <div class="amount">₹${(amount / 100000).toFixed(2)} Lakh</div>
-            <p>The amount will be credited to your registered bank account within 2-3 business days.</p>
-            <p><strong>Payment Details:</strong></p>
-            <ul>
-              <li>Period: ${month}</li>
-              <li>Amount: ₹${amount.toLocaleString('en-IN')}</li>
-              <li>Status: Processed ✅</li>
-            </ul>
-          </div>
-          <div class="footer">
-            <p>${BRANDING.companyName}<br/>
-            Questions? Contact: ${BRANDING.supportEmail}</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
-    textContent: `Payout Processed!\n\nAmount: ₹${(amount / 100000).toFixed(2)} Lakh\nPeriod: ${month}\nStatus: Processed ✅`,
-  }),
-
-  /**
-   * Rank Upgrade
-   */
-  rankUpgrade: (name: string, oldRank: string, newRank: string) => ({
-    to: '',
-    subject: `🏆 Rank Upgraded: ${newRank}!`,
-    htmlContent: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
-          .rank-badge { font-size: 48px; text-align: center; margin: 20px 0; }
-          .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 14px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>🏆 Congratulations!</h1>
-          </div>
-          <div class="content">
-            <p>Amazing work, <strong>${name}</strong>!</p>
-            <p>You've achieved a new rank in the Sunray Ecosystem!</p>
-            <div class="rank-badge">
-              ${oldRank} → <span style="color: #f59e0b;">${newRank}</span>
+            <div class="content">
+              <p>Dear ${data.userName},</p>
+              
+              <p>We're thrilled to inform you that you've achieved a major milestone in your investment journey!</p>
+              
+              <div class="highlight">
+                <strong>Rank Progression:</strong><br>
+                ${data.previousRank} → <span class="badge">${data.newRank}</span>
+              </div>
+              
+              <p><strong>Your Total Business Volume:</strong> ₹${this.formatCurrency(data.totalBusinessVolume)}</p>
+              
+              ${data.nextRankTarget ? `<p><strong>Next Target (${this.getNextRank(data.newRank)}):</strong> ₹${this.formatCurrency(data.nextRankTarget)}</p>` : '<p><strong>Status:</strong> You\'ve reached the highest rank! 🏆</p>'}
+              
+              <h3>Your New Commission Rates:</h3>
+              <table class="commission-table">
+                <tr>
+                  <th>Level</th>
+                  <th>Commission Rate</th>
+                </tr>
+                <tr>
+                  <td>Level 1 (Direct Referrals)</td>
+                  <td><strong>${data.newCommissionRates.level1}%</strong></td>
+                </tr>
+                <tr>
+                  <td>Level 2</td>
+                  <td><strong>${data.newCommissionRates.level2}%</strong></td>
+                </tr>
+                <tr>
+                  <td>Level 3</td>
+                  <td><strong>${data.newCommissionRates.level3}%</strong></td>
+                </tr>
+                <tr>
+                  <td>Level 4</td>
+                  <td><strong>${data.newCommissionRates.level4}%</strong></td>
+                </tr>
+                <tr>
+                  <td>Level 5</td>
+                  <td><strong>${data.newCommissionRates.level5}%</strong></td>
+                </tr>
+                <tr>
+                  <td>Level 6</td>
+                  <td><strong>${data.newCommissionRates.level6}%</strong></td>
+                </tr>
+              </table>
+              
+              <div class="highlight">
+                <strong>What This Means:</strong><br>
+                All your future commissions will be calculated using these enhanced rates. Your monthly payouts will automatically increase!
+              </div>
+              
+              <center>
+                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/investor" class="cta-button">
+                  View Your Dashboard
+                </a>
+              </center>
+              
+              <p>Keep growing your network to reach even higher ranks and earn more!</p>
+              
+              <p>Best regards,<br>
+              <strong>Brave Ecom Team</strong></p>
+              
+              <div class="footer">
+                <p>This is an automated notification. Please do not reply to this email.</p>
+                <p>&copy; ${new Date().getFullYear()} Brave Ecom. All rights reserved.</p>
+              </div>
             </div>
-            <p><strong>Benefits of ${newRank} Rank:</strong></p>
-            <ul>
-              <li>✅ Higher commission percentages</li>
-              <li>✅ Exclusive bonuses</li>
-              <li>✅ Priority support</li>
-              <li>✅ Special recognition</li>
-            </ul>
-            <p>Keep growing your network to unlock even more rewards!</p>
           </div>
-          <div class="footer">
-            <p>${BRANDING.companyName}<br/>
-            Celebrate: ${BRANDING.supportEmail}</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
-    textContent: `Rank Upgraded!\n\n${oldRank} → ${newRank}\n\nCongratulations ${name}! You've unlocked new benefits.`,
-  }),
+        </body>
+        </html>
+      `;
+
+      // Send email via Supabase Edge Function or external service
+      // For now, log to console (can be replaced with actual email service)
+      console.log("📧 Rank Upgrade Email:", {
+        to: data.userEmail,
+        subject: `🎉 Congratulations! Upgraded to ${data.newRank} Rank`,
+        html: emailHtml,
+      });
+
+      // Store notification in database
+      await this.storeNotification({
+        userEmail: data.userEmail,
+        type: "RANK_UPGRADE",
+        title: `Upgraded to ${data.newRank}`,
+        message: `Congratulations! You've been upgraded from ${data.previousRank} to ${data.newRank} rank.`,
+        metadata: data,
+      });
+    } catch (error) {
+      console.error("Failed to send rank upgrade email:", error);
+      throw error;
+    }
+  },
 
   /**
-   * Security Alert
+   * Send withdrawal status notification
    */
-  securityAlert: (name: string, action: string, ip: string) => ({
-    to: '',
-    subject: `🔒 Security Alert: ${action}`,
-    htmlContent: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
-          .alert { background: #fee2e2; padding: 20px; border-left: 4px solid #ef4444; margin: 20px 0; border-radius: 6px; }
-          .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 14px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>🔒 Security Alert</h1>
-          </div>
-          <div class="content">
-            <p>Hi <strong>${name}</strong>,</p>
-            <div class="alert">
-              <p><strong>Security Action Detected:</strong></p>
-              <ul>
-                <li><strong>Action:</strong> ${action}</li>
-                <li><strong>IP Address:</strong> ${ip}</li>
-                <li><strong>Time:</strong> ${new Date().toLocaleString()}</li>
-              </ul>
-            </div>
-            <p><strong>Was this you?</strong></p>
-            <p>If you recognize this activity, you can safely ignore this email.</p>
-            <p>If you did NOT perform this action, please:</p>
-            <ol>
-              <li>Change your password immediately</li>
-              <li>Enable 2FA if not already active</li>
-              <li>Contact support: ${BRANDING.supportEmail}</li>
-            </ol>
-          </div>
-          <div class="footer">
-            <p>${BRANDING.companyName}<br/>
-            Security Team: ${BRANDING.supportEmail}</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
-    textContent: `Security Alert!\n\nAction: ${action}\nIP: ${ip}\n\nIf this wasn't you, contact support immediately.`,
-  }),
+  async sendWithdrawalNotification(data: WithdrawalNotificationData): Promise<void> {
+    const statusMessages = {
+      PENDING: {
+        subject: "Withdrawal Request Received",
+        message: `Your withdrawal request for ₹${this.formatCurrency(data.amount)} has been received and is pending admin review.`,
+      },
+      ADMIN_APPROVED: {
+        subject: "Withdrawal Approved by Admin",
+        message: `Good news! Your withdrawal request for ₹${this.formatCurrency(data.amount)} has been approved by admin and is awaiting final confirmation.`,
+      },
+      PAYMENT_PROCESSING: {
+        subject: "Payment Processing",
+        message: `Your withdrawal of ₹${this.formatCurrency(data.amount)} is being processed.`,
+      },
+      COMPLETED: {
+        subject: "Withdrawal Completed",
+        message: `Your withdrawal of ₹${this.formatCurrency(data.amount)} has been completed. Reference: ${data.referenceNumber}`,
+      },
+      REJECTED: {
+        subject: "Withdrawal Request Rejected",
+        message: `Your withdrawal request for ₹${this.formatCurrency(data.amount)} has been rejected. Reason: ${data.rejectionReason}`,
+      },
+    };
 
-  /**
-   * 2FA Enabled
-   */
-  twoFactorEnabled: (name: string) => ({
-    to: '',
-    subject: '✅ Two-Factor Authentication Enabled',
-    htmlContent: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
-          .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 14px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>✅ 2FA Enabled!</h1>
-          </div>
-          <div class="content">
-            <p>Hi <strong>${name}</strong>,</p>
-            <p>Two-Factor Authentication has been successfully enabled on your account.</p>
-            <p><strong>Enhanced Security Active:</strong></p>
-            <ul>
-              <li>✅ TOTP-based verification</li>
-              <li>✅ Google Authenticator compatible</li>
-              <li>✅ Backup codes generated</li>
-              <li>✅ Login protection enhanced</li>
-            </ul>
-            <p>Your account is now significantly more secure!</p>
-          </div>
-          <div class="footer">
-            <p>${BRANDING.companyName}</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
-    textContent: `2FA Enabled!\n\nYour account security has been enhanced with Two-Factor Authentication.`,
-  }),
+    const { subject, message } = statusMessages[data.status];
 
-  /**
-   * Device Added
-   */
-  deviceAdded: (name: string, deviceName: string) => ({
-    to: '',
-    subject: '📱 New Device Added to Your Account',
-    htmlContent: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
-          .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 14px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>📱 New Device Added</h1>
-          </div>
-          <div class="content">
-            <p>Hi <strong>${name}</strong>,</p>
-            <p>A new device has been added to your trusted devices:</p>
-            <p><strong>Device:</strong> ${deviceName}</p>
-            <p>This device is now authorized for high-value transactions.</p>
-            <p>If you did not add this device, please remove it immediately from your security settings.</p>
-          </div>
-          <div class="footer">
-            <p>${BRANDING.companyName}</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
-    textContent: `New Device Added\n\nDevice: ${deviceName}\n\nIf this wasn't you, remove it from security settings.`,
-  }),
-
-  /**
-   * Password Reset
-   */
-  passwordReset: (name: string, resetLink: string) => ({
-    to: '',
-    subject: '🔑 Password Reset Request',
-    htmlContent: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
-          .button { display: inline-block; background: #f97316; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
-          .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 14px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>🔑 Reset Your Password</h1>
-          </div>
-          <div class="content">
-            <p>Hi <strong>${name}</strong>,</p>
-            <p>We received a request to reset your password.</p>
-            <p>Click the button below to create a new password:</p>
-            <a href="${resetLink}" class="button">Reset Password</a>
-            <p><strong>Important:</strong></p>
-            <ul>
-              <li>This link expires in 1 hour</li>
-              <li>If you didn't request this, ignore this email</li>
-              <li>Your password won't change until you create a new one</li>
-            </ul>
-          </div>
-          <div class="footer">
-            <p>${BRANDING.companyName}<br/>
-            Support: ${BRANDING.supportEmail}</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
-    textContent: `Password Reset Request\n\nClick here to reset: ${resetLink}\n\nExpires in 1 hour.`,
-  }),
-
-  /**
-   * Login Alert
-   */
-  loginAlert: (name: string, location: string, device: string) => ({
-    to: '',
-    subject: '🔔 New Login Detected',
-    htmlContent: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
-          .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 14px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>🔔 New Login Detected</h1>
-          </div>
-          <div class="content">
-            <p>Hi <strong>${name}</strong>,</p>
-            <p>A new login to your account was detected:</p>
-            <ul>
-              <li><strong>Location:</strong> ${location}</li>
-              <li><strong>Device:</strong> ${device}</li>
-              <li><strong>Time:</strong> ${new Date().toLocaleString()}</li>
-            </ul>
-            <p>If this was you, you can safely ignore this email.</p>
-            <p>If you don't recognize this activity, secure your account immediately.</p>
-          </div>
-          <div class="footer">
-            <p>${BRANDING.companyName}</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
-    textContent: `New Login Detected\n\nLocation: ${location}\nDevice: ${device}\nTime: ${new Date().toLocaleString()}`,
-  }),
-};
-
-/**
- * Send Email Function (Integration point for email service)
- */
-export async function sendEmail(config: EmailConfig): Promise<{ success: boolean; error?: string }> {
-  try {
-    // TODO: Integrate with email service provider (SendGrid, Resend, etc.)
-    // For now, just log the email
-    console.log('📧 Email Notification:', {
-      to: config.to,
-      subject: config.subject,
-      preview: config.textContent.substring(0, 100),
+    console.log("📧 Withdrawal Notification:", {
+      to: data.userEmail,
+      subject,
+      message,
     });
 
-    // Simulate email sending
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    return { success: true };
-  } catch (error) {
-    console.error('Email sending failed:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
-  }
-}
-
-/**
- * Auto-trigger email notifications based on events
- */
-export const emailNotificationService = {
-  async onUserRegistered(userId: string, email: string, name: string) {
-    const emailConfig = emailTemplates.welcome(name, email);
-    emailConfig.to = email;
-    await sendEmail(emailConfig);
+    await this.storeNotification({
+      userEmail: data.userEmail,
+      type: "WITHDRAWAL",
+      title: subject,
+      message,
+      metadata: data,
+    });
   },
 
-  async onInvestmentConfirmed(userId: string, email: string, name: string, amount: number, tier: string) {
-    const emailConfig = emailTemplates.investmentConfirmed(name, amount, tier);
-    emailConfig.to = email;
-    await sendEmail(emailConfig);
+  /**
+   * Send payout notification
+   */
+  async sendPayoutNotification(data: PayoutNotificationData): Promise<void> {
+    console.log("📧 Payout Notification:", {
+      to: data.userEmail,
+      subject: `Monthly Payout - ${data.month}`,
+      message: `Your payout of ₹${this.formatCurrency(data.amount)} for ${data.month} has been processed.`,
+    });
+
+    await this.storeNotification({
+      userEmail: data.userEmail,
+      type: "PAYOUT",
+      title: `Payout Received - ${data.month}`,
+      message: `₹${this.formatCurrency(data.amount)} has been credited to your account.`,
+      metadata: data,
+    });
   },
 
-  async onPayoutProcessed(userId: string, email: string, name: string, amount: number, month: string) {
-    const emailConfig = emailTemplates.payoutProcessed(name, amount, month);
-    emailConfig.to = email;
-    await sendEmail(emailConfig);
+  /**
+   * Store notification in database for in-app display
+   */
+  async storeNotification(notification: {
+    userEmail: string;
+    type: string;
+    title: string;
+    message: string;
+    metadata?: any;
+  }): Promise<void> {
+    try {
+      // Get user ID from email
+      const { data: user } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("email", notification.userEmail)
+        .single();
+
+      if (!user) {
+        console.error("User not found:", notification.userEmail);
+        return;
+      }
+
+      // Insert notification
+      const { error } = await supabase.from("notifications").insert({
+        user_id: user.id,
+        type: notification.type,
+        title: notification.title,
+        message: notification.message,
+        metadata: notification.metadata,
+        read: false,
+        created_at: new Date().toISOString(),
+      });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error("Failed to store notification:", error);
+    }
   },
 
-  async onRankUpgrade(userId: string, email: string, name: string, oldRank: string, newRank: string) {
-    const emailConfig = emailTemplates.rankUpgrade(name, oldRank, newRank);
-    emailConfig.to = email;
-    await sendEmail(emailConfig);
+  /**
+   * Utility: Format currency
+   */
+  formatCurrency(amount: number): string {
+    if (amount >= 10000000) {
+      return `${(amount / 10000000).toFixed(2)} Cr`;
+    }
+    if (amount >= 100000) {
+      return `${(amount / 100000).toFixed(2)} L`;
+    }
+    return amount.toLocaleString("en-IN");
   },
 
-  async onSecurityAlert(userId: string, email: string, name: string, action: string, ip: string) {
-    const emailConfig = emailTemplates.securityAlert(name, action, ip);
-    emailConfig.to = email;
-    await sendEmail(emailConfig);
-  },
-
-  async on2FAEnabled(userId: string, email: string, name: string) {
-    const emailConfig = emailTemplates.twoFactorEnabled(name);
-    emailConfig.to = email;
-    await sendEmail(emailConfig);
-  },
-
-  async onDeviceAdded(userId: string, email: string, name: string, deviceName: string) {
-    const emailConfig = emailTemplates.deviceAdded(name, deviceName);
-    emailConfig.to = email;
-    await sendEmail(emailConfig);
-  },
-
-  async onPasswordReset(userId: string, email: string, name: string, resetLink: string) {
-    const emailConfig = emailTemplates.passwordReset(name, resetLink);
-    emailConfig.to = email;
-    await sendEmail(emailConfig);
-  },
-
-  async onLogin(userId: string, email: string, name: string, location: string, device: string) {
-    const emailConfig = emailTemplates.loginAlert(name, location, device);
-    emailConfig.to = email;
-    await sendEmail(emailConfig);
+  /**
+   * Utility: Get next rank name
+   */
+  getNextRank(currentRank: string): string {
+    const ranks = ["BASE", "BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "AMBASSADOR"];
+    const currentIndex = ranks.indexOf(currentRank);
+    return currentIndex < ranks.length - 1 ? ranks[currentIndex + 1] : "MAX";
   },
 };
+</![CDATA[>

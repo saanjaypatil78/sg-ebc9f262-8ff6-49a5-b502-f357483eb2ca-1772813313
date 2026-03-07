@@ -844,6 +844,39 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          read: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          read?: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          read?: boolean | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       password_reset_tokens: {
         Row: {
           created_at: string | null
@@ -1015,6 +1048,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payout_schedule: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          investment_id: string | null
+          payout_number: number
+          processed_at: string | null
+          scheduled_date: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          investment_id?: string | null
+          payout_number: number
+          processed_at?: string | null
+          scheduled_date: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          investment_id?: string | null
+          payout_number?: number
+          processed_at?: string | null
+          scheduled_date?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       permissions: {
         Row: {
@@ -2102,6 +2171,51 @@ export type Database = {
         }
         Relationships: []
       }
+      withdrawal_requests: {
+        Row: {
+          admin_approved_at: string | null
+          admin_approved_by: string | null
+          amount: number
+          created_at: string | null
+          id: string
+          payment_reference: string | null
+          rejection_reason: string | null
+          status: string | null
+          superadmin_approved_at: string | null
+          superadmin_approved_by: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_approved_at?: string | null
+          admin_approved_by?: string | null
+          amount: number
+          created_at?: string | null
+          id?: string
+          payment_reference?: string | null
+          rejection_reason?: string | null
+          status?: string | null
+          superadmin_approved_at?: string | null
+          superadmin_approved_by?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_approved_at?: string | null
+          admin_approved_by?: string | null
+          amount?: number
+          created_at?: string | null
+          id?: string
+          payment_reference?: string | null
+          rejection_reason?: string | null
+          status?: string | null
+          superadmin_approved_at?: string | null
+          superadmin_approved_by?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -2122,6 +2236,19 @@ export type Database = {
       }
       check_passive_timer_expiry: { Args: never; Returns: undefined }
       cleanup_expired_sessions: { Args: never; Returns: undefined }
+      generate_payout_schedule: {
+        Args: {
+          p_investment_amount: number
+          p_investment_date: string
+          p_months?: number
+          p_user_id: string
+        }
+        Returns: {
+          amount: number
+          payout_number: number
+          scheduled_date: string
+        }[]
+      }
       get_user_abac_attributes: {
         Args: { p_user_id: string }
         Returns: {
@@ -2130,6 +2257,15 @@ export type Database = {
           require_2fa: boolean
           require_device_binding: boolean
           total_investment: number
+        }[]
+      }
+      process_due_payouts: {
+        Args: never
+        Returns: {
+          amount: number
+          payout_id: string
+          user_email: string
+          user_id: string
         }[]
       }
       record_login_attempt: {
@@ -2142,6 +2278,15 @@ export type Database = {
           p_user_id: string
         }
         Returns: string
+      }
+      schedule_investment_payouts: {
+        Args: {
+          p_investment_amount: number
+          p_investment_date: string
+          p_investment_id: string
+          p_user_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
