@@ -45,21 +45,31 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form
+    if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword || !formData.referralCode) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       toast({
-        variant: "destructive",
         title: "Password Mismatch",
-        description: "Passwords do not match. Please try again.",
+        description: "Passwords do not match",
+        variant: "destructive",
       });
       return;
     }
 
     if (formData.password.length < 8) {
       toast({
-        variant: "destructive",
         title: "Weak Password",
-        description: "Password must be at least 8 characters long.",
+        description: "Password must be at least 8 characters",
+        variant: "destructive",
       });
       return;
     }
@@ -67,46 +77,50 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      // Validate referral code and get role
-      const { data: referrer, error: referralError } = await supabase
-        .from('users')
-        .select('id, role, referral_code')
-        .eq('referral_code', formData.referralCode.toUpperCase())
-        .single();
-
-      if (referralError || !referrer) {
-        throw new Error("Invalid referral code");
-      }
-
-      // Register with Supabase Auth
+      // Attempt registration
       const result = await authService.register({
         email: formData.email,
         password: formData.password,
-        full_name: formData.fullName,
-        referral_code: formData.referralCode.toUpperCase(),
-        referred_by: referrer.id,
-        role: referrer.role // Assign same role as referrer
+        fullName: formData.fullName,
+        referralCode: formData.referralCode,
       });
 
-      if (!result.success) {
-        throw new Error(result.error || "Failed to create account");
+      if (result.success && result.user) {
+        setShowConfetti(true);
+        toast({
+          title: "Registration Successful!",
+          description: `Welcome ${result.user.fullName}! Redirecting to your dashboard...`,
+        });
+
+        // Store user and redirect
+        localStorage.setItem("user", JSON.stringify(result.user));
+        
+        setTimeout(() => {
+          const roleRoutes: Record<string, string> = {
+            investor: "/dashboard/investor",
+            vendor: "/dashboard/vendor",
+            client: "/dashboard/client",
+            admin: "/dashboard/admin",
+            bdm: "/dashboard/bdm",
+            franchise: "/dashboard/franchise",
+            super_admin: "/dashboard/admin",
+          };
+          
+          router.push(roleRoutes[result.user!.role] || "/dashboard/client");
+        }, 2000);
+      } else {
+        toast({
+          title: "Registration Failed",
+          description: result.error || "Please check your information and try again",
+          variant: "destructive",
+        });
       }
-
-      setShowConfetti(true);
-      
+    } catch (error) {
+      console.error("Registration error:", error);
       toast({
-        title: "🎉 Account Created Successfully!",
-        description: "Please check your email to verify your account. Redirecting...",
-      });
-
-      setTimeout(() => {
-        router.push("/auth/onboarding");
-      }, 3000);
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
         title: "Registration Failed",
-        description: error.message || "An error occurred during registration.",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);

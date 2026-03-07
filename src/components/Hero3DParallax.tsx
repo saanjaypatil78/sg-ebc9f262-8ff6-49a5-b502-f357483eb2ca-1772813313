@@ -318,7 +318,7 @@ export function Hero3DParallax({
           {[
             { icon: "👥", label: "184+ Investors" },
             { icon: "💰", label: "₹12 Cr Invested" },
-            { icon: "📈", label: "203% Avg ROI" },
+            { icon: "📈", label: "15% Monthly ROI" },
             { icon: "🔒", label: "100% Transparent" },
           ].map((item, i) => (
             <motion.div
