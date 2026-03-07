@@ -337,7 +337,7 @@ export const commissionService = {
       console.log(`User ${userId} upgraded to Dark Green rank`);
 
       // Send email notifications
-      await emailService.sendRankUpgradeNotification(userId, 'dark_green', oldRank);
+      await emailNotificationService.onRankUpgrade(userId, 'unknown@example.com', 'User', oldRank, 'dark_green');
     }
   }
 };
