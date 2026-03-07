@@ -19,7 +19,7 @@ export function Hero3DParallax({
   title = "Transform Your Financial Future",
   subtitle = "Join 184+ investors earning 200%+ returns with India's most transparent investment platform",
   primaryCTA = { text: "Start Investing Now", href: "/invest" },
-  secondaryCTA = { text: "View Public Ledger", href: "/#transparency" },
+  secondaryCTA = { text: "Shop with Earning", href: "/shop" },
 }: Hero3DParallaxProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });

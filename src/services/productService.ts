@@ -139,5 +139,20 @@ export const productService = {
       throw error;
     }
     return (data || []) as any[];
+  },
+
+  async getProductDetails(productId: string) {
+    const { data, error } = await supabase
+      .from("vendor_products")
+      .select(`
+        *,
+        vendors ( business_name ),
+        product_aggregated_reviews (*)
+      `)
+      .eq("id", productId)
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 };

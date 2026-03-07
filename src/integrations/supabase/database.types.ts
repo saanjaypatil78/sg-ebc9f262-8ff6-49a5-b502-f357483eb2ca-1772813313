@@ -1352,6 +1352,47 @@ export type Database = {
           },
         ]
       }
+      product_aggregated_reviews: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_id: string | null
+          rating: number
+          review_date: string | null
+          review_text: string | null
+          reviewer_name: string | null
+          source_platform: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          rating: number
+          review_date?: string | null
+          review_text?: string | null
+          reviewer_name?: string | null
+          source_platform: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          rating?: number
+          review_date?: string | null
+          review_text?: string | null
+          reviewer_name?: string | null
+          source_platform?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_aggregated_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_conflicts: {
         Row: {
           bravecom_value: Json | null
@@ -2409,6 +2450,7 @@ export type Database = {
       }
       vendor_products: {
         Row: {
+          aggregated_rating: number | null
           approved_at: string | null
           approved_by: string | null
           category: string | null
@@ -2422,6 +2464,9 @@ export type Database = {
           product_name: string
           product_status: string | null
           rejection_reason: string | null
+          review_count: number | null
+          seo_description: string | null
+          seo_title: string | null
           sku: string | null
           stock_quantity: number | null
           total_revenue: number | null
@@ -2431,6 +2476,7 @@ export type Database = {
           vendor_id: string
         }
         Insert: {
+          aggregated_rating?: number | null
           approved_at?: string | null
           approved_by?: string | null
           category?: string | null
@@ -2444,6 +2490,9 @@ export type Database = {
           product_name: string
           product_status?: string | null
           rejection_reason?: string | null
+          review_count?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
           sku?: string | null
           stock_quantity?: number | null
           total_revenue?: number | null
@@ -2453,6 +2502,7 @@ export type Database = {
           vendor_id: string
         }
         Update: {
+          aggregated_rating?: number | null
           approved_at?: string | null
           approved_by?: string | null
           category?: string | null
@@ -2466,6 +2516,9 @@ export type Database = {
           product_name?: string
           product_status?: string | null
           rejection_reason?: string | null
+          review_count?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
           sku?: string | null
           stock_quantity?: number | null
           total_revenue?: number | null
@@ -2679,6 +2732,10 @@ export type Database = {
       }
       check_passive_timer_expiry: { Args: never; Returns: undefined }
       cleanup_expired_sessions: { Args: never; Returns: undefined }
+      deduct_product_stock: {
+        Args: { p_product_id: string; p_quantity: number }
+        Returns: boolean
+      }
       detect_product_conflict: {
         Args: {
           p_bravecom_value: Json
