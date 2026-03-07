@@ -100,16 +100,7 @@ export const referralService = {
     const { data, error } = await supabase
       .from("commission_accumulation_ledger")
       .select(
-        `
-        id,
-        commission_level,
-        source_amount,
-        gross_commission,
-        net_commission,
-        status,
-        created_at,
-        referral_user:referral_user_id (full_name)
-      `
+        "id, commission_level, source_amount, gross_commission, admin_charge, net_commission, status, created_at, referral_user_id"
       )
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
@@ -119,9 +110,28 @@ export const referralService = {
       return [];
     }
 
-    return (data || []).map((record: any) => ({
+    const rows = Array.isArray(data) ? data : [];
+    const referralIds = Array.from(
+      new Set(rows.map((r: any) => r.referral_user_id).filter(Boolean))
+    ) as string[];
+
+    const nameById: Record<string, string> = {};
+    if (referralIds.length) {
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", referralIds);
+
+      if (profilesError) console.error("Profile lookup error:", profilesError);
+
+      (profiles || []).forEach((p: any) => {
+        if (p?.id) nameById[p.id] = p.full_name || "Unknown";
+      });
+    }
+
+    return rows.map((record: any) => ({
       id: record.id,
-      fromUserName: record.referral_user?.full_name || "Unknown",
+      fromUserName: nameById[record.referral_user_id] || "Unknown",
       commissionLevel: record.commission_level,
       investmentAmount: parseFloat(record.source_amount || 0),
       commissionAmount: parseFloat(record.gross_commission || 0),

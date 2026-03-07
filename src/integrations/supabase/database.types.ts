@@ -2814,6 +2814,14 @@ export type Database = {
           user_id: string
         }[]
       }
+      process_referral_commissions: {
+        Args: {
+          p_downline_profile_id: string
+          p_source_amount: number
+          p_source_investment_id?: string
+        }
+        Returns: number
+      }
       record_login_attempt: {
         Args: {
           p_device_fingerprint: string

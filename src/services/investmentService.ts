@@ -30,22 +30,47 @@ export interface MonthlyPayoutSchedule {
 }
 
 export const investmentService = {
+  async resolveUserProfileId(inputId: string): Promise<string | null> {
+    const candidate = String(inputId || "").trim();
+    if (!candidate) return null;
+
+    const { data: byUserId, error: byUserIdError } = await supabase
+      .from("user_profiles")
+      .select("id")
+      .eq("user_id", candidate)
+      .maybeSingle();
+
+    if (!byUserIdError && byUserId?.id) return byUserId.id;
+
+    const { data: byProfileId, error: byProfileIdError } = await supabase
+      .from("user_profiles")
+      .select("id")
+      .eq("id", candidate)
+      .maybeSingle();
+
+    if (!byProfileIdError && byProfileId?.id) return byProfileId.id;
+
+    return null;
+  },
+
   /**
    * Create new investment and trigger notarized agreement generation
    */
   async createAgreement(userId: string, amount: number): Promise<boolean> {
     try {
-      // Inserting into 'investments' automatically triggers 'trigger_create_investment_agreement'
-      // which generates the 12-month fixed notarized agreement in the DB.
-      const { error } = await supabase.from('investments').insert({
-        user_id: userId,
+      const profileId = await this.resolveUserProfileId(userId);
+      if (!profileId) throw new Error("User profile not found");
+
+      const { error } = await supabase.from("investments").insert({
+        user_id: profileId,
         amount: amount,
-        status: 'ACTIVE'
+        payment_status: "pending",
       });
+
       if (error) throw error;
       return true;
     } catch (error) {
-      console.error('Failed to create agreement:', error);
+      console.error("Failed to create agreement:", error);
       return false;
     }
   },
