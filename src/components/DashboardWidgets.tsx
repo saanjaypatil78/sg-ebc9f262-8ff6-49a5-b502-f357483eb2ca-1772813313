@@ -15,7 +15,11 @@ import {
   Award,
 } from "lucide-react";
 
-export function DashboardWidgets() {
+interface DashboardWidgetsProps {
+  metrics?: any;
+}
+
+export function DashboardWidgets({ metrics: customMetrics }: DashboardWidgetsProps = {}) {
   // Recent Activity Widget
   const activities = [
     {
