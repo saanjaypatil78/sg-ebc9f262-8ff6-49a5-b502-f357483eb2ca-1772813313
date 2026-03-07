@@ -1,4 +1,4 @@
- 
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 export type Json =
   | string
   | number
@@ -1425,71 +1425,41 @@ export type Database = {
       }
       user_attributes: {
         Row: {
-          access_end_time: string | null
-          access_start_time: string | null
-          allowed_countries: string[] | null
-          allowed_ip_ranges: string[] | null
           created_at: string | null
+          device_binding_required: boolean | null
           id: string
+          investment_amount: number | null
           investment_tier: string | null
-          last_suspicious_activity: string | null
-          max_concurrent_sessions: number | null
-          max_transaction_amount: number | null
-          require_2fa: boolean | null
-          require_device_binding: boolean | null
-          require_dual_approval_above: number | null
-          require_email_verification: boolean | null
+          kyc_verified: boolean | null
+          kyc_verified_at: string | null
+          last_investment_date: string | null
           risk_level: string | null
-          session_timeout_minutes: number | null
-          suspicious_activity_count: number | null
-          timezone: string | null
-          total_investment: number | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
-          access_end_time?: string | null
-          access_start_time?: string | null
-          allowed_countries?: string[] | null
-          allowed_ip_ranges?: string[] | null
           created_at?: string | null
+          device_binding_required?: boolean | null
           id?: string
+          investment_amount?: number | null
           investment_tier?: string | null
-          last_suspicious_activity?: string | null
-          max_concurrent_sessions?: number | null
-          max_transaction_amount?: number | null
-          require_2fa?: boolean | null
-          require_device_binding?: boolean | null
-          require_dual_approval_above?: number | null
-          require_email_verification?: boolean | null
+          kyc_verified?: boolean | null
+          kyc_verified_at?: string | null
+          last_investment_date?: string | null
           risk_level?: string | null
-          session_timeout_minutes?: number | null
-          suspicious_activity_count?: number | null
-          timezone?: string | null
-          total_investment?: number | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
-          access_end_time?: string | null
-          access_start_time?: string | null
-          allowed_countries?: string[] | null
-          allowed_ip_ranges?: string[] | null
           created_at?: string | null
+          device_binding_required?: boolean | null
           id?: string
+          investment_amount?: number | null
           investment_tier?: string | null
-          last_suspicious_activity?: string | null
-          max_concurrent_sessions?: number | null
-          max_transaction_amount?: number | null
-          require_2fa?: boolean | null
-          require_device_binding?: boolean | null
-          require_dual_approval_above?: number | null
-          require_email_verification?: boolean | null
+          kyc_verified?: boolean | null
+          kyc_verified_at?: string | null
+          last_investment_date?: string | null
           risk_level?: string | null
-          session_timeout_minutes?: number | null
-          suspicious_activity_count?: number | null
-          timezone?: string | null
-          total_investment?: number | null
           updated_at?: string | null
           user_id?: string
         }
