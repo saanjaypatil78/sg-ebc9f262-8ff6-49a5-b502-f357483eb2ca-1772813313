@@ -19,11 +19,9 @@ export interface InvestorNetworkMember {
 export interface PayoutHistoryRecord {
   id: string;
   user_id: string;
-  payout_amount: number;
-  currency: string;
-  payout_date: string;
-  month_year: string;
+  amount: number;
   status: string;
+  created_at: string;
 }
 
 export const investorNetworkService = {
@@ -47,7 +45,7 @@ export const investorNetworkService = {
 
     // Team Leader: See all referrals under their code only
     if (currentInvestor.is_team_leader) {
-      query = query.or(`referral_code.eq.${currentInvestor.referral_code},referred_by.eq.${currentInvestor.referral_code}`);
+      query = query.eq('referred_by', currentInvestor.referral_code);
     } 
     // Level 2: See only Level 2
     else if (currentInvestor.investor_level === 2) {
@@ -75,7 +73,7 @@ export const investorNetworkService = {
       .from('payout_history')
       .select('*')
       .eq('user_id', userId)
-      .order('payout_date', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
     return data || [];

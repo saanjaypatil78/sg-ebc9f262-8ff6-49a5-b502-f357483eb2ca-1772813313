@@ -336,30 +336,35 @@ export default function InvestorNetworkPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {payoutHistory.map((payout) => (
-                      <TableRow key={payout.id} className="border-slate-700">
-                        <TableCell className="text-white font-medium">
-                          {payout.month_year}
-                        </TableCell>
-                        <TableCell className="text-slate-300">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-slate-400" />
-                            {new Date(payout.payout_date).toLocaleDateString('en-IN')}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-green-400 font-medium">
-                          {investorNetworkService.formatCurrency(payout.payout_amount, payout.currency)}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={`${
-                            payout.status === 'processed' ? 'bg-green-500' : 
-                            payout.status === 'pending' ? 'bg-orange-500' : 'bg-red-500'
-                          } text-white`}>
-                            {payout.status}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {payoutHistory.map((payout) => {
+                      const payoutDate = new Date(payout.created_at);
+                      const monthYear = payoutDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                      
+                      return (
+                        <TableRow key={payout.id} className="border-slate-700">
+                          <TableCell className="text-white font-medium">
+                            {monthYear}
+                          </TableCell>
+                          <TableCell className="text-slate-300">
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4 text-slate-400" />
+                              {payoutDate.toLocaleDateString('en-IN')}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-green-400 font-medium">
+                            {selectedInvestor && investorNetworkService.formatCurrency(payout.amount, selectedInvestor.currency)}
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={`${
+                              payout.status === 'processed' ? 'bg-green-500' : 
+                              payout.status === 'pending' ? 'bg-orange-500' : 'bg-red-500'
+                            } text-white`}>
+                              {payout.status}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
