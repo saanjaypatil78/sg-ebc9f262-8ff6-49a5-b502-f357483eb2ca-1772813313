@@ -204,4 +204,39 @@ export const diditService = {
       return { allowed: false };
     }
   },
+
+  /**
+   * Check verification status (KYC/AML)
+   */
+  async checkVerificationStatus(userId: string): Promise<{ status: 'pending' | 'verified' | 'rejected' }> {
+    try {
+      return { status: 'verified' }; // Mock for now
+    } catch (error) {
+      console.error('Failed to check verification status:', error);
+      return { status: 'pending' };
+    }
+  },
+
+  /**
+   * Verify IFSC Code
+   */
+  async verifyIFSC(ifscCode: string): Promise<{ valid: boolean; bank?: string; branch?: string }> {
+    try {
+      if (ifscCode.length !== 11) return { valid: false };
+      return { valid: true, bank: "Mock Bank", branch: "Main Branch" };
+    } catch (error) {
+      return { valid: false };
+    }
+  },
+
+  /**
+   * Create verification request
+   */
+  async createVerificationRequest(userId: string, data: any): Promise<{ success: boolean; requestId?: string }> {
+    try {
+      return { success: true, requestId: `req_${Date.now()}` };
+    } catch (error) {
+      return { success: false };
+    }
+  }
 };
