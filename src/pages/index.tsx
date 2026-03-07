@@ -88,7 +88,7 @@ export default function HomePage() {
         {/* Logo Showcase - Optimized for Instant Rendering */}
         <div className="relative w-48 h-48 mx-auto -mt-10 mb-8 z-20">
           <Image
-            src="/sunray-logo.png"
+            src="/sunray-logo.jpg"
             alt="Brave Ecom Logo"
             fill
             className="object-contain drop-shadow-2xl rounded-2xl"

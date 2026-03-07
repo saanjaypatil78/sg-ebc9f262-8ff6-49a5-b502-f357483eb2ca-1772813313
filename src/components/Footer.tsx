@@ -12,7 +12,7 @@ export function Footer() {
             <div className="flex items-center gap-3 mb-4">
               <div className="relative w-12 h-12">
                 <Image
-                  src="/sunray-logo.png"
+                  src="/sunray-logo.jpg"
                   alt="Brave Ecom Logo"
                   fill
                   className="object-contain"

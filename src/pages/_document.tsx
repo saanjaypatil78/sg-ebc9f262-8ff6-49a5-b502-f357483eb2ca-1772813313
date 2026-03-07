@@ -8,7 +8,7 @@ export default function Document() {
         <SEOElements />
         
         {/* Favicon - BRAVECOM Hexagonal Logo */}
-        <link rel="icon" href="/sunray-logo.png" />
+        <link rel="icon" href="/sunray-logo.jpg" />
         <meta name="theme-color" content="#0f172a" />
       </Head>
       <body className="antialiased">

@@ -89,7 +89,7 @@ export function MobileMenu() {
                 <div className="flex items-center gap-3">
                   <div className="relative w-10 h-10">
                     <Image
-                      src="/sunray-logo.png"
+                      src="/sunray-logo.jpg"
                       alt="Sunray"
                       fill
                       className="object-contain"

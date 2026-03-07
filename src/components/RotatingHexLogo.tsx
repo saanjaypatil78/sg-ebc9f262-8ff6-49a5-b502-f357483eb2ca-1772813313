@@ -92,7 +92,7 @@ export function RotatingHexLogo({
         }}
       >
         <Image
-          src="/sunray-logo.png"
+          src="/sunray-logo.jpg"
           alt="BRAVECOM Rotating Logo"
           width={size}
           height={size}

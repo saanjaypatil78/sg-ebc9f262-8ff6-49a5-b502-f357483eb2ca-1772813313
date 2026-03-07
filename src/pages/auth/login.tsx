@@ -288,7 +288,7 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <div className="relative w-20 h-20 mx-auto mb-4">
               <Image
-                src="/sunray-logo.png"
+                src="/sunray-logo.jpg"
                 alt="Sunray Logo"
                 fill
                 className="object-contain"
