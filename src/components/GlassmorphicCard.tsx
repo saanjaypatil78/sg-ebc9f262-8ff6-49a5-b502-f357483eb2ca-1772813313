@@ -5,6 +5,7 @@ interface GlassmorphicCardProps {
   children: ReactNode;
   className?: string;
   gradient?: boolean;
+  glow?: boolean;
   blur?: 'sm' | 'md' | 'lg' | 'xl';
   animation?: 'fade' | 'slide' | 'scale' | 'bounce';
   delay?: number;
@@ -14,6 +15,7 @@ export function GlassmorphicCard({
   children,
   className = "",
   gradient = false,
+  glow = false,
   blur = 'xl',
   animation = 'fade',
   delay = 0,
@@ -70,7 +72,7 @@ export function GlassmorphicCard({
       </div>
 
       {/* Hover glow effect */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+      <div className={`absolute inset-0 transition-opacity duration-500 pointer-events-none ${glow ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
         <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 via-transparent to-cyan-500/20 blur-xl" />
       </div>
     </motion.div>
