@@ -24,6 +24,7 @@ interface DashboardFiltersProps {
 }
 
 export interface FilterState {
+  search?: string;
   dateRange?: string;
   rank?: string;
   status?: string;
