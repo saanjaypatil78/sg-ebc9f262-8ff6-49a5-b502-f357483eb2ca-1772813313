@@ -208,7 +208,7 @@ export const diditService = {
   /**
    * Check verification status (KYC/AML)
    */
-  async checkVerificationStatus(userId: string): Promise<{ status: 'pending' | 'verified' | 'rejected' }> {
+  async checkVerificationStatus(userId: string): Promise<{ status: 'pending' | 'verified' | 'processing' | 'failed' }> {
     try {
       return { status: 'verified' }; // Mock for now
     } catch (error) {
@@ -220,21 +220,21 @@ export const diditService = {
   /**
    * Verify IFSC Code
    */
-  async verifyIFSC(ifscCode: string): Promise<{ valid: boolean; bank?: string; branch?: string }> {
+  async verifyIFSC(ifscCode: string): Promise<{ verified: boolean; bankName?: string; branchName?: string }> {
     try {
-      if (ifscCode.length !== 11) return { valid: false };
-      return { valid: true, bank: "Mock Bank", branch: "Main Branch" };
+      if (ifscCode.length !== 11) return { verified: false };
+      return { verified: true, bankName: "Mock Bank", branchName: "Main Branch" };
     } catch (error) {
-      return { valid: false };
+      return { verified: false };
     }
   },
 
   /**
    * Create verification request
    */
-  async createVerificationRequest(userId: string, data: any): Promise<{ success: boolean; requestId?: string }> {
+  async createVerificationRequest(data: any): Promise<{ success: boolean; id?: string }> {
     try {
-      return { success: true, requestId: `req_${Date.now()}` };
+      return { success: true, id: `req_${Date.now()}` };
     } catch (error) {
       return { success: false };
     }
