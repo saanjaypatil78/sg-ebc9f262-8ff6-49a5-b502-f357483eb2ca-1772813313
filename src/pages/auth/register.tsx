@@ -11,6 +11,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { UserPlus, Mail, Lock, User, ArrowRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { emailNotificationService } from "@/lib/email/notifications";
 
 const Confetti = dynamic(() => import("@/components/Confetti").then(mod => ({ default: mod.Confetti })), { ssr: false });
 
@@ -80,6 +81,13 @@ export default function RegisterPage() {
         title: "🎉 Account Created Successfully!",
         description: "Please check your email to verify your account. Redirecting...",
       });
+
+      // Send welcome email notification
+      await emailNotificationService.onUserRegistered(
+        result.user.id,
+        formData.email,
+        `${formData.firstName} ${formData.lastName}`
+      );
 
       setTimeout(() => {
         router.push("/auth/onboarding");

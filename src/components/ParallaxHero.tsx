@@ -11,7 +11,6 @@ interface ParallaxHeroProps {
 
 export function ParallaxHero({
   children,
-  backgroundImage,
   backgroundColor = "bg-slate-950",
   height = "min-h-screen",
   intensity = 1,
