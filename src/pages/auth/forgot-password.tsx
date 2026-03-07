@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { emailNotificationService } from "@/lib/email/notifications";
+import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Mail, ArrowLeft, Check } from "lucide-react";
 
 export default function ForgotPasswordPage() {
@@ -21,16 +21,16 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
 
     try {
-      // Send password reset email
-      await emailNotificationService.sendPasswordReset(
-        email,
-        "User",
-        `${window.location.origin}/auth/reset-password?token=RESET_TOKEN_HERE`
-      );
+      // Send password reset email using Supabase Auth
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/update-password`,
+      });
+
+      if (resetError) throw resetError;
 
       setEmailSent(true);
-    } catch (err) {
-      setError("Failed to send reset email. Please try again.");
+    } catch (err: any) {
+      setError(err.message || "Failed to send reset email. Please try again.");
       console.error("Password reset error:", err);
     } finally {
       setIsLoading(false);
