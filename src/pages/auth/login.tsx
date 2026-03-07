@@ -33,62 +33,48 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email || !password) {
-      toast({
-        title: "Missing Credentials",
-        description: "Please enter email and password",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsLoading(true);
 
     try {
       const result = await authService.login(email, password);
 
-      if (result.requires2FA) {
-        setTempUserId(result.user!.id);
-        setShow2FA(true);
-        setIsLoading(false);
-        return;
+      if (!result.success || !result.user) {
+        throw new Error(result.error || "Login failed");
       }
 
-      if (result.requiresDeviceBinding) {
-        setTempUserId(result.user!.id);
-        setDeviceBindingRequired(true);
-        setShowDeviceWarning(true);
-        setIsLoading(false);
-        return;
-      }
-
-      if (!result.success) {
-        toast({
-          title: "Login Failed",
-          description: result.error || "Invalid credentials. Please check your email and password.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
+      // Success toast
       toast({
-        title: "Login Successful",
-        description: `Welcome back, ${result.user?.name}!`,
+        title: "✅ Login Successful!",
+        description: `Welcome back, ${result.user.name || result.user.email}`,
       });
 
-      // Short delay for better UX
+      // Redirect based on role
+      const role = result.user.role?.toLowerCase();
+      
+      const roleRoutes: Record<string, string> = {
+        investor: "/dashboard/investor",
+        client: "/dashboard/client",
+        vendor: "/dashboard/vendor",
+        admin: "/dashboard/admin",
+        super_admin: "/dashboard/admin",
+        bdm: "/dashboard/bdm",
+        franchise_partner: "/dashboard/franchise",
+      };
+
+      const redirectPath = roleRoutes[role] || "/dashboard/investor";
+      
+      // Redirect after short delay for toast visibility
       setTimeout(() => {
-        router.push(result.redirectTo || "/dashboard");
-      }, 500);
-    } catch (error) {
-      console.error("Login error:", error);
+        router.push(redirectPath);
+      }, 1000);
+
+    } catch (error: any) {
       toast({
-        title: "Login Error",
-        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
+        title: "Login Failed",
+        description: error.message || "Invalid credentials",
       });
+    } finally {
       setIsLoading(false);
     }
   };
