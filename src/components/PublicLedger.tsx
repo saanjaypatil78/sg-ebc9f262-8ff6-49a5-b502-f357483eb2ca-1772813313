@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import {
 import { comprehensiveLedger, ledgerStats } from "@/lib/mock-data/comprehensive-ledger";
 
 export function PublicLedger() {
+  const [isMounted, setIsMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRank, setSelectedRank] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,6 +46,12 @@ export function PublicLedger() {
     if (amount >= 100000) return `₹${(amount / 100000).toFixed(2)} L`;
     return `₹${amount.toLocaleString('en-IN')}`;
   };
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return null; // Prevent hydration mismatch
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white py-16 px-4">
@@ -178,7 +185,7 @@ export function PublicLedger() {
                   </div>
                   <div className="flex items-center text-sm text-slate-400">
                     <Calendar className="w-4 h-4 mr-2" />
-                    Invested: {new Date(investor.investedDate).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    Invested: {investor.investedDate}
                   </div>
                 </div>
 

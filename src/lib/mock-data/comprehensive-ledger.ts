@@ -15,6 +15,7 @@ export interface InvestorLedgerEntry {
   roi: number;
   rank: 'BRONZE' | 'SILVER' | 'GOLD' | 'GREY';
   referralCode: string;
+  totalBusiness: number; // Own + Referrals
   payoutHistory: {
     month: string;
     amount: number;
@@ -90,35 +91,28 @@ function generateRealisticInvestors(): InvestorLedgerEntry[] {
   const endDate = new Date('2026-02-28');
   
   for (let i = 0; i < 184; i++) {
-    // Select rank based on distribution
-    const rand = Math.random() * 100;
-    let cumulativeWeight = 0;
-    let selectedRank = rankDistribution[0];
+    const firstName = firstNames[i % firstNames.length];
+    const lastName = lastNames[(i * 3) % lastNames.length];
+    const city = cities[(i * 7) % cities.length];
     
-    for (const dist of rankDistribution) {
-      cumulativeWeight += dist.weight;
-      if (rand <= cumulativeWeight) {
-        selectedRank = dist;
-        break;
-      }
-    }
+    // Investment between 1L and 50L
+    const investment = 100000 + Math.floor(((i * 997) % 50) * 100000); 
     
-    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-    const city = cities[Math.floor(Math.random() * cities.length)];
+    // Referral business (randomized, some have enough to push total > 1CR)
+    const referralBusiness = ((i * 123) % 15) * 1000000; // 0 to 1.4 CR
+    const totalBusiness = investment + referralBusiness;
+
+    let rank: 'GREY' | 'BRONZE' | 'SILVER' | 'GOLD' = 'GREY';
+    if (totalBusiness >= 100000000) rank = 'GOLD'; // 10 Cr+
+    else if (totalBusiness >= 50000000) rank = 'SILVER'; // 5 Cr+
+    else if (totalBusiness >= 10000000) rank = 'BRONZE'; // 1 Cr+
     
-    // Randomize investment within rank range
-    const investment = Math.round(
-      (selectedRank.minInv + Math.random() * (selectedRank.maxInv - selectedRank.minInv)) / 100000
-    ) * 100000; // Round to nearest lakh
-    
-    // Random investment date
-    const investedDate = new Date(
-      startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime())
-    );
+    // Stable pseudo-random date
+    const dateOffset = (i * 86400000 * 3) % (endDate.getTime() - startDate.getTime());
+    const investedDate = new Date(startDate.getTime() + dateOffset);
     
     // Calculate monthly rate with slight variation (13% - 17%)
-    const monthlyRate = baseMonthlyRate + (Math.random() * 0.04 - 0.02);
+    const monthlyRate = baseMonthlyRate + (((i % 5) * 0.01) - 0.02);
     
     // Generate payout history
     const payoutHistory = calculateMonthlyPayouts(
@@ -134,16 +128,20 @@ function generateRealisticInvestors(): InvestorLedgerEntry[] {
     
     const roi = ((totalPayouts / investment) * 100);
     
+    // Use stable string format to prevent hydration mismatch
+    const formattedDate = investedDate.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'Asia/Kolkata' });
+
     investors.push({
       id: `SUNRAY${1184 + i}`,
       name: `${firstName} ${lastName}`,
       location: city,
-      investedDate: investedDate.toISOString().split('T')[0],
+      investedDate: formattedDate,
       investment,
       totalPayouts,
       roi: Math.round(roi * 100) / 100,
-      rank: selectedRank.rank,
-      referralCode: `REF${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+      rank,
+      referralCode: `REF${(i * 98765).toString(36).substring(0, 6).toUpperCase()}`,
+      totalBusiness,
       payoutHistory,
     });
   }

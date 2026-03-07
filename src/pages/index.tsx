@@ -7,12 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { 
   Shield, TrendingUp, Users, DollarSign, Award, Zap,
-  BarChart3, Lock, Globe, Key, CheckCircle, Network, ArrowUpRight, ArrowRight
+  BarChart3, Lock, Globe, Key, CheckCircle, Network, ArrowUpRight, ArrowRight, ChevronRight, Activity
 } from "lucide-react";
 import { useRef } from "react";
 import { useScroll, useTransform, motion } from "framer-motion";
 import { ScrollProgressIndicator } from "@/components/ScrollProgressIndicator";
 import Image from "next/image";
+import Head from 'next/head';
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -138,7 +139,7 @@ export default function Home() {
             </Link>
             
             <a 
-              href="#transparency"
+              href="https://www.bravecom.info/#transparency"
               className="px-8 py-4 bg-white/5 backdrop-blur-sm border border-white/10 text-white font-semibold rounded-lg hover:bg-white/10 transition-all duration-300"
             >
               View Public Ledger
@@ -338,7 +339,7 @@ export default function Home() {
                     Enter Ecosystem
                   </Button>
                 </Link>
-                <Link href="#transparency">
+                <Link href="https://www.bravecom.info/#transparency">
                   <Button size="lg" variant="outline" className="border-2 border-white/20 backdrop-blur-xl bg-white/5 hover:bg-white/10 text-white text-lg px-8 py-6 rounded-xl">
                     <Globe className="mr-2 h-5 w-5" />
                     View Live Ledger
