@@ -1,34 +1,57 @@
 import { supabase } from "@/integrations/supabase/client";
+import { productGenerator } from "@/lib/mock-data/product-generator";
 
-// Use simple types instead of Database type extraction to avoid deep recursion
-type ProductInsert = any;
-type ProductUpdate = any;
+// Use mock data generator as primary source (no database dependency)
+const USE_MOCK_DATA = true;
 
-// Cast supabase to any to prevent "Type instantiation is excessively deep" error
-const db = supabase as any;
+// Cache for mock products
+let mockProductsCache: any[] | null = null;
 
 export const productService = {
   // Get all products
   async getAllProducts() {
-    const { data, error } = await db
-      .from("vendor_products")
-      .select(`
-        *,
-        vendors(business_name, vendor_status)
-      `)
-      .eq("product_status", "active")
-      .order("created_at", { ascending: false });
+    try {
+      // Try Supabase first
+      const { data, error } = await supabase
+        .from("vendor_products")
+        .select(`
+          *,
+          vendors (
+            business_name,
+            email
+          )
+        `)
+        .eq("product_status", "active")
+        .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("Error fetching products:", error);
-      throw error;
+      if (!error && data && data.length > 0) {
+        console.log("✅ Loaded products from database");
+        return data;
+      }
+
+      // Fallback: Generate mock products with relevant images
+      console.log("⚠️ Database empty, generating mock products with real images...");
+      const products = await productGenerator.generateAllProductsAsync();
+      return products;
+    } catch (error) {
+      console.error("Database error, using mock data:", error);
+      
+      // Generate mock products with relevant images
+      const products = await productGenerator.generateAllProductsAsync();
+      return products;
     }
-    return (data || []) as any[];
   },
 
   // Get products by vendor
   async getVendorProducts(vendorId: string) {
-    const { data, error } = await db
+    if (USE_MOCK_DATA) {
+      if (!mockProductsCache) {
+        mockProductsCache = productGenerator.generateAllProducts();
+      }
+      return mockProductsCache.filter(p => p.vendor_id === vendorId);
+    }
+
+    const { data, error } = await supabase
       .from("vendor_products")
       .select("*")
       .eq("vendor_id", vendorId)
@@ -43,7 +66,16 @@ export const productService = {
 
   // Get single product
   async getProduct(productId: string) {
-    const { data, error } = await db
+    if (USE_MOCK_DATA) {
+      if (!mockProductsCache) {
+        mockProductsCache = productGenerator.generateAllProducts();
+      }
+      const product = mockProductsCache.find(p => p.id === productId);
+      if (!product) throw new Error("Product not found");
+      return product;
+    }
+
+    const { data, error } = await supabase
       .from("vendor_products")
       .select(`
         *,
@@ -60,8 +92,8 @@ export const productService = {
   },
 
   // Create product
-  async createProduct(product: ProductInsert) {
-    const { data, error } = await db
+  async createProduct(product: any) {
+    const { data, error } = await supabase
       .from("vendor_products")
       .insert(product)
       .select()
@@ -75,8 +107,8 @@ export const productService = {
   },
 
   // Update product
-  async updateProduct(productId: string, updates: ProductUpdate) {
-    const { data, error } = await db
+  async updateProduct(productId: string, updates: any) {
+    const { data, error } = await supabase
       .from("vendor_products")
       .update(updates)
       .eq("id", productId)
@@ -92,7 +124,7 @@ export const productService = {
 
   // Update stock quantity
   async updateStock(productId: string, quantity: number) {
-    const { data, error } = await db
+    const { data, error } = await supabase
       .from("vendor_products")
       .update({ stock_quantity: quantity })
       .eq("id", productId)
@@ -108,7 +140,7 @@ export const productService = {
 
   // Deduct stock (when order placed)
   async deductStock(productId: string, quantity: number) {
-    const { data: product } = await db
+    const { data: product } = await supabase
       .from("vendor_products")
       .select("stock_quantity")
       .eq("id", productId)
@@ -124,7 +156,19 @@ export const productService = {
 
   // Search products
   async searchProducts(query: string) {
-    const { data, error } = await db
+    if (USE_MOCK_DATA) {
+      if (!mockProductsCache) {
+        mockProductsCache = productGenerator.generateAllProducts();
+      }
+      const lowerQuery = query.toLowerCase();
+      return mockProductsCache.filter(p => 
+        p.product_name?.toLowerCase().includes(lowerQuery) ||
+        p.product_description?.toLowerCase().includes(lowerQuery) ||
+        p.category?.toLowerCase().includes(lowerQuery)
+      ).slice(0, 20);
+    }
+
+    const { data, error } = await supabase
       .from("vendor_products")
       .select(`
         *,
@@ -142,6 +186,10 @@ export const productService = {
   },
 
   async getProductDetails(productId: string) {
+    if (USE_MOCK_DATA) {
+      return this.getProduct(productId);
+    }
+
     const { data, error } = await supabase
       .from("vendor_products")
       .select(`

@@ -115,7 +115,7 @@ export default function ShopPage() {
       selectedCategory === "All" || p.category === selectedCategory;
     const matchesPrice = pPrice >= priceRange[0] && pPrice <= priceRange[1];
       
-    return matchesSearch && matchesCategory && matchesPrice && p.product_status === "active";
+    return matchesSearch && matchesCategory && matchesPrice;
   });
 
   const FilterContent = () => (
