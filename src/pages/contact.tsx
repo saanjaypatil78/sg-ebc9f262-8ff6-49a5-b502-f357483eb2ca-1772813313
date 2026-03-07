@@ -165,19 +165,19 @@ export default function ContactPage() {
                 {
                   icon: Mail,
                   title: "Email Us",
-                  content: "support@braveecom.com",
-                  link: "mailto:support@braveecom.com"
+                  content: "support@bravecom.info",
+                  link: "mailto:support@bravecom.info"
                 },
                 {
                   icon: Phone,
                   title: "Call Us",
-                  content: "+91 98765 43210",
-                  link: "tel:+919876543210"
+                  content: "+91 8433783789",
+                  link: "tel:+918433783789"
                 },
                 {
                   icon: MapPin,
                   title: "Visit Us",
-                  content: "123 Business Park, Pune, Maharashtra 411001",
+                  content: "201, Neel Solitaire, OLD PANVEL",
                   link: "#"
                 },
                 {
@@ -189,8 +189,8 @@ export default function ContactPage() {
                 {
                   icon: Globe,
                   title: "Website",
-                  content: "www.braveecom.com",
-                  link: "https://braveecom.com"
+                  content: "www.bravecom.info",
+                  link: "https://www.bravecom.info"
                 }
               ].map((item, index) => (
                 <motion.div
