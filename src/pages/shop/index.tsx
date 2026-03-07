@@ -18,6 +18,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { productService } from "@/services/productService";
+import { useRouter } from "next/router";
 
 const categories = [
   "All",
@@ -31,6 +32,7 @@ const categories = [
 ];
 
 export default function ShopPage() {
+  const router = useRouter();
   const { addToCart, cartCount } = useCart();
   const { toast } = useToast();
   const [products, setProducts] = useState<any[]>([]);
