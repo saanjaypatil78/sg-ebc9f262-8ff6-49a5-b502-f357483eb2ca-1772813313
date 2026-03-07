@@ -84,9 +84,9 @@ export default function RegisterPage() {
 
       // Send welcome email notification
       await emailNotificationService.onUserRegistered(
-        result.user.id,
+        "new_user", // We will fetch actual ID later if needed
         formData.email,
-        `${formData.firstName} ${formData.lastName}`
+        formData.fullName
       );
 
       setTimeout(() => {

@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { emailService } from "@/lib/email/notifications";
+import { emailNotificationService } from "@/lib/email/notifications";
 
 export interface CommissionRecord {
   id: string;
