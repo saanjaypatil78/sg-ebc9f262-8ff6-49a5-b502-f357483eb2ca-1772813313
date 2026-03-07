@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { referralService } from "./referralService";
 
 export interface User {
   id: string;
@@ -16,88 +17,65 @@ export const authService = {
     email: string;
     password: string;
     fullName: string;
-    referralCode: string;
+    referredByUserId?: string;
   }) {
     try {
-      // 1. Validate referral code exists and get referrer's role
-      const { data: referrer, error: referrerError } = await supabase
+      // Validate referrer if provided
+      if (data.referredByUserId) {
+        const isValid = await referralService.validateReferralCode(
+          data.referredByUserId
+        );
+        if (!isValid) {
+          return {
+            success: false,
+            error: "Invalid referral code",
+            user: undefined,
+          };
+        }
+      }
+
+      // Create auth user
+      const { data: authData, error: authError } =
+        await supabase.auth.signUp({
+          email: data.email,
+          password: data.password,
+        });
+
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("User creation failed");
+
+      // Insert into users table
+      const { data: userData, error: dbError } = await supabase
         .from("users")
-        .select("id, role, referral_code")
-        .eq("referral_code", data.referralCode.toUpperCase())
+        .insert({
+          id: authData.user.id,
+          email: data.email,
+          full_name: data.fullName,
+          role: "investor",
+          referred_by_user_id: data.referredByUserId || null,
+          kyc_status: "pending",
+        })
+        .select()
         .single();
 
-      if (referrerError || !referrer) {
-        return {
-          success: false,
-          error: "Invalid referral code. Please check and try again.",
-          user: undefined,
-        };
-      }
-
-      // 2. Create auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (authError) {
-        return {
-          success: false,
-          error: authError.message,
-          user: undefined,
-        };
-      }
-
-      if (!authData.user) {
-        return {
-          success: false,
-          error: "Failed to create user account",
-          user: undefined,
-        };
-      }
-
-      // 3. Insert user with same role as referrer
-      const { error: insertError } = await supabase.from("users").insert({
-        id: authData.user.id,
-        email: data.email,
-        full_name: data.fullName,
-        role: referrer.role, // Inherit role from referrer
-        referred_by: referrer.id,
-        referral_code: `REF${Date.now().toString().slice(-6)}`, // Generate unique code
-        kyc_status: "pending",
-        status: "active",
-      });
-
-      if (insertError) {
-        // Cleanup auth user if insert fails
-        await supabase.auth.admin.deleteUser(authData.user.id);
-        return {
-          success: false,
-          error: "Failed to create user profile. Please try again.",
-          user: undefined,
-        };
-      }
-
-      // 4. Return success with user data
-      const user: User = {
-        id: authData.user.id,
-        email: data.email,
-        fullName: data.fullName,
-        role: referrer.role,
-        referralCode: `REF${Date.now().toString().slice(-6)}`,
-        kycStatus: "pending",
-      };
+      if (dbError) throw dbError;
 
       return {
         success: true,
-        user,
+        user: {
+          id: userData.id,
+          email: userData.email,
+          fullName: userData.full_name,
+          role: userData.role,
+          kycStatus: userData.kyc_status,
+        },
         error: undefined,
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration error:", error);
       return {
         success: false,
-        error: "An unexpected error occurred. Please try again.",
+        error: error.message || "Registration failed",
         user: undefined,
       };
     }

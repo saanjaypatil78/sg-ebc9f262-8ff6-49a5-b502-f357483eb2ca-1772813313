@@ -45,16 +45,6 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate form
-    if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword || !formData.referralCode) {
-      toast({
-        title: "Validation Error",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
-      return;
-    }
 
     if (formData.password !== formData.confirmPassword) {
       toast({
@@ -65,10 +55,10 @@ export default function RegisterPage() {
       return;
     }
 
-    if (formData.password.length < 8) {
+    if (!formData.referralCode) {
       toast({
-        title: "Weak Password",
-        description: "Password must be at least 8 characters",
+        title: "Referral Required",
+        description: "Referral code is required to join",
         variant: "destructive",
       });
       return;
@@ -77,49 +67,35 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      // Attempt registration
       const result = await authService.register({
         email: formData.email,
         password: formData.password,
         fullName: formData.fullName,
-        referralCode: formData.referralCode,
+        referredByUserId: formData.referralCode, // User ID = Referral Code
       });
 
       if (result.success && result.user) {
         setShowConfetti(true);
         toast({
-          title: "Registration Successful!",
-          description: `Welcome ${result.user.fullName}! Redirecting to your dashboard...`,
+          title: "Registration Successful! 🎉",
+          description: "Welcome to Brave Ecom. Redirecting to your dashboard...",
         });
 
-        // Store user and redirect
-        localStorage.setItem("user", JSON.stringify(result.user));
-        
         setTimeout(() => {
-          const roleRoutes: Record<string, string> = {
-            investor: "/dashboard/investor",
-            vendor: "/dashboard/vendor",
-            client: "/dashboard/client",
-            admin: "/dashboard/admin",
-            bdm: "/dashboard/bdm",
-            franchise: "/dashboard/franchise",
-            super_admin: "/dashboard/admin",
-          };
-          
-          router.push(roleRoutes[result.user!.role] || "/dashboard/client");
+          router.push("/dashboard/investor");
         }, 2000);
       } else {
         toast({
           title: "Registration Failed",
-          description: result.error || "Please check your information and try again",
+          description: result.error || "Please check your details and try again",
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration error:", error);
       toast({
         title: "Registration Failed",
-        description: "An unexpected error occurred. Please try again.",
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {
