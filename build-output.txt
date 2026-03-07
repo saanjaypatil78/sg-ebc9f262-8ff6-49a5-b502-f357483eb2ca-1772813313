@@ -1,0 +1,359 @@
+
+> softgen-starter@2.4.4 build
+> next build
+
+ ⚠ The config property `experimental.turbo` is deprecated. Move this setting to `config.turbopack` or run `npx @next/codemod@latest next-experimental-turbo-to-turbopack .`
+   ▲ Next.js 15.5.9
+   - Environments: .env.local
+
+   Linting and checking validity of types ...
+
+./src/components/DashboardFilters.tsx
+30:3  Warning: 'showDateRange' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+31:3  Warning: 'showStatus' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+32:3  Warning: 'showRole' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+33:3  Warning: 'showSearch' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+46:62  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/ExportTools.tsx
+4:10  Warning: 'Download' is defined but never used.  @typescript-eslint/no-unused-vars
+7:9  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/NotificationCenter.tsx
+3:20  Warning: 'useEffect' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/ParallaxHero.tsx
+14:3  Warning: 'backgroundImage' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/RotatingHexLogo.tsx
+49:71  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+64:18  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/integrations/supabase/client.ts
+3:21  Warning: Forbidden non-null assertion.  @typescript-eslint/no-non-null-assertion
+4:25  Warning: Forbidden non-null assertion.  @typescript-eslint/no-non-null-assertion
+13:7  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/calendar/payout-exclusions.ts
+123:17  Warning: Forbidden non-null assertion.  @typescript-eslint/no-non-null-assertion
+
+./src/lib/mock-data/investors.ts
+84:7  Warning: 'rankDistribution' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/security/abac-policy-engine.ts
+62:32  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+97:13  Warning: 'threshold' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+112:13  Warning: 'allowedCountries' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/security/device-fingerprint-service.ts
+77:52  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/security/session-management-service.ts
+12:23  Warning: 'userId' is defined but never used.  @typescript-eslint/no-unused-vars
+12:39  Warning: 'ipAddress' is defined but never used.  @typescript-eslint/no-unused-vars
+12:58  Warning: 'userAgent' is defined but never used.  @typescript-eslint/no-unused-vars
+20:52  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/pages/api/phonepe/callback.ts
+34:57  Warning: 'amount' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+46:12  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/pages/auth/forgot-password.tsx
+34:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/pages/auth/login.tsx
+11:10  Warning: 'twoFactorService' is defined but never used.  @typescript-eslint/no-unused-vars
+12:10  Warning: 'deviceFingerprintService' is defined but never used.  @typescript-eslint/no-unused-vars
+13:10  Warning: 'abacPolicyEngine' is defined but never used.  @typescript-eslint/no-unused-vars
+30:10  Warning: 'deviceBindingRequired' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+50:23  Warning: Forbidden non-null assertion.  @typescript-eslint/no-non-null-assertion
+57:23  Warning: Forbidden non-null assertion.  @typescript-eslint/no-non-null-assertion
+162:13  Warning: 'user' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/auth/onboarding.tsx
+56:6  Warning: React Hook useEffect has a missing dependency: 'checkAuth'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/pages/auth/register.tsx
+87:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/pages/auth/reset-password.tsx
+3:16  Warning: 'CheckCircle' is defined but never used.  @typescript-eslint/no-unused-vars
+73:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/auth/setup-2fa.tsx
+26:6  Warning: React Hook useEffect has a missing dependency: 'initiate2FASetup'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+40:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+63:62  Warning: Forbidden non-null assertion.  @typescript-eslint/no-non-null-assertion
+81:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/auth/update-password.tsx
+43:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/pages/auth/verify-email.tsx
+3:10  Warning: 'Mail' is defined but never used.  @typescript-eslint/no-unused-vars
+18:6  Warning: React Hook useEffect has a missing dependency: 'verifyEmail'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+35:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/admin/index.tsx
+11:10  Warning: 'filters' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/admin/security.tsx
+2:56  Warning: 'Eye' is defined but never used.  @typescript-eslint/no-unused-vars
+39:6  Warning: React Hook useEffect has a missing dependency: 'loadSecurityData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/pages/dashboard/admin/users.tsx
+24:61  Warning: 'Download' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/admin/vendors.tsx
+3:29  Warning: 'CardDescription' is defined but never used.  @typescript-eslint/no-unused-vars
+3:58  Warning: 'CardTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/bdm/index.tsx
+8:17  Warning: 'Sparkles' is defined but never used.  @typescript-eslint/no-unused-vars
+11:10  Warning: 'filters' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/bdm/vendors.tsx
+7:63  Warning: 'AlertCircle' is defined but never used.  @typescript-eslint/no-unused-vars
+27:10  Warning: 'Textarea' is defined but never used.  @typescript-eslint/no-unused-vars
+99:10  Warning: 'selectedVendor' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/client/index.tsx
+8:24  Warning: 'Sparkles' is defined but never used.  @typescript-eslint/no-unused-vars
+11:10  Warning: 'filters' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/client/orders.tsx
+3:41  Warning: 'CardTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+7:10  Warning: 'Package' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/client/returns.tsx
+3:29  Warning: 'CardDescription' is defined but never used.  @typescript-eslint/no-unused-vars
+3:58  Warning: 'CardTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+7:29  Warning: 'Upload' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/franchise/index.tsx
+8:18  Warning: 'Sparkles' is defined but never used.  @typescript-eslint/no-unused-vars
+11:10  Warning: 'filters' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/investor/index.tsx
+5:10  Warning: 'Progress' is defined but never used.  @typescript-eslint/no-unused-vars
+8:15  Warning: 'ArrowUpRight' is defined but never used.  @typescript-eslint/no-unused-vars
+9:23  Warning: 'AlertCircle' is defined but never used.  @typescript-eslint/no-unused-vars
+20:10  Warning: 'isLoading' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+24:6  Warning: React Hook useEffect has a missing dependency: 'loadInvestorData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/pages/dashboard/profile.tsx
+11:19  Warning: 'User' is defined but never used.  @typescript-eslint/no-unused-vars
+21:6  Warning: React Hook useEffect has a missing dependency: 'loadProfile'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/pages/dashboard/security/active-sessions.tsx
+3:29  Warning: 'CardDescription' is defined but never used.  @typescript-eslint/no-unused-vars
+3:46  Warning: 'CardHeader' is defined but never used.  @typescript-eslint/no-unused-vars
+3:58  Warning: 'CardTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+13:44  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+18:6  Warning: React Hook useEffect has a missing dependency: 'loadSessions'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+27:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+46:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+66:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/security/login-history.tsx
+2:10  Warning: 'Shield' is defined but never used.  @typescript-eslint/no-unused-vars
+12:42  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+17:6  Warning: React Hook useEffect has a missing dependency: 'loadLoginHistory'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+33:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/security/trusted-devices.tsx
+16:42  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+24:6  Warning: React Hook useEffect has a missing dependency: 'loadDevices'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+33:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+58:60  Warning: Forbidden non-null assertion.  @typescript-eslint/no-non-null-assertion
+66:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+85:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/vendor/index.tsx
+7:10  Warning: 'Sparkles' is defined but never used.  @typescript-eslint/no-unused-vars
+12:10  Warning: 'filters' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/vendor/orders.tsx
+3:41  Warning: 'CardTitle' is defined but never used.  @typescript-eslint/no-unused-vars
+80:10  Warning: 'selectedOrder' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/vendor/performance.tsx
+5:22  Warning: 'TrendingDown' is defined but never used.  @typescript-eslint/no-unused-vars
+5:71  Warning: 'RotateCcw' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/pages/dashboard/vendor/verification.tsx
+14:11  Warning: 'user' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+34:46  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/pages/index.tsx
+10:30  Warning: 'DollarSign' is defined but never used.  @typescript-eslint/no-unused-vars
+11:14  Warning: 'Lock' is defined but never used.  @typescript-eslint/no-unused-vars
+11:27  Warning: 'Key' is defined but never used.  @typescript-eslint/no-unused-vars
+11:66  Warning: 'Activity' is defined but never used.  @typescript-eslint/no-unused-vars
+14:8  Warning: 'Image' is defined but never used.  @typescript-eslint/no-unused-vars
+208:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/pages/invest.tsx
+15:16  Warning: 'Banknote' is defined but never used.  @typescript-eslint/no-unused-vars
+15:26  Warning: 'Search' is defined but never used.  @typescript-eslint/no-unused-vars
+15:34  Warning: 'AlertCircle' is defined but never used.  @typescript-eslint/no-unused-vars
+18:10  Warning: 'formatCurrency' is defined but never used.  @typescript-eslint/no-unused-vars
+102:6  Warning: React Hook useEffect has a missing dependency: 'handleIfscLookup'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+160:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/services/authService.ts
+4:10  Warning: 'abacPolicyEngine' is defined but never used.  @typescript-eslint/no-unused-vars
+69:16  Warning: Forbidden non-null assertion.  @typescript-eslint/no-non-null-assertion
+333:66  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/services/commissionService.ts
+69:46  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+107:12  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+122:70  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+157:16  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+183:14  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+196:12  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+246:46  Warning: 'superAdminId' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/services/diditService.ts
+6:10  Warning: 'supabase' is defined but never used.  @typescript-eslint/no-unused-vars
+171:36  Warning: 'code' is defined but never used.  @typescript-eslint/no-unused-vars
+185:20  Warning: 'userId' is defined but never used.  @typescript-eslint/no-unused-vars
+198:24  Warning: 'userId' is defined but never used.  @typescript-eslint/no-unused-vars
+198:40  Warning: 'action' is defined but never used.  @typescript-eslint/no-unused-vars
+211:33  Warning: 'userId' is defined but never used.  @typescript-eslint/no-unused-vars
+227:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+235:35  Warning: 'data' is defined but never used.  @typescript-eslint/no-unused-vars
+235:41  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+238:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/services/investmentService.ts
+2:29  Warning: 'isPayoutExcluded' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/services/investorService.ts
+4:6  Warning: 'UserProfile' is defined but never used.  @typescript-eslint/no-unused-vars
+5:6  Warning: 'Investment' is defined but never used.  @typescript-eslint/no-unused-vars
+6:6  Warning: 'PayoutHistory' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/services/orderService.ts
+5:20  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+8:24  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+27:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+46:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+65:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+173:33  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+174:36  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+175:33  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+176:35  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+177:35  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+178:51  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/services/phonePeService.ts
+4:7  Warning: 'PHONEPE_CONFIG' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+31:18  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+56:12  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+89:68  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+102:45  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+114:12  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+151:20  Warning: 'payload' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/services/productService.ts
+4:22  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+5:22  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+8:24  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+26:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+59:20  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+141:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/services/returnService.ts
+5:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+6:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+9:24  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+29:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+49:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+69:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/services/settlementService.ts
+3:6  Warning: 'PaymentStatus' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/services/vendorService.ts
+2:15  Warning: 'Database' is defined but never used.  @typescript-eslint/no-unused-vars
+5:6  Warning: 'Vendor' is defined but never used.  @typescript-eslint/no-unused-vars
+5:15  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+6:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+7:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+79:44  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+95:44  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+163:12  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+175:46  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+186:12  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+204:24  Warning: 'vendorId' is defined but never used.  @typescript-eslint/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 16.5s
+   Collecting page data ...
+   Generating static pages (0/37) ...
+   Generating static pages (9/37) 
+   Generating static pages (18/37) 
+   Generating static pages (27/37) 
+ ✓ Generating static pages (37/37)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (pages)                                         Size  First Load JS
+┌ ○ / (1899 ms)                                      11 kB         214 kB
+├   /_app                                              0 B         155 kB
+├ ○ /404 (919 ms)                                  1.16 kB         159 kB
+├ ƒ /api/auth/google                                   0 B         155 kB
+├ ƒ /api/hello                                         0 B         155 kB
+├ ƒ /api/phonepe/callback                              0 B         155 kB
+├ ƒ /api/phonepe/initiate                              0 B         155 kB
+├ ƒ /api/phonepe/status                                0 B         155 kB
+├ ƒ /api/verification/create-session                   0 B         155 kB
+├ ○ /auth/callback (916 ms)                        1.12 kB         156 kB
+├ ○ /auth/forgot-password (916 ms)                 2.65 kB         161 kB
+├ ○ /auth/login (916 ms)                           3.93 kB         162 kB
+├ ○ /auth/onboarding (1086 ms)                      6.6 kB         184 kB
+├ ○ /auth/register (1086 ms)                       5.56 kB         204 kB
+├ ○ /auth/reset-password (916 ms)                  3.71 kB         159 kB
+├ ○ /auth/setup-2fa (916 ms)                       4.08 kB         159 kB
+├ ○ /auth/update-password (916 ms)                 2.78 kB         158 kB
+├ ○ /auth/verify-email (917 ms)                    3.06 kB         158 kB
+├ ○ /contact                                       6.14 kB         202 kB
+├ ○ /dashboard/admin (903 ms)                      2.81 kB         249 kB
+├ ○ /dashboard/admin/analytics (1085 ms)           2.46 kB         204 kB
+├ ○ /dashboard/admin/security (1899 ms)            6.29 kB         208 kB
+├ ○ /dashboard/admin/settlements (1086 ms)         3.27 kB         205 kB
+├ ○ /dashboard/admin/users (904 ms)                6.04 kB         217 kB
+├ ○ /dashboard/admin/vendors (1901 ms)             3.42 kB         205 kB
+├ ○ /dashboard/bdm                                 1.64 kB         247 kB
+├ ○ /dashboard/bdm/vendors (904 ms)                6.46 kB         234 kB
+├ ○ /dashboard/client (903 ms)                     1.65 kB         247 kB
+├ ○ /dashboard/client/orders (1899 ms)             4.23 kB         215 kB
+├ ○ /dashboard/client/returns (1898 ms)            4.26 kB         215 kB
+├ ○ /dashboard/franchise (903 ms)                  1.77 kB         248 kB
+├ ○ /dashboard/investor (1898 ms)                  2.92 kB         205 kB
+├ ○ /dashboard/profile (1085 ms)                   3.95 kB         206 kB
+├ ○ /dashboard/security/active-sessions (1898 ms)  2.25 kB         204 kB
+├ ○ /dashboard/security/login-history (904 ms)     1.97 kB         204 kB
+├ ○ /dashboard/security/trusted-devices (904 ms)   3.55 kB         214 kB
+├ ○ /dashboard/vendor (903 ms)                     2.65 kB         248 kB
+├ ○ /dashboard/vendor/orders (1085 ms)             5.24 kB         233 kB
+├ ○ /dashboard/vendor/performance (1085 ms)        3.37 kB         205 kB
+├ ○ /dashboard/vendor/returns                      4.03 kB         206 kB
+├ ○ /dashboard/vendor/uploads (1899 ms)            5.49 kB         233 kB
+├ ○ /dashboard/vendor/verification (1086 ms)       2.94 kB         205 kB
+└ ○ /invest                                          12 kB         221 kB
++ First Load JS shared by all                       171 kB
+  ├ chunks/framework-f31701c9d93f12a4.js           44.8 kB
+  ├ chunks/main-41c634cc453b469f.js                36.1 kB
+  ├ chunks/pages/_app-ca86007846c4e6b4.js          72.4 kB
+  ├ css/a008d55ab00fe9ac.css                       15.9 kB
+  └ other shared chunks (total)                    1.75 kB
+
+ƒ Middleware                                         34 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
