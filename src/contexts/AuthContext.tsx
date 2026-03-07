@@ -1,18 +1,18 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { authService } from "@/services/authService";
-import type { User } from "@/integrations/supabase/types";
+import type { UserSession } from "@/lib/rbac/rbac-system";
 
 interface AuthContextType {
-  user: User | null;
+  user: UserSession | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<User>;
+  login: (email: string, password: string) => Promise<UserSession>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserSession | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function loadUser() {
     try {
-      const sessionUser = authService.getCurrentUser();
+      const sessionUser = authService.getSession();
       if (sessionUser) {
         setUser(sessionUser);
       }
@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function login(email: string, password: string) {
     const result = await authService.login(email, password);
-    if (!result.user) throw new Error("Login failed");
+    if (!result.user) throw new Error(result.error || "Login failed");
     setUser(result.user);
     return result.user;
   }
