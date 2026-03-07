@@ -52,7 +52,8 @@ export default function AdminWithdrawalsPage() {
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
 
-  const isSuperAdmin = user?.role === "super_admin";
+  // Cast user role to string to avoid TypeScript literal overlap errors if UserRole doesn't include super_admin
+  const isSuperAdmin = (user?.role as string) === "super_admin";
 
   useEffect(() => {
     loadRequests();

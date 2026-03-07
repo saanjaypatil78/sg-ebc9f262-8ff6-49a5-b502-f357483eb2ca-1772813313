@@ -166,4 +166,15 @@ export const rankProgressionService = {
     }
     return `₹${amount.toLocaleString("en-IN")}`;
   },
+
+  async checkAndUpgradeRank(userId: string): Promise<boolean> {
+    try {
+      const { data, error } = await supabase.rpc('auto_upgrade_rank', { p_user_id: userId });
+      if (error) throw error;
+      return data === true;
+    } catch (error) {
+      console.error('Error auto-upgrading rank:', error);
+      return false;
+    }
+  },
 };

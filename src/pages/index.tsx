@@ -3,6 +3,7 @@ import { Hero3DParallax } from "@/components/Hero3DParallax";
 import { ScrollProgressIndicator } from "@/components/ScrollProgressIndicator";
 import { CameraParallax, CameraFade, CameraZoom } from "@/components/CameraParallax";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 import {
   TrendingUp,
@@ -14,9 +15,7 @@ import {
   Globe,
   BarChart3,
   ArrowRight,
-  Eye,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 export default function HomePage() {
   const router = useRouter();
@@ -34,24 +33,21 @@ export default function HomePage() {
 
       <ScrollProgressIndicator />
 
-      <div className="relative bg-slate-950">
-        {/* Hero Section - Full 3D Parallax with Camera Effects */}
+      <div className="relative bg-slate-950 min-h-screen">
+        {/* Hero Section - Full 3D Parallax */}
         <Hero3DParallax />
 
-        {/* Stats Section with Camera Fade-In */}
+        {/* Stats Section with Camera Effects */}
         <section className="relative py-24 bg-slate-900/50 overflow-hidden">
-          <CameraZoom intensity={0.1} className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-orange-500/10 rounded-full blur-3xl" />
+          {/* Animated background orbs with Camera Zoom */}
+          <CameraZoom intensity={0.15}>
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-orange-500/10 rounded-full blur-3xl" />
+            </div>
           </CameraZoom>
 
           <div className="max-w-7xl mx-auto px-6 relative z-10">
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, staggerChildren: 0.1 }}
-            >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {[
                 {
                   icon: Users,
@@ -79,33 +75,35 @@ export default function HomePage() {
                 },
               ].map((stat, i) => (
                 <CameraFade key={i} delay={i * 0.1}>
-                  <motion.div
-                    className="group relative p-8 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl overflow-hidden"
-                    whileHover={{ scale: 1.05, y: -5 }}
-                  >
-                    <CameraParallax speed={10} direction="up">
+                  <CameraParallax speed={20 + (i * 5)} direction="up">
+                    <motion.div
+                      className="group relative p-8 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl overflow-hidden"
+                      whileHover={{ scale: 1.05, y: -5 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
                       <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500" />
                       <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${stat.color} mb-4`}>
                         <stat.icon className="w-6 h-6 text-white" />
                       </div>
-                    </CameraParallax>
-                    <div className="text-sm text-slate-400 mb-1">{stat.label}</div>
-                    <div className="text-3xl font-bold text-white">{stat.value}</div>
-                  </motion.div>
+                      <div className="text-sm text-slate-400 mb-1">{stat.label}</div>
+                      <div className="text-3xl font-bold text-white">{stat.value}</div>
+                    </motion.div>
+                  </CameraParallax>
                 </CameraFade>
               ))}
-            </motion.div>
+            </div>
           </div>
         </section>
 
-        {/* Features Section with Camera Parallax */}
+        {/* Features Section with Multi-Layer Parallax */}
         <section className="relative py-24 overflow-hidden">
-          <CameraParallax speed={30} direction="down" className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
+          {/* Background layers with different speeds */}
+          <CameraParallax speed={40} direction="down">
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
           </CameraParallax>
           
-          <CameraParallax speed={20} direction="up" className="absolute inset-0 pointer-events-none">
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl" />
+          <CameraParallax speed={25} direction="up">
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
           </CameraParallax>
 
           <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -160,29 +158,32 @@ export default function HomePage() {
                 },
               ].map((feature, i) => (
                 <CameraFade key={i} delay={i * 0.05}>
-                  <motion.div
-                    className="group relative p-8 bg-slate-800/30 backdrop-blur-sm border border-slate-700/30 rounded-2xl overflow-hidden"
-                    whileHover={{ scale: 1.05, y: -10 }}
-                  >
-                    <CameraParallax speed={15} direction="up">
+                  <CameraParallax speed={15 + (i * 3)} direction={(i % 2 === 0) ? "up" : "down"}>
+                    <motion.div
+                      className="group relative p-8 bg-slate-800/30 backdrop-blur-sm border border-slate-700/30 rounded-2xl overflow-hidden h-full"
+                      whileHover={{ scale: 1.05, y: -10 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
                       <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
                       <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${feature.color} mb-6`}>
                         <feature.icon className="w-8 h-8 text-white" />
                       </div>
-                    </CameraParallax>
-                    <h3 className="text-2xl font-bold text-white mb-3">{feature.title}</h3>
-                    <p className="text-slate-400 leading-relaxed">{feature.description}</p>
-                  </motion.div>
+                      <h3 className="text-2xl font-bold text-white mb-3">{feature.title}</h3>
+                      <p className="text-slate-400 leading-relaxed">{feature.description}</p>
+                    </motion.div>
+                  </CameraParallax>
                 </CameraFade>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Final CTA Section with Camera Zoom */}
+        {/* CTA Section with Dolly Zoom */}
         <section className="relative py-32 overflow-hidden">
-          <CameraZoom intensity={0.15} className="absolute inset-0">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-orange-500/20 via-cyan-500/20 to-purple-500/20 rounded-full blur-3xl" />
+          <CameraZoom intensity={0.2}>
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-orange-500/20 via-cyan-500/20 to-purple-500/20 rounded-full blur-3xl" />
+            </div>
           </CameraZoom>
 
           <CameraFade>
@@ -205,21 +206,23 @@ export default function HomePage() {
                     whileHover={{ scale: 1.05, y: -5 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 animate-gradient-x" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600" />
                     <div className="absolute inset-0 bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
-                    <span className="relative z-10">Start Investing Today</span>
+                    <span className="relative z-10 flex items-center gap-2">
+                      Start Investing Today
+                      <ArrowRight className="w-5 h-5" />
+                    </span>
                   </motion.button>
                 </Link>
 
-                <Link href="/contact">
-                  <motion.button
-                    className="px-10 py-5 text-lg font-semibold text-cyan-400 rounded-xl border-2 border-cyan-500/50 bg-cyan-500/10 backdrop-blur-sm hover:border-cyan-500/80 transition-colors"
-                    whileHover={{ scale: 1.05, y: -5 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Contact Us
-                  </motion.button>
-                </Link>
+                <motion.button
+                  onClick={handleViewLedger}
+                  className="px-10 py-5 text-lg font-semibold text-cyan-400 rounded-xl border-2 border-cyan-500/50 bg-cyan-500/10 backdrop-blur-sm hover:border-cyan-500/80 transition-colors"
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  View Public Ledger
+                </motion.button>
               </div>
             </div>
           </CameraFade>

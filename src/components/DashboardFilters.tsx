@@ -1,178 +1,160 @@
-"use client";
-
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Filter, X } from "lucide-react";
-import { format } from "date-fns";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Search, Filter, Calendar, Download } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface DashboardFiltersProps {
-  onFilterChange?: (filters: FilterState) => void;
+  onSearch?: (query: string) => void;
+  onFilterChange?: (filters: FilterOptions) => void;
+  onExport?: () => void;
   showDateRange?: boolean;
-  showStatus?: boolean;
-  showRole?: boolean;
-  showSearch?: boolean;
+  showRankFilter?: boolean;
+  showStatusFilter?: boolean;
 }
 
-export interface FilterState {
+export interface FilterOptions {
+  dateRange?: string;
   rank?: string;
-  dateFrom?: Date | undefined;
-  dateTo?: Date | undefined;
   status?: string;
-  search?: string;
-  role?: string;
 }
 
-export function DashboardFilters({ 
+export function DashboardFilters({
+  onSearch,
   onFilterChange,
+  onExport,
   showDateRange = true,
-  showStatus = true,
-  showRole = false,
-  showSearch = false
+  showRankFilter = false,
+  showStatusFilter = false,
 }: DashboardFiltersProps) {
-  const [filters, setFilters] = useState<FilterState>({
-    rank: "all",
-    dateFrom: undefined,
-    dateTo: undefined,
-    status: "all",
-    search: "",
-    role: "all"
-  });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState<FilterOptions>({});
 
-  const [showFilters, setShowFilters] = useState(false);
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    onSearch?.(value);
+  };
 
-  const handleFilterChange = (key: keyof FilterState, value: any) => {
+  const handleFilterChange = (key: keyof FilterOptions, value: string) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     onFilterChange?.(newFilters);
   };
 
-  const clearFilters = () => {
-    const clearedFilters = {
-      rank: "all",
-      dateFrom: undefined,
-      dateTo: undefined,
-      status: "all"
-    };
-    setFilters(clearedFilters);
-    onFilterChange?.(clearedFilters);
-  };
-
-  const hasActiveFilters = filters.rank !== "all" || filters.status !== "all" || filters.dateFrom || filters.dateTo;
-
   return (
-    <div className="mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <Button
-          onClick={() => setShowFilters(!showFilters)}
-          variant="outline"
-          className="bg-slate-900/50 border-slate-700 hover:border-orange-500/50 text-white"
-        >
-          <Filter className="w-4 h-4 mr-2" />
-          {showFilters ? 'Hide Filters' : 'Show Filters'}
-        </Button>
-        {hasActiveFilters && (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 space-y-4"
+    >
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+        <Input
+          type="text"
+          placeholder="Search by name, email, or ID..."
+          value={searchQuery}
+          onChange={(e) => handleSearchChange(e.target.value)}
+          className="pl-10 bg-slate-900/50 border-slate-600 text-white"
+        />
+      </div>
+
+      {/* Filter Options */}
+      <div className="flex flex-wrap gap-4">
+        {showDateRange && (
+          <Select onValueChange={(value) => handleFilterChange("dateRange", value)}>
+            <SelectTrigger className="w-[180px] bg-slate-900/50 border-slate-600 text-white">
+              <Calendar className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Date Range" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-800 border-slate-700">
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="week">This Week</SelectItem>
+              <SelectItem value="month">This Month</SelectItem>
+              <SelectItem value="quarter">This Quarter</SelectItem>
+              <SelectItem value="year">This Year</SelectItem>
+              <SelectItem value="all">All Time</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+
+        {showRankFilter && (
+          <Select onValueChange={(value) => handleFilterChange("rank", value)}>
+            <SelectTrigger className="w-[180px] bg-slate-900/50 border-slate-600 text-white">
+              <Filter className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Rank" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-800 border-slate-700">
+              <SelectItem value="all">All Ranks</SelectItem>
+              <SelectItem value="BASE">BASE</SelectItem>
+              <SelectItem value="BRONZE">BRONZE</SelectItem>
+              <SelectItem value="SILVER">SILVER</SelectItem>
+              <SelectItem value="GOLD">GOLD</SelectItem>
+              <SelectItem value="PLATINUM">PLATINUM</SelectItem>
+              <SelectItem value="DIAMOND">DIAMOND</SelectItem>
+              <SelectItem value="AMBASSADOR">AMBASSADOR</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+
+        {showStatusFilter && (
+          <Select onValueChange={(value) => handleFilterChange("status", value)}>
+            <SelectTrigger className="w-[180px] bg-slate-900/50 border-slate-600 text-white">
+              <Filter className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-800 border-slate-700">
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+
+        {onExport && (
           <Button
-            onClick={clearFilters}
-            variant="ghost"
-            size="sm"
-            className="text-slate-400 hover:text-white"
+            onClick={onExport}
+            variant="outline"
+            className="bg-cyan-500/10 border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/20"
           >
-            <X className="w-4 h-4 mr-2" />
-            Clear Filters
+            <Download className="w-4 h-4 mr-2" />
+            Export Data
           </Button>
         )}
       </div>
 
-      {showFilters && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-900/30 border border-slate-800 rounded-lg">
-          {/* Rank Filter */}
-          <div>
-            <label className="text-sm text-slate-400 mb-2 block">Rank</label>
-            <Select value={filters.rank} onValueChange={(value) => handleFilterChange('rank', value)}>
-              <SelectTrigger className="bg-slate-900 border-slate-700">
-                <SelectValue placeholder="All Ranks" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Ranks</SelectItem>
-                <SelectItem value="Grey">Grey</SelectItem>
-                <SelectItem value="Bronze">Bronze</SelectItem>
-                <SelectItem value="Silver">Silver</SelectItem>
-                <SelectItem value="Gold">Gold</SelectItem>
-                <SelectItem value="Platinum">Platinum</SelectItem>
-                <SelectItem value="Diamond">Diamond</SelectItem>
-                <SelectItem value="Ambassador">Ambassador</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Status Filter */}
-          <div>
-            <label className="text-sm text-slate-400 mb-2 block">Status</label>
-            <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value)}>
-              <SelectTrigger className="bg-slate-900 border-slate-700">
-                <SelectValue placeholder="All Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Date From */}
-          <div>
-            <label className="text-sm text-slate-400 mb-2 block">From Date</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal bg-slate-900 border-slate-700"
+      {/* Active Filters Summary */}
+      {Object.keys(filters).length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(filters).map(([key, value]) => (
+            value && (
+              <motion.div
+                key={key}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-500/20 border border-cyan-500/50 rounded-full text-sm text-cyan-400"
+              >
+                <span className="capitalize">{key}: {value}</span>
+                <button
+                  onClick={() => handleFilterChange(key as keyof FilterOptions, "")}
+                  className="hover:text-cyan-300"
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {filters.dateFrom ? format(filters.dateFrom, "PPP") : "Select date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-slate-900 border-slate-700">
-                <Calendar
-                  mode="single"
-                  selected={filters.dateFrom}
-                  onSelect={(date) => handleFilterChange('dateFrom', date)}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          {/* Date To */}
-          <div>
-            <label className="text-sm text-slate-400 mb-2 block">To Date</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal bg-slate-900 border-slate-700"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {filters.dateTo ? format(filters.dateTo, "PPP") : "Select date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-slate-900 border-slate-700">
-                <Calendar
-                  mode="single"
-                  selected={filters.dateTo}
-                  onSelect={(date) => handleFilterChange('dateTo', date)}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
+                  ×
+                </button>
+              </motion.div>
+            )
+          ))}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

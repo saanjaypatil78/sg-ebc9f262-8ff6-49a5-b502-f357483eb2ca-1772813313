@@ -1,4 +1,3 @@
-<![CDATA[
 import { supabase } from "@/integrations/supabase/client";
 
 export interface RankUpgradeEmailData {
@@ -286,4 +285,3 @@ export const emailNotifications = {
     return currentIndex < ranks.length - 1 ? ranks[currentIndex + 1] : "MAX";
   },
 };
-</![CDATA[>
