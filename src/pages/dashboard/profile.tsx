@@ -1,281 +1,194 @@
-import { SEO } from "@/components/SEO";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { useState, useEffect } from "react";
-import { profileService, UserProfile } from "@/services/profileService";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, User, Upload } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
+import { User, Mail, Phone, MapPin, Shield, TrendingUp, Building, Award, Star, Activity } from "lucide-react";
+import { SEO } from "@/components/SEO";
 
 export default function ProfilePage() {
-  const { toast } = useToast();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const { user } = useAuth();
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
-  const loadProfile = async () => {
-    try {
-      const data = await profileService.getCurrentProfile();
-      setProfile(data);
-    } catch (error) {
-      console.error("Error loading profile:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load profile data",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+  const renderRoleSpecificContent = () => {
+    switch(user?.role) {
+      case 'INVESTOR':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+            <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 rounded-full bg-cyan-500/20 text-cyan-400">
+                    <TrendingUp className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-400">Investment Tier</p>
+                    <p className="text-2xl font-bold text-white">STANDARD</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 rounded-full bg-orange-500/20 text-orange-400">
+                    <Award className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-400">Current Rank</p>
+                    <p className="text-2xl font-bold text-white">BRONZE</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 rounded-full bg-purple-500/20 text-purple-400">
+                    <Activity className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-400">Avg Monthly ROI</p>
+                    <p className="text-2xl font-bold text-white">15%</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      case 'VENDOR':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 rounded-full bg-blue-500/20 text-blue-400">
+                    <Building className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-400">Active Listings</p>
+                    <p className="text-2xl font-bold text-white">24</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-slate-900/50 border-slate-800 backdrop-blur-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 rounded-full bg-green-500/20 text-green-400">
+                    <Star className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-400">Vendor Rating</p>
+                    <p className="text-2xl font-bold text-white">4.8 / 5.0</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      default:
+        return null;
     }
   };
-
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!profile) return;
-
-    setSaving(true);
-    try {
-      await profileService.updateProfile({
-        first_name: profile.first_name,
-        last_name: profile.last_name,
-        phone: profile.phone,
-        address: profile.address,
-        city: profile.city,
-        state: profile.state,
-        pincode: profile.pincode,
-      });
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
-      });
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update profile",
-        variant: "destructive",
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setSaving(true);
-      const url = await profileService.uploadAvatar(file);
-      setProfile(prev => prev ? { ...prev, avatar_url: url } : null);
-      toast({
-        title: "Success",
-        description: "Avatar updated successfully",
-      });
-    } catch (error) {
-      console.error("Error uploading avatar:", error);
-      toast({
-        title: "Error",
-        description: "Failed to upload avatar",
-        variant: "destructive",
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <DashboardLayout role="client">
-        <div className="flex h-[50vh] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </DashboardLayout>
-    );
-  }
 
   return (
-    <>
-      <SEO title="My Profile - Brave Ecom" />
-      <DashboardLayout role={profile?.role || "client"}>
-        <div className="space-y-6 max-w-4xl mx-auto">
-          <div>
-            <h1 className="text-3xl font-bold">My Profile</h1>
-            <p className="text-muted-foreground mt-1">
-              Manage your personal information and account settings
-            </p>
-          </div>
-
-          <form onSubmit={handleUpdate} className="space-y-6">
-            {/* Identity Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Identity</CardTitle>
-                <CardDescription>Your basic profile information</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex flex-col sm:flex-row items-center gap-6">
-                  <div className="relative group">
-                    <Avatar className="h-24 w-24 cursor-pointer">
-                      <AvatarImage src={profile?.avatar_url || ""} />
-                      <AvatarFallback className="text-2xl">
-                        {profile?.first_name?.[0]}{profile?.last_name?.[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer">
-                      <label htmlFor="avatar-upload" className="cursor-pointer p-2">
-                        <Upload className="h-6 w-6 text-white" />
-                      </label>
-                      <input 
-                        id="avatar-upload" 
-                        type="file" 
-                        accept="image/*" 
-                        className="hidden" 
-                        onChange={handleAvatarUpload}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 w-full">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName">First Name</Label>
-                      <Input 
-                        id="firstName" 
-                        value={profile?.first_name || ""} 
-                        onChange={e => setProfile(prev => prev ? { ...prev, first_name: e.target.value } : null)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName">Last Name</Label>
-                      <Input 
-                        id="lastName" 
-                        value={profile?.last_name || ""} 
-                        onChange={e => setProfile(prev => prev ? { ...prev, last_name: e.target.value } : null)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input value={profile?.email || ""} disabled className="bg-muted" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone</Label>
-                      <Input 
-                        id="phone" 
-                        value={profile?.phone || ""} 
-                        onChange={e => setProfile(prev => prev ? { ...prev, phone: e.target.value } : null)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Address Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Address Details</CardTitle>
-                <CardDescription>Your physical address for correspondence</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Street Address</Label>
-                    <Input 
-                      id="address" 
-                      value={profile?.address || ""} 
-                      onChange={e => setProfile(prev => prev ? { ...prev, address: e.target.value } : null)}
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="city">City</Label>
-                      <Input 
-                        id="city" 
-                        value={profile?.city || ""} 
-                        onChange={e => setProfile(prev => prev ? { ...prev, city: e.target.value } : null)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="state">State</Label>
-                      <Input 
-                        id="state" 
-                        value={profile?.state || ""} 
-                        onChange={e => setProfile(prev => prev ? { ...prev, state: e.target.value } : null)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="pincode">Pincode</Label>
-                      <Input 
-                        id="pincode" 
-                        value={profile?.pincode || ""} 
-                        onChange={e => setProfile(prev => prev ? { ...prev, pincode: e.target.value } : null)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* KYC & Financial (Read Only) */}
-            <Card>
-              <CardHeader>
-                <CardTitle>KYC & Financial</CardTitle>
-                <CardDescription>Verified information (Contact support to change)</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Aadhaar Number</Label>
-                    <Input value={profile?.aadhaar_number || ""} disabled className="bg-muted" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>PAN Number</Label>
-                    <Input value={profile?.pan_number || ""} disabled className="bg-muted" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Bank Name</Label>
-                    <Input value={profile?.bank_name || ""} disabled className="bg-muted" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Account Number</Label>
-                    <Input value={profile?.account_number || ""} disabled className="bg-muted" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>IFSC Code</Label>
-                    <Input value={profile?.ifsc_code || ""} disabled className="bg-muted" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>KYC Status</Label>
-                    <div className="flex items-center h-10 px-3 rounded-md border bg-muted text-sm capitalize">
-                      {profile?.kyc_status}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="flex justify-end">
-              <Button type="submit" size="lg" disabled={saving}>
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save Changes"
-                )}
-              </Button>
-            </div>
-          </form>
+    <DashboardLayout>
+      <SEO title="Strategic Profile - Brave Ecom" />
+      <div className="max-w-5xl mx-auto space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Strategic Profile</h1>
+          <p className="text-slate-400 mt-2">Manage your identity, roles, and security settings.</p>
         </div>
-      </DashboardLayout>
-    </>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Identity Card */}
+          <Card className="lg:col-span-2 bg-slate-900/80 border-slate-800 backdrop-blur-xl overflow-hidden">
+            <div className="h-32 bg-gradient-to-r from-cyan-600 to-blue-600 opacity-80" />
+            <CardContent className="relative pt-0 px-8 pb-8">
+              <div className="absolute -top-16 left-8 p-1 bg-slate-900 rounded-full">
+                <div className="w-24 h-24 bg-gradient-to-br from-slate-700 to-slate-800 rounded-full flex items-center justify-center border-4 border-slate-900">
+                  <User className="w-12 h-12 text-slate-400" />
+                </div>
+              </div>
+              
+              <div className="mt-12 flex justify-between items-start">
+                <div>
+                  <h2 className="text-2xl font-bold text-white">
+                    {user?.user_metadata?.first_name || 'Strategic'} {user?.user_metadata?.last_name || 'User'}
+                  </h2>
+                  <div className="flex items-center space-x-3 mt-2">
+                    <Badge variant="outline" className="bg-cyan-500/10 text-cyan-400 border-cyan-500/20">
+                      {user?.role || 'REGISTERED'}
+                    </Badge>
+                    <span className="text-slate-400 text-sm flex items-center">
+                      <MapPin className="w-4 h-4 mr-1" />
+                      India
+                    </span>
+                  </div>
+                </div>
+                <Button variant="outline" className="border-slate-700 text-slate-300">
+                  Edit Profile
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 pt-8 border-t border-slate-800">
+                <div className="space-y-1">
+                  <span className="text-sm text-slate-500 flex items-center"><Mail className="w-4 h-4 mr-2" />Email Address</span>
+                  <p className="text-slate-200">{user?.email || 'user@example.com'}</p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-sm text-slate-500 flex items-center"><Phone className="w-4 h-4 mr-2" />Phone Number</span>
+                  <p className="text-slate-200">+91 ***** *****</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Security Status */}
+          <Card className="bg-slate-900/80 border-slate-800 backdrop-blur-xl">
+            <CardHeader>
+              <CardTitle className="flex items-center text-white">
+                <Shield className="w-5 h-5 mr-2 text-green-400" />
+                Security Status
+              </CardTitle>
+              <CardDescription>Your account protection</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700">
+                <div>
+                  <p className="font-medium text-slate-200">Email Verified</p>
+                  <p className="text-xs text-slate-400">Required for operations</p>
+                </div>
+                <Badge className="bg-green-500/20 text-green-400 hover:bg-green-500/20">Verified</Badge>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700">
+                <div>
+                  <p className="font-medium text-slate-200">2FA / TOTP</p>
+                  <p className="text-xs text-slate-400">Authenticator app</p>
+                </div>
+                <Badge variant="outline" className="text-slate-400">Inactive</Badge>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700">
+                <div>
+                  <p className="font-medium text-slate-200">Device Binding</p>
+                  <p className="text-xs text-slate-400">High-value limits</p>
+                </div>
+                <Badge variant="outline" className="bg-orange-500/10 text-orange-400 border-orange-500/20">Required</Badge>
+              </div>
+              
+              <Button className="w-full mt-4 bg-slate-800 hover:bg-slate-700 text-white" variant="secondary">
+                Manage Security
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Role Specific Analytics / Strategic Information */}
+        {renderRoleSpecificContent()}
+      </div>
+    </DashboardLayout>
   );
 }
