@@ -14,9 +14,10 @@ export type DashboardRole = "investor" | "vendor" | "admin" | "bdm" | "client" |
 
 interface DashboardChartsProps {
   role?: DashboardRole;
+  metrics?: any;
 }
 
-export function DashboardCharts({ role = "investor" }: DashboardChartsProps) {
+export function DashboardCharts({ role = "investor", metrics }: DashboardChartsProps) {
   const getChartData = (): ChartData[] => {
     switch (role) {
       case "investor":

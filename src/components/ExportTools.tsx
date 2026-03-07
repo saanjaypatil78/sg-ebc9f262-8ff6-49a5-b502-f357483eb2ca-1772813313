@@ -12,20 +12,21 @@ import { motion } from "framer-motion";
 interface ExportToolsProps {
   data: any[];
   filename?: string;
+  headers?: string[];
 }
 
-export function ExportTools({ data, filename = "export" }: ExportToolsProps) {
+export function ExportTools({ data, filename = "export", headers }: ExportToolsProps) {
   const [exporting, setExporting] = useState(false);
 
   const exportToCSV = () => {
     setExporting(true);
     try {
       // Convert data to CSV
-      const headers = Object.keys(data[0] || {});
+      const csvHeaders = headers || Object.keys(data[0] || {});
       const csvContent = [
-        headers.join(","),
+        csvHeaders.join(","),
         ...data.map(row =>
-          headers.map(header => JSON.stringify(row[header] || "")).join(",")
+          csvHeaders.map(header => JSON.stringify(row[header] || "")).join(",")
         ),
       ].join("\n");
 

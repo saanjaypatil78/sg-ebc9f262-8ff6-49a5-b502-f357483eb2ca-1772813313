@@ -21,9 +21,10 @@ interface DashboardLayoutProps {
   children: ReactNode;
   showCharts?: boolean;
   role?: DashboardRole;
+  metrics?: any;
 }
 
-export function DashboardLayout({ children, showCharts = false, role = "investor" }: DashboardLayoutProps) {
+export function DashboardLayout({ children, showCharts = false, role = "investor", metrics }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [profileEditorOpen, setProfileEditorOpen] = useState(false);
