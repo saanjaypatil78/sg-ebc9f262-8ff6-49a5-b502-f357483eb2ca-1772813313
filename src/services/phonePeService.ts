@@ -14,7 +14,7 @@ export interface PhonePePaymentRequest {
   amount: number;
   userId: string;
   agreementId?: string;
-  purpose: 'investment' | 'payout';
+  purpose: 'investment' | 'payout' | 'purchase';
   mobileNumber: string;
 }
 
@@ -26,7 +26,7 @@ export interface PhonePeTransaction {
   phonepe_transaction_id: string | null;
   amount: number;
   status: 'initiated' | 'pending' | 'success' | 'failed';
-  transaction_type: 'investment' | 'payout';
+  transaction_type: 'investment' | 'payout' | 'purchase';
   payment_method: string | null;
   callback_data: any;
   created_at: string;
@@ -34,6 +34,55 @@ export interface PhonePeTransaction {
 }
 
 export const phonePeService = {
+  /**
+   * Initiate order payment via backend API
+   */
+  async initiateOrderPayment(request: Omit<PhonePePaymentRequest, 'purpose'>): Promise<{ 
+    paymentUrl: string; 
+    transactionId: string 
+  }> {
+    const merchantTransactionId = `ORD_${Date.now()}_${request.userId.substring(0, 8)}`;
+
+    // Store transaction in database FIRST
+    const { data: transaction, error } = await supabase
+      .from('phonepe_transactions')
+      .insert({
+        user_id: request.userId,
+        merchant_transaction_id: merchantTransactionId,
+        amount: request.amount,
+        status: 'initiated',
+        transaction_type: 'purchase'
+      } as any)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Call Backend API
+    const response = await fetch('/api/phonepe/initiate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: request.amount,
+        userId: request.userId,
+        mobileNumber: request.mobileNumber,
+        merchantTransactionId: merchantTransactionId,
+        redirectUrl: `${window.location.origin}/shop/order-success?merchant_transaction_id=${merchantTransactionId}`
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.success && result.data?.instrumentResponse?.redirectInfo?.url) {
+      return {
+        paymentUrl: result.data.instrumentResponse.redirectInfo.url,
+        transactionId: transaction?.id || ''
+      };
+    }
+
+    throw new Error('PhonePe payment initiation failed');
+  },
+
   /**
    * Initiate investment payment via backend API
    */

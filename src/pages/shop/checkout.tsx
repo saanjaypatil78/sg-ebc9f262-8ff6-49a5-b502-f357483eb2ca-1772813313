@@ -86,20 +86,18 @@ export default function CheckoutPage() {
       await Promise.all(orderPromises);
 
       // Initiate PhonePe payment
-      const paymentResult = await phonePeService.initiatePayment({
+      const paymentResult = await phonePeService.initiateOrderPayment({
         amount: grandTotal,
-        merchantTransactionId: `ORDER_${Date.now()}`,
-        merchantUserId: user.id,
-        redirectUrl: `${window.location.origin}/shop/order-success`,
-        callbackUrl: `${window.location.origin}/api/phonepe/callback`,
+        userId: user.id,
+        mobileNumber: shippingAddress.phone,
       });
 
-      if (paymentResult.success && paymentResult.data?.instrumentResponse?.redirectInfo?.url) {
+      if (paymentResult && paymentResult.paymentUrl) {
         // Clear cart
         clearCart();
 
         // Redirect to PhonePe
-        window.location.href = paymentResult.data.instrumentResponse.redirectInfo.url;
+        window.location.href = paymentResult.paymentUrl;
       } else {
         throw new Error("Payment initiation failed");
       }
