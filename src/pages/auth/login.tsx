@@ -288,8 +288,8 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <div className="relative w-20 h-20 mx-auto mb-4">
               <Image
-                src="/bravecom-logo-cart.png"
-                alt="Brave Ecom Logo"
+                src="/sunray-logo.png"
+                alt="Sunray Logo"
                 fill
                 className="object-contain"
               />
