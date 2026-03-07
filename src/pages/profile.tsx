@@ -20,9 +20,13 @@ import {
   XCircle,
   Eye,
   Download,
-  Calendar
+  Calendar,
+  Search,
+  Filter
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -31,6 +35,9 @@ export default function ProfilePage() {
 
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  
   const [earnings, setEarnings] = useState({
     totalCommission: 0,
     pendingCommission: 0,
@@ -84,9 +91,16 @@ export default function ProfilePage() {
       returned: { label: "Returned", variant: "outline" },
     };
     
-    const config = statusConfig[status] || statusConfig.pending;
+    const config = statusConfig[status?.toLowerCase()] || statusConfig.pending;
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
+
+  // Filter orders based on search and status
+  const filteredOrders = orders.filter(order => {
+    const matchesSearch = order.order_id?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || order.status?.toLowerCase() === statusFilter.toLowerCase();
+    return matchesSearch && matchesStatus;
+  });
 
   if (loading) {
     return (
@@ -158,6 +172,35 @@ export default function ProfilePage() {
 
             {/* Orders Tab */}
             <TabsContent value="orders">
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input
+                    placeholder="Search by Order ID..."
+                    className="pl-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                    <div className="flex items-center gap-2">
+                      <Filter className="h-4 w-4" />
+                      <SelectValue placeholder="All Statuses" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="pending">Processing</SelectItem>
+                    <SelectItem value="confirmed">Confirmed</SelectItem>
+                    <SelectItem value="shipped">Shipped</SelectItem>
+                    <SelectItem value="delivered">Delivered</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                    <SelectItem value="returned">Returned</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               {orders.length === 0 ? (
                 <Card>
                   <CardContent className="flex flex-col items-center justify-center py-16">
@@ -169,9 +212,24 @@ export default function ProfilePage() {
                     </Button>
                   </CardContent>
                 </Card>
+              ) : filteredOrders.length === 0 ? (
+                <Card>
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <Search className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-4" />
+                    <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100">No orders found</h3>
+                    <p className="text-slate-500">Try adjusting your filters or search query</p>
+                    <Button 
+                      variant="link" 
+                      onClick={() => { setSearchQuery(""); setStatusFilter("all"); }}
+                      className="mt-2"
+                    >
+                      Clear Filters
+                    </Button>
+                  </CardContent>
+                </Card>
               ) : (
                 <div className="space-y-4">
-                  {orders.map((order) => (
+                  {filteredOrders.map((order) => (
                     <Card key={order.id} className="hover:border-cyan-500/50 transition-colors">
                       <CardContent className="pt-6">
                         <div className="flex flex-col md:flex-row justify-between gap-4">

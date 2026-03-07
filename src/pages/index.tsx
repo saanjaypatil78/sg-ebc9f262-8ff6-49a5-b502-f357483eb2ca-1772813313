@@ -202,12 +202,13 @@ export default function HomePage() {
                 </button>
               </Link>
 
-              <button
-                onClick={handleViewLedger}
-                className="px-10 py-5 w-full sm:w-auto text-lg font-semibold text-cyan-400 rounded-xl border-2 border-cyan-500/50 bg-cyan-500/10 backdrop-blur-sm transition-all duration-75 ease-in-out hover:border-cyan-500 hover:bg-cyan-500/20 active:scale-95 hover:scale-105"
-              >
-                Shop with Earning
-              </button>
+              <Link href="/shop">
+                <button
+                  className="px-10 py-5 w-full sm:w-auto text-lg font-semibold text-cyan-400 rounded-xl border-2 border-cyan-500/50 bg-cyan-500/10 backdrop-blur-sm transition-all duration-75 ease-in-out hover:border-cyan-500 hover:bg-cyan-500/20 active:scale-95 hover:scale-105"
+                >
+                  Shop with Earning
+                </button>
+              </Link>
             </div>
           </div>
         </section>
