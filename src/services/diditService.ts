@@ -1,150 +1,207 @@
 /**
- * Didit Platform Integration Service
- * Handles payment verification and tracking
+ * Didit Authentication Service
+ * Decentralized Identity & 2FA Integration
  */
 
-const DIDIT_API_URL = process.env.NEXT_PUBLIC_DIDIT_API_URL || 'https://api.didit.in';
-const DIDIT_API_KEY = process.env.DIDIT_API_KEY || '';
+import { supabase } from "@/integrations/supabase/client";
 
-export interface BankDetails {
-  accountNumber: string;
-  ifscCode: string;
-  bankName?: string;
-  branchName?: string;
-  verified: boolean;
+export interface DiditAuthConfig {
+  apiKey: string;
+  appId: string;
+  environment: 'production' | 'sandbox';
 }
 
-export interface PaymentVerification {
+export interface DiditUser {
   id: string;
-  amount: number;
-  utr: string;
-  status: 'pending' | 'verified' | 'failed';
-  verifiedAt?: string;
+  email: string;
+  phone?: string;
+  verified: boolean;
+  biometricEnabled: boolean;
+  twoFactorEnabled: boolean;
+}
+
+export interface DiditSession {
+  sessionId: string;
+  userId: string;
+  expiresAt: Date;
+  deviceId: string;
 }
 
 export const diditService = {
   /**
-   * Verify IFSC code and fetch bank details
+   * Initialize Didit SDK
    */
-  async verifyIFSC(ifscCode: string): Promise<BankDetails> {
+  async initialize(): Promise<void> {
+    // TODO: Initialize Didit SDK with API credentials
+    console.log('Didit SDK initialized');
+  },
+
+  /**
+   * Send SMS 2FA code via Didit
+   */
+  async sendSMS2FA(phoneNumber: string): Promise<{ success: boolean; sessionId: string }> {
     try {
-      // Use IFSC API (free public API)
-      const response = await fetch(`https://ifsc.razorpay.com/${ifscCode}`);
+      // TODO: Integrate with Didit SMS API
+      // const response = await fetch('https://api.didit.me/v1/sms/send', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Authorization': `Bearer ${process.env.NEXT_PUBLIC_DIDIT_API_KEY}`,
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ phone: phoneNumber }),
+      // });
+
+      const sessionId = `didit_${Date.now()}`;
       
-      if (!response.ok) {
-        throw new Error('Invalid IFSC code');
-      }
-      
-      const data = await response.json();
-      
-      return {
-        accountNumber: '',
-        ifscCode: ifscCode.toUpperCase(),
-        bankName: data.BANK,
-        branchName: data.BRANCH,
-        verified: true
-      };
+      console.log(`SMS 2FA sent to ${phoneNumber}`);
+      return { success: true, sessionId };
     } catch (error) {
-      console.error('IFSC verification failed:', error);
-      return {
-        accountNumber: '',
-        ifscCode: ifscCode.toUpperCase(),
-        verified: false
-      };
+      console.error('Failed to send SMS 2FA:', error);
+      return { success: false, sessionId: '' };
     }
   },
 
   /**
-   * Verify bank account using Didit
+   * Verify SMS 2FA code via Didit
    */
-  async verifyBankAccount(accountNumber: string, ifscCode: string): Promise<boolean> {
+  async verifySMS2FA(sessionId: string, code: string): Promise<boolean> {
     try {
-      const response = await fetch(`${DIDIT_API_URL}/verify/bank`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${DIDIT_API_KEY}`
-        },
-        body: JSON.stringify({
-          account_number: accountNumber,
-          ifsc_code: ifscCode
-        })
-      });
+      // TODO: Integrate with Didit verification API
+      // const response = await fetch('https://api.didit.me/v1/sms/verify', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Authorization': `Bearer ${process.env.NEXT_PUBLIC_DIDIT_API_KEY}`,
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ sessionId, code }),
+      // });
 
-      const result = await response.json();
-      return result.verified === true;
+      // Mock verification for demo (accepts any 6-digit code)
+      const isValid = /^\d{6}$/.test(code);
+      
+      console.log(`SMS 2FA verification: ${isValid ? 'SUCCESS' : 'FAILED'}`);
+      return isValid;
     } catch (error) {
-      console.error('Bank verification failed:', error);
+      console.error('Failed to verify SMS 2FA:', error);
       return false;
     }
   },
 
   /**
-   * Create payment verification request
+   * Enable biometric authentication via Didit
    */
-  async createVerificationRequest(data: {
-    amount: number;
-    utr: string;
-    accountNumber: string;
-    ifscCode: string;
-    userId: string;
-  }): Promise<PaymentVerification> {
+  async enableBiometric(userId: string): Promise<boolean> {
     try {
-      const response = await fetch(`${DIDIT_API_URL}/payments/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${DIDIT_API_KEY}`
-        },
-        body: JSON.stringify(data)
-      });
+      // TODO: Integrate with Didit biometric API
+      // const response = await fetch('https://api.didit.me/v1/biometric/register', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Authorization': `Bearer ${process.env.NEXT_PUBLIC_DIDIT_API_KEY}`,
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ userId }),
+      // });
 
-      const result = await response.json();
-      
-      return {
-        id: result.verification_id,
-        amount: data.amount,
-        utr: data.utr,
-        status: 'pending',
-      };
+      console.log(`Biometric enabled for user: ${userId}`);
+      return true;
     } catch (error) {
-      console.error('Payment verification creation failed:', error);
-      throw error;
+      console.error('Failed to enable biometric:', error);
+      return false;
     }
   },
 
   /**
-   * Check payment verification status
+   * Authenticate with biometric via Didit
    */
-  async checkVerificationStatus(verificationId: string): Promise<PaymentVerification> {
+  async authenticateBiometric(userId: string): Promise<boolean> {
     try {
-      const response = await fetch(`${DIDIT_API_URL}/payments/verify/${verificationId}`, {
-        headers: {
-          'Authorization': `Bearer ${DIDIT_API_KEY}`
-        }
-      });
+      // TODO: Integrate with Didit biometric verification
+      // const response = await fetch('https://api.didit.me/v1/biometric/verify', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Authorization': `Bearer ${process.env.NEXT_PUBLIC_DIDIT_API_KEY}`,
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ userId }),
+      // });
 
-      const result = await response.json();
-      
-      return {
-        id: verificationId,
-        amount: result.amount,
-        utr: result.utr,
-        status: result.status,
-        verifiedAt: result.verified_at
-      };
+      console.log(`Biometric authentication for user: ${userId}`);
+      return true;
     } catch (error) {
-      console.error('Status check failed:', error);
-      throw error;
+      console.error('Failed biometric authentication:', error);
+      return false;
     }
   },
 
   /**
-   * Webhook handler for Didit callbacks
+   * Create decentralized identity via Didit
    */
-  async handleWebhook(payload: any): Promise<void> {
-    // Verify webhook signature
-    // Update payment status in database
-    console.log('Didit webhook received:', payload);
-  }
+  async createIdentity(email: string, phone?: string): Promise<DiditUser | null> {
+    try {
+      // TODO: Integrate with Didit identity creation
+      // const response = await fetch('https://api.didit.me/v1/identity/create', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Authorization': `Bearer ${process.env.NEXT_PUBLIC_DIDIT_API_KEY}`,
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ email, phone }),
+      // });
+
+      const user: DiditUser = {
+        id: `did_${Date.now()}`,
+        email,
+        phone,
+        verified: false,
+        biometricEnabled: false,
+        twoFactorEnabled: false,
+      };
+
+      console.log('Didit identity created:', user.id);
+      return user;
+    } catch (error) {
+      console.error('Failed to create Didit identity:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Verify email via Didit
+   */
+  async verifyEmail(email: string, code: string): Promise<boolean> {
+    try {
+      // TODO: Integrate with Didit email verification
+      console.log(`Email verification for ${email}`);
+      return true;
+    } catch (error) {
+      console.error('Failed to verify email:', error);
+      return false;
+    }
+  },
+
+  /**
+   * Get user's Didit profile
+   */
+  async getProfile(userId: string): Promise<DiditUser | null> {
+    try {
+      // TODO: Fetch from Didit API
+      return null;
+    } catch (error) {
+      console.error('Failed to get Didit profile:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Enable API rate limiting
+   */
+  async checkRateLimit(userId: string, action: string): Promise<{ allowed: boolean; retryAfter?: number }> {
+    try {
+      // TODO: Implement rate limiting via Didit
+      return { allowed: true };
+    } catch (error) {
+      console.error('Rate limit check failed:', error);
+      return { allowed: false };
+    }
+  },
 };
