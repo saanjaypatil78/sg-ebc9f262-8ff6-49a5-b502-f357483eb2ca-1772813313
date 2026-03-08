@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
   LogOut, Home, PieChart, Users, Settings, Briefcase, 
-  ShoppingCart, Package, BarChart3, Bell, Shield, Key, History, User, Edit
+  ShoppingCart, Package, BarChart3, Bell, Shield, Key, History, User, Edit, DollarSign
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -65,6 +65,7 @@ export function DashboardLayout({ children, showCharts = false, role = "investor
     // Combine base navigation with universal security/settings links
     return [
       ...baseNav,
+      { name: "Commissions", href: "/dashboard/investor/commissions", icon: DollarSign },
       { name: "Active Sessions", href: "/dashboard/security/active-sessions", icon: Key },
       { name: "Login History", href: "/dashboard/security/login-history", icon: History },
       { name: "Trusted Devices", href: "/dashboard/security/trusted-devices", icon: Shield },
@@ -122,6 +123,10 @@ export function DashboardLayout({ children, showCharts = false, role = "investor
       </nav>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="mb-6">
+          <CommissionSnapshotBar />
+        </div>
+
         {/* Dashboard Charts */}
         {showCharts && (
           <div className="mb-8">
