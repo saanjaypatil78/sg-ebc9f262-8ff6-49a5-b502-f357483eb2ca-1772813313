@@ -113,23 +113,16 @@ export default function RegisterPage() {
         referredByUserId: referrerUserId,
       });
 
-      if (result.success && result.user) {
-        setShowConfetti(true);
-        toast({
-          title: "Registration Successful! 🎉",
-          description: "Welcome to Brave Ecom. Redirecting to your dashboard...",
-        });
-
-        setTimeout(() => {
-          router.push("/dashboard/investor");
-        }, 2000);
-      } else {
-        toast({
-          title: "Registration Failed",
-          description: result.error || "Please check your details and try again",
-          variant: "destructive",
-        });
+      if (result.success) {
+        router.push("/auth/onboarding");
+        return;
       }
+
+      toast({
+        title: "Registration Failed",
+        description: result.error || "Please check your details and try again",
+        variant: "destructive",
+      });
     } catch (error: any) {
       console.error("Registration error:", error);
       toast({

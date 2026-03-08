@@ -15,12 +15,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session on mount
-    const session = authService.getSessionUser();
-    if (session) {
-      setUser(session);
-    }
-    setLoading(false);
+    let active = true;
+
+    (async () => {
+      const sessionUser = await authService.getSessionUser();
+      if (!active) return;
+      if (sessionUser) setUser(sessionUser);
+      setLoading(false);
+    })().catch(() => {
+      if (active) setLoading(false);
+    });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const login = async (email: string, password: string) => {

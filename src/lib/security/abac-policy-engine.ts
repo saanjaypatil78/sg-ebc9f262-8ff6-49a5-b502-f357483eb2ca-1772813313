@@ -1,9 +1,5 @@
-/**
- * ABAC Policy Engine - Attribute-Based Access Control
- * Evaluates dynamic policies based on user, resource, and environment attributes
- */
-
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 
 export interface PolicyContext {
   user: {
@@ -30,58 +26,45 @@ export interface PolicyDecision {
   requiresDualApproval?: boolean;
 }
 
+type SecurityPolicyRow = {
+  policy_name: string;
+  condition: unknown;
+};
+
 export const abacPolicyEngine = {
-  /**
-   * Evaluate access request against all policies
-   */
   async evaluate(context: PolicyContext): Promise<PolicyDecision> {
-    // Get active policies
-    const { data: policies } = await supabase
-      .from("security_policies")
-      .select("*")
-      .eq("is_active", true);
-    
-    if (!policies) {
-      return { allowed: true };
+    const { data: policies } = await supabase.from("security_policies").select("*").eq("is_active", true);
+
+    if (!policies || policies.length === 0) return { allowed: true };
+
+    for (const p of policies) {
+      const decision = await this.evaluatePolicy(p as unknown as SecurityPolicyRow, context);
+      if (!decision.allowed) return decision;
     }
-    
-    // Evaluate each policy
-    for (const policy of policies) {
-      const decision = await this.evaluatePolicy(policy, context);
-      if (!decision.allowed) {
-        return decision;
-      }
-    }
-    
+
     return { allowed: true };
   },
 
-  /**
-   * Evaluate single policy
-   */
-  async evaluatePolicy(policy: any, context: PolicyContext): Promise<PolicyDecision> {
-    const conditions = policy.policy_conditions;
-    
-    // HIGH_VALUE_DEVICE_BINDING policy
+  async evaluatePolicy(policy: SecurityPolicyRow, context: PolicyContext): Promise<PolicyDecision> {
+    const conditions = (policy.condition || {}) as Record<string, unknown>;
+
     if (policy.policy_name === "HIGH_VALUE_DEVICE_BINDING") {
-      if (context.user.totalInvestment && context.user.totalInvestment >= 50000000) {
-        // ≥5 Cr requires trusted device
-        if (!context.environment.deviceTrusted) {
-          return {
-            allowed: false,
-            reason: "Trusted device required for accounts ≥₹5 Cr. Please register your device.",
-            requiresDeviceBinding: true,
-          };
-        }
+      const total = context.user.totalInvestment ?? 0;
+      if (total >= 50000000 && !context.environment.deviceTrusted) {
+        return {
+          allowed: false,
+          reason: "Trusted device required for accounts ≥₹5 Cr. Please register your device.",
+          requiresDeviceBinding: true,
+        };
       }
     }
-    
-    // TRANSACTION_TIME_WINDOW policy
+
     if (policy.policy_name === "TRANSACTION_TIME_WINDOW") {
-      const hour = (context.environment.time || new Date()).getHours();
-      const startHour = conditions.start_hour || 9;
-      const endHour = conditions.end_hour || 18;
-      
+      const now = context.environment.time || new Date();
+      const hour = now.getHours();
+      const startHour = typeof conditions.start_hour === "number" ? conditions.start_hour : 9;
+      const endHour = typeof conditions.end_hour === "number" ? conditions.end_hour : 18;
+
       if (context.resource.action === "TRANSFER" || context.resource.action === "WITHDRAW") {
         if (hour < startHour || hour >= endHour) {
           return {
@@ -91,83 +74,70 @@ export const abacPolicyEngine = {
         }
       }
     }
-    
-    // DUAL_APPROVAL_REQUIRED policy
+
     if (policy.policy_name === "DUAL_APPROVAL_REQUIRED") {
-      const threshold = conditions.threshold || 10000000; // ₹1 Cr default
-      
       if (context.resource.action === "WITHDRAW" || context.resource.action === "TRANSFER") {
-        // Check if transaction amount exceeds threshold (would need to be passed in context)
-        return {
-          allowed: true,
-          requiresDualApproval: true,
-        };
+        return { allowed: true, requiresDualApproval: true };
       }
     }
-    
-    // GEO_IP_RESTRICTION policy
-    if (policy.policy_name === "GEO_IP_RESTRICTION") {
-      // Check if IP is from allowed country
-      // Would integrate with IP geolocation API
-      const allowedCountries = conditions.allowed_countries || ["IN"];
-      // const userCountry = await this.getCountryFromIP(context.environment.ipAddress);
-      // if (!allowedCountries.includes(userCountry)) {
-      //   return {
-      //     allowed: false,
-      //     reason: "Access denied from this geographic location.",
-      //   };
-      // }
-    }
-    
+
     return { allowed: true };
   },
 
-  /**
-   * Get user investment tier
-   */
   async getUserInvestmentTier(userId: string): Promise<{ tier: string; amount: number }> {
     const { data } = await supabase
       .from("user_attributes")
-      .select("investment_tier, total_investment")
+      .select("investment_tier, investment_amount")
       .eq("user_id", userId)
-      .single();
-    
-    return {
-      tier: data?.investment_tier || "BASIC",
-      amount: data?.total_investment || 0,
-    };
+      .maybeSingle();
+
+    const tier = (data as { investment_tier?: string } | null)?.investment_tier || "NONE";
+    const amountRaw = (data as { investment_amount?: unknown } | null)?.investment_amount;
+
+    return { tier, amount: Number(amountRaw || 0) };
   },
 
-  /**
-   * Check if device binding is required for user
-   */
   async requiresDeviceBinding(userId: string): Promise<boolean> {
     const { amount } = await this.getUserInvestmentTier(userId);
-    return amount >= 50000000; // ≥₹5 Cr
+    return amount >= 50000000;
   },
 
-  /**
-   * Log policy decision
-   */
   async logPolicyDecision(
     userId: string,
     policyName: string,
     decision: PolicyDecision,
     context: PolicyContext
   ): Promise<void> {
-    await supabase
-      .from("login_history")
-      .insert({
-        user_id: userId,
-        event_type: "POLICY_EVALUATION",
-        success: decision.allowed,
-        ip_address: context.environment.ipAddress || "127.0.0.1",
-        user_agent: navigator.userAgent,
-        metadata: {
-          policy: policyName,
-          decision,
-          context,
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent : null;
+
+    const meta: Record<string, unknown> = {
+      policyName,
+      decision: {
+        allowed: decision.allowed,
+        reason: decision.reason ?? null,
+        requiresDeviceBinding: decision.requiresDeviceBinding ?? null,
+        requiresDualApproval: decision.requiresDualApproval ?? null,
+      },
+      context: {
+        user: context.user,
+        resource: context.resource,
+        environment: {
+          time: context.environment.time ? context.environment.time.toISOString() : null,
+          ipAddress: context.environment.ipAddress ?? null,
+          deviceTrusted: context.environment.deviceTrusted ?? null,
         },
-      });
+      },
+    };
+
+    await supabase.from("audit_logs").insert({
+      user_id: userId,
+      action: "POLICY_EVALUATION",
+      entity: "ABAC",
+      rbac_decision: decision.allowed ? "ALLOWED" : "DENIED",
+      rbac_reason: decision.reason ? decision.reason.slice(0, 100) : null,
+      rbac_metadata: meta as unknown as Json,
+      ip_address: context.environment.ipAddress || null,
+      user_agent: ua,
+    });
   },
 };

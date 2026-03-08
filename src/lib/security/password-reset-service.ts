@@ -1,130 +1,110 @@
-/**
- * Password Reset Service
- * Secure password reset with token-based flow
- */
-
 import { supabase } from "@/integrations/supabase/client";
 
+type PasswordResetTokenRow = {
+  id: string;
+  user_id: string;
+  email: string;
+  token: string;
+  expires_at: string;
+  used_at: string | null;
+};
+
+function randomToken(length = 48): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let out = "";
+  for (let i = 0; i < length; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  return out;
+}
+
 export const passwordResetService = {
-  /**
-   * Request password reset (send email with token)
-   */
-  async requestReset(email: string): Promise<{ success: boolean; error?: string }> {
-    // Check if user exists
-    const { data: user } = await supabase
-      .from("users")
-      .select("id")
-      .eq("email", email)
-      .single();
-    
-    if (!user) {
-      // Don't reveal if email exists (security best practice)
-      return { success: true };
-    }
-    
-    // Generate secure reset token
-    const token = this.generateToken();
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-    
-    // Store token
+  async createResetToken(params: {
+    userId: string;
+    email: string;
+    ipAddress?: string | null;
+    expiresMinutes?: number;
+  }): Promise<{ token: string; expiresAt: string }> {
+    const token = randomToken(64);
+    const expiresAt = new Date(Date.now() + 1000 * 60 * (params.expiresMinutes ?? 30)).toISOString();
+
+    const { error } = await supabase.from("password_reset_tokens").insert({
+      user_id: params.userId,
+      email: params.email,
+      token,
+      expires_at: expiresAt,
+      ip_address: params.ipAddress ?? null,
+    });
+
+    if (error) throw new Error(error.message || "Failed to create password reset token");
+    return { token, expiresAt };
+  },
+
+  async validateToken(params: { email: string; token: string }): Promise<{ ok: boolean; userId?: string; error?: string }> {
+    const { data, error } = await supabase
+      .from("password_reset_tokens")
+      .select("id, user_id, email, token, expires_at, used_at")
+      .eq("email", params.email)
+      .eq("token", params.token)
+      .maybeSingle();
+
+    if (error) return { ok: false, error: error.message || "Token lookup failed" };
+    if (!data) return { ok: false, error: "Invalid token" };
+
+    const row = data as unknown as PasswordResetTokenRow;
+
+    if (row.used_at) return { ok: false, error: "Token already used" };
+    if (new Date(row.expires_at).getTime() <= Date.now()) return { ok: false, error: "Token expired" };
+
+    return { ok: true, userId: row.user_id };
+  },
+
+  async markUsed(params: { email: string; token: string }): Promise<{ ok: boolean; error?: string }> {
+    const now = new Date().toISOString();
     const { error } = await supabase
       .from("password_reset_tokens")
-      .insert({
-        user_id: user.id,
-        token,
-        expires_at: expiresAt.toISOString(),
-      });
-    
-    if (error) throw new Error("Failed to create reset token");
-    
-    // Send email
-    await this.sendResetEmail(email, token);
-    
-    return { success: true };
+      .update({ used_at: now })
+      .eq("email", params.email)
+      .eq("token", params.token)
+      .is("used_at", null);
+
+    if (error) return { ok: false, error: error.message || "Failed to mark token used" };
+    return { ok: true };
   },
 
-  /**
-   * Verify reset token
-   */
-  async verifyToken(token: string): Promise<{ valid: boolean; userId?: string }> {
-    const { data } = await supabase
+  async verifyToken(token: string): Promise<{ ok: boolean; userId?: string; email?: string; error?: string }> {
+    const { data, error } = await supabase
       .from("password_reset_tokens")
-      .select("user_id, expires_at, used")
+      .select("id, user_id, email, token, expires_at, used_at")
       .eq("token", token)
-      .single();
-    
-    if (!data || data.used) {
-      return { valid: false };
-    }
-    
-    // Check expiry
-    if (new Date(data.expires_at) < new Date()) {
-      return { valid: false };
-    }
-    
-    return { valid: true, userId: data.user_id };
+      .maybeSingle();
+
+    if (error) return { ok: false, error: error.message || "Token lookup failed" };
+    if (!data) return { ok: false, error: "Invalid token" };
+
+    const row = data as unknown as PasswordResetTokenRow;
+
+    if (row.used_at) return { ok: false, error: "Token already used" };
+    if (new Date(row.expires_at).getTime() <= Date.now()) return { ok: false, error: "Token expired" };
+
+    return { ok: true, userId: row.user_id, email: row.email };
   },
 
-  /**
-   * Reset password with token
-   */
-  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; error?: string }> {
-    // Verify token
-    const verification = await this.verifyToken(token);
-    if (!verification.valid || !verification.userId) {
-      return { success: false, error: "Invalid or expired reset token" };
+  async resetPassword(token: string, newPassword: string): Promise<{ ok: boolean; error?: string }> {
+    const verified = await this.verifyToken(token);
+    if (!verified.ok) return { ok: false, error: verified.error || "Invalid token" };
+
+    const mark = await this.markUsed({ email: verified.email || "", token });
+    if (!mark.ok) return { ok: false, error: mark.error || "Failed to mark token used" };
+
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      return {
+        ok: false,
+        error:
+          error.message ||
+          "No active session to update password. Use the Supabase password reset email flow to create a valid session.",
+      };
     }
-    
-    // Update password in Supabase Auth
-    const { error: authError } = await supabase.auth.updateUser({
-      password: newPassword,
-    });
-    
-    if (authError) {
-      return { success: false, error: "Failed to update password" };
-    }
-    
-    // Mark token as used
-    await supabase
-      .from("password_reset_tokens")
-      .update({ used: true })
-      .eq("token", token);
-    
-    // Log password change
-    await supabase
-      .from("login_history")
-      .insert({
-        user_id: verification.userId,
-        event_type: "PASSWORD_RESET",
-        ip_address: "127.0.0.1", // Get actual IP
-        user_agent: navigator.userAgent,
-      });
-    
-    return { success: true };
-  },
 
-  // ============================================================================
-  // HELPER FUNCTIONS
-  // ============================================================================
-
-  generateToken(): string {
-    const array = new Uint8Array(32);
-    crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-  },
-
-  async sendResetEmail(email: string, token: string): Promise<void> {
-    const resetUrl = `${window.location.origin}/auth/reset-password?token=${token}`;
-    
-    console.log(`
-      🔐 Password Reset Request
-      To: ${email}
-      Reset URL: ${resetUrl}
-      
-      Click the link above to reset your password.
-      This link expires in 1 hour.
-    `);
-    
-    // TODO: Integrate with email service
+    return { ok: true };
   },
 };

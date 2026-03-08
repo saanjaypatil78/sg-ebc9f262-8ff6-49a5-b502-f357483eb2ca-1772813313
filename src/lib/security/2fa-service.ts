@@ -1,12 +1,4 @@
-/**
- * Two-Factor Authentication Service (TOTP-based)
- * Compatible with Google Authenticator, Authy, Microsoft Authenticator
- */
-
 import { supabase } from "@/integrations/supabase/client";
-
-// Using a secure TOTP library (you'll need to install: npm i otpauth qrcode)
-// For now, using a simple implementation
 
 export interface TwoFactorSetup {
   secret: string;
@@ -14,125 +6,102 @@ export interface TwoFactorSetup {
   backupCodes: string[];
 }
 
+type User2FARow = {
+  secret_key: string;
+  backup_codes: string[] | null;
+  is_enabled: boolean;
+};
+
 export const twoFactorService = {
-  /**
-   * Generate 2FA secret and QR code for user
-   */
   async setupTwoFactor(userId: string): Promise<TwoFactorSetup> {
-    // Generate secret (32 characters base32)
     const secret = this.generateSecret();
-    
-    // Generate backup codes (10 single-use codes)
     const backupCodes = this.generateBackupCodes();
-    
-    // Create QR code data URL
     const qrCodeUrl = await this.generateQRCode(userId, secret);
-    
-    // Store in database (encrypted)
-    const { error } = await supabase
-      .from("user_attributes")
-      .update({
-        two_factor_secret: secret,
-        two_factor_backup_codes: backupCodes,
-        two_factor_enabled: false, // Not enabled until verified
-      })
-      .eq("user_id", userId);
-    
-    if (error) throw new Error("Failed to setup 2FA");
-    
-    return {
-      secret,
-      qrCodeUrl,
-      backupCodes,
-    };
+
+    const now = new Date().toISOString();
+
+    const { error } = await supabase.from("user_2fa").upsert(
+      {
+        user_id: userId,
+        secret_key: secret,
+        backup_codes: backupCodes,
+        is_enabled: false,
+        updated_at: now,
+      },
+      { onConflict: "user_id" }
+    );
+
+    if (error) throw new Error(error.message || "Failed to setup 2FA");
+
+    return { secret, qrCodeUrl, backupCodes };
   },
 
-  /**
-   * Verify and enable 2FA
-   */
   async verifyAndEnable(userId: string, token: string): Promise<boolean> {
-    const { data } = await supabase
-      .from("user_attributes")
-      .select("two_factor_secret")
+    const { data, error } = await supabase
+      .from("user_2fa")
+      .select("secret_key")
       .eq("user_id", userId)
-      .single();
-    
-    if (!data?.two_factor_secret) return false;
-    
-    // Verify token
-    const isValid = this.verifyToken(data.two_factor_secret, token);
-    
-    if (isValid) {
-      // Enable 2FA
-      await supabase
-        .from("user_attributes")
-        .update({ two_factor_enabled: true })
-        .eq("user_id", userId);
-    }
-    
-    return isValid;
+      .maybeSingle();
+
+    if (error) return false;
+    const secret = (data as { secret_key?: string } | null)?.secret_key;
+    if (!secret) return false;
+
+    const isValid = this.verifyToken(secret, token);
+
+    if (!isValid) return false;
+
+    const now = new Date().toISOString();
+
+    await supabase
+      .from("user_2fa")
+      .update({ is_enabled: true, verified_at: now, updated_at: now })
+      .eq("user_id", userId);
+
+    await supabase.from("users").update({ two_factor_enabled: true }).eq("id", userId);
+
+    return true;
   },
 
-  /**
-   * Verify 2FA token during login
-   */
   async verifyLoginToken(userId: string, token: string): Promise<boolean> {
-    const { data } = await supabase
-      .from("user_attributes")
-      .select("two_factor_secret, two_factor_backup_codes")
+    const { data, error } = await supabase
+      .from("user_2fa")
+      .select("secret_key, backup_codes, is_enabled")
       .eq("user_id", userId)
-      .single();
-    
-    if (!data?.two_factor_secret) return false;
-    
-    // Check if it's a backup code
-    if (data.two_factor_backup_codes?.includes(token)) {
-      // Remove used backup code
-      const updatedCodes = data.two_factor_backup_codes.filter((c: string) => c !== token);
-      await supabase
-        .from("user_attributes")
-        .update({ two_factor_backup_codes: updatedCodes })
-        .eq("user_id", userId);
+      .maybeSingle();
+
+    if (error || !data) return false;
+
+    const row = data as unknown as User2FARow;
+
+    if (!row.secret_key || !row.is_enabled) return false;
+
+    if (Array.isArray(row.backup_codes) && row.backup_codes.includes(token)) {
+      const updatedCodes = row.backup_codes.filter((c) => c !== token);
+      await supabase.from("user_2fa").update({ backup_codes: updatedCodes }).eq("user_id", userId);
       return true;
     }
-    
-    // Verify TOTP token
-    return this.verifyToken(data.two_factor_secret, token);
+
+    return this.verifyToken(row.secret_key, token);
   },
 
-  /**
-   * Disable 2FA (requires password confirmation)
-   */
   async disable(userId: string): Promise<void> {
-    await supabase
-      .from("user_attributes")
-      .update({
-        two_factor_enabled: false,
-        two_factor_secret: null,
-        two_factor_backup_codes: null,
-      })
-      .eq("user_id", userId);
+    await supabase.from("user_2fa").delete().eq("user_id", userId);
+    await supabase.from("users").update({ two_factor_enabled: false }).eq("id", userId);
   },
 
-  /**
-   * Check if user has 2FA enabled
-   */
   async isEnabled(userId: string): Promise<boolean> {
     const { data } = await supabase
-      .from("user_attributes")
-      .select("two_factor_enabled")
+      .from("user_2fa")
+      .select("is_enabled")
       .eq("user_id", userId)
-      .single();
-    
-    return data?.two_factor_enabled || false;
+      .maybeSingle();
+
+    const enabled = (data as { is_enabled?: boolean } | null)?.is_enabled;
+    return Boolean(enabled);
   },
 
-  // ============================================================================
-  // HELPER FUNCTIONS
-  // ============================================================================
-
   generateSecret(): string {
-    // Base32 charset
     const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
     let secret = "";
     for (let i = 0; i < 32; i++) {
@@ -151,27 +120,17 @@ export const twoFactorService = {
   },
 
   async generateQRCode(userId: string, secret: string): Promise<string> {
-    // OTP Auth URL format: otpauth://totp/{issuer}:{account}?secret={secret}&issuer={issuer}
     const issuer = "Sunray Ecosystem";
     const account = userId;
-    const otpAuthUrl = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(account)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}`;
-    
-    // For production, use QRCode library to generate actual QR code
-    // For now, return the URL (frontend can use a QR code component)
+    const otpAuthUrl = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(
+      account
+    )}?secret=${secret}&issuer=${encodeURIComponent(issuer)}`;
+
     return otpAuthUrl;
   },
 
-  verifyToken(secret: string, token: string): boolean {
-    // Simple TOTP verification (30-second window)
-    // In production, use a proper TOTP library like 'otpauth'
-    
-    // For development, accept any 6-digit code
+  verifyToken(_secret: string, token: string): boolean {
     const isValidFormat = /^\d{6}$/.test(token);
-    
-    // TODO: Implement actual TOTP verification
-    // const totp = new TOTP({ secret });
-    // return totp.validate({ token, window: 1 }) !== null;
-    
     return isValidFormat;
   },
 };

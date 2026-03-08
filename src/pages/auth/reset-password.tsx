@@ -25,7 +25,7 @@ export default function ResetPasswordPage() {
 
   const validateToken = async (resetToken: string) => {
     const result = await passwordResetService.verifyToken(resetToken);
-    setTokenValid(result.valid);
+    setTokenValid(result.ok);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,7 +54,7 @@ export default function ResetPasswordPage() {
     try {
       const result = await passwordResetService.resetPassword(token as string, newPassword);
       
-      if (result.success) {
+      if (result.ok) {
         toast({
           title: "Password Reset!",
           description: "Your password has been updated successfully",

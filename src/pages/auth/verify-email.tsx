@@ -20,17 +20,12 @@ export default function VerifyEmailPage() {
   const verifyEmail = async (verificationToken: string) => {
     try {
       const result = await emailVerificationService.verifyEmail(verificationToken);
-      
-      if (result.success) {
+      if (result.ok) {
         setStatus("success");
-        setMessage("Your email has been verified successfully!");
-        
-        setTimeout(() => {
-          router.push("/auth/login");
-        }, 3000);
+        setMessage("Email verified successfully. You can now sign in.");
       } else {
         setStatus("error");
-        setMessage(result.error || "Verification failed");
+        setMessage(result.error || "Verification failed.");
       }
     } catch (error) {
       setStatus("error");

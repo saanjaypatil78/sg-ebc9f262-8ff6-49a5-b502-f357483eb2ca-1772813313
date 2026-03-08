@@ -38,7 +38,7 @@ export default function LoginPage() {
     try {
       const result = await authService.login({ email, password });
 
-      if (!result.success || !result.user) {
+      if (!result.success) {
         throw new Error(result.error || "Login failed");
       }
 

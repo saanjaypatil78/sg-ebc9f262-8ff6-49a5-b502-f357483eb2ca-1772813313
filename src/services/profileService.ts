@@ -36,7 +36,7 @@ export const profileService = {
       .single();
 
     if (error) throw error;
-    return data as UserProfile;
+    return data as unknown as UserProfile;
   },
 
   async updateProfile(updates: Partial<UserProfile>) {
@@ -51,7 +51,7 @@ export const profileService = {
       .single();
 
     if (error) throw error;
-    return data as UserProfile;
+    return data as unknown as UserProfile;
   },
 
   async uploadAvatar(file: File) {
