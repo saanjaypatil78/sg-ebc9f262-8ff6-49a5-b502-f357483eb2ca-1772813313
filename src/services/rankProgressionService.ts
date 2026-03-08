@@ -98,6 +98,13 @@ export const rankProgressionService = {
     };
   },
 
+  async checkAndUpgradeRank(userAuthId: string): Promise<boolean> {
+    const recalc = await this.recalculateAndGetRank(userAuthId);
+    const prev = (recalc.previousRank || "").toUpperCase();
+    const curr = (recalc.currentRank || "").toUpperCase();
+    return Boolean(prev && curr && prev !== curr);
+  },
+
   getRankBadge(rank: string): { color: string; label: string; gradient: string } {
     const key = String(rank || "BASE").toUpperCase();
     const badges: Record<string, { color: string; label: string; gradient: string }> = {
