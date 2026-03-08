@@ -81,30 +81,21 @@ export default function RegisterPage() {
     try {
       let referrerUserId: string | null = null;
 
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-        referralCode
+      const { data: resolved, error: resolvedError } = await supabase.rpc(
+        "resolve_referrer_user_id_v1",
+        { p_code: referralCode }
       );
 
-      if (isUuid) {
-        referrerUserId = referralCode;
-      } else {
-        const { data: refRow, error: refErr } = await supabase
-          .from("user_profiles")
-          .select("user_id")
-          .eq("referral_code", referralCode)
-          .maybeSingle();
-
-        if (refErr) {
-          toast({
-            title: "Referral Validation Failed",
-            description: "Could not validate the referral code. Please try again.",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        referrerUserId = refRow?.user_id ? String(refRow.user_id) : null;
+      if (resolvedError) {
+        toast({
+          title: "Referral Validation Failed",
+          description: "Could not validate the referral code. Please try again.",
+          variant: "destructive",
+        });
+        return;
       }
+
+      referrerUserId = resolved ? String(resolved) : null;
 
       if (!referrerUserId) {
         toast({

@@ -2740,6 +2740,10 @@ export type Database = {
         Args: { p_months?: number; p_user_auth_id: string }
         Returns: number
       }
+      create_self_profile_v1: {
+        Args: { p_full_name: string; p_referrer_user_id?: string }
+        Returns: Json
+      }
       deduct_product_stock: {
         Args: { p_product_id: string; p_quantity: number }
         Returns: boolean
@@ -2881,6 +2885,7 @@ export type Database = {
         Args: { p_conflict_id: string }
         Returns: boolean
       }
+      resolve_referrer_user_id_v1: { Args: { p_code: string }; Returns: string }
       schedule_investment_payouts: {
         Args: {
           p_investment_amount: number

@@ -42,6 +42,22 @@ function isUuid(input: string): boolean {
   );
 }
 
+async function resolveReferrerUserId(code: string): Promise<string | null> {
+  const cleaned = String(code || "").trim();
+  if (!cleaned) return null;
+
+  const { data, error } = await supabase.rpc("resolve_referrer_user_id_v1", {
+    p_code: cleaned,
+  });
+
+  if (error) {
+    console.error("Referral resolver error:", error);
+    return null;
+  }
+
+  return data ? String(data) : null;
+}
+
 export const referralService = {
   // Get network tree for visualization (6 levels)
   async getNetworkTree(userId: string): Promise<NetworkMember[]> {
@@ -150,26 +166,8 @@ export const referralService = {
 
   // Validate referral code (USER ID)
   async validateReferralCode(code: string): Promise<boolean> {
-    const cleaned = String(code || "").trim();
-    if (!cleaned) return false;
-
-    if (isUuid(cleaned)) {
-      const { data, error } = await supabase
-        .from("users")
-        .select("id")
-        .eq("id", cleaned)
-        .maybeSingle();
-
-      if (!error && data) return true;
-    }
-
-    const { data: byCode, error: byCodeError } = await supabase
-      .from("users")
-      .select("id")
-      .eq("referral_code", cleaned)
-      .maybeSingle();
-
-    return !byCodeError && !!byCode;
+    const resolved = await resolveReferrerUserId(code);
+    return !!resolved;
   },
 
   // Calculate commission breakdown preview (6 levels)

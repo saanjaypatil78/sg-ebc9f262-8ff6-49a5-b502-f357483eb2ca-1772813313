@@ -288,8 +288,8 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <div className="relative w-20 h-20 mx-auto mb-4">
               <Image
-                src="/sunray-logo.jpg"
-                alt="Sunray Logo"
+                src="/WhatsApp_Image_2026-01-27_at_23.16.51-removebg-preview.png"
+                alt="Bravecom Logo"
                 fill
                 className="object-contain"
               />

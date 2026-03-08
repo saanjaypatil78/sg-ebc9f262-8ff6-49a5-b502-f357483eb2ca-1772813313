@@ -16,8 +16,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check for existing session on mount
-    const session = authService.getSession();
-    setUser(session);
+    const session = authService.getSessionUser();
+    if (session) {
+      setUser(session);
+    }
     setLoading(false);
   }, []);
 
