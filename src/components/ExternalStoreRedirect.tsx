@@ -1,82 +1,141 @@
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { EXTERNAL_STORE_LINKS, SPONSORS } from "@/lib/externalStore";
-import { ExternalLink, ShieldCheck } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ExternalLink, ShoppingBag } from "lucide-react";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
-export interface ExternalStoreRedirectProps {
+const SPONSORS = [
+  { name: "Apple" },
+  { name: "Google" },
+  { name: "Microsoft" },
+  { name: "Amazon" },
+  { name: "Samsung" },
+  { name: "Nike" },
+  { name: "Coca-Cola" },
+  { name: "Toyota" },
+  { name: "Unilever" },
+  { name: "IBM" },
+];
+
+interface ExternalStoreRedirectProps {
   title?: string;
   description?: string;
 }
 
-export function ExternalStoreRedirect(props: ExternalStoreRedirectProps) {
-  const primary = EXTERNAL_STORE_LINKS[0];
-  const hasUrl = Boolean(primary?.url);
+export function ExternalStoreRedirect({ 
+  title = "Store", 
+  description = "Visit our official store for shopping." 
+}: ExternalStoreRedirectProps) {
+  const [isFlashing, setIsFlashing] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsFlashing(prev => !prev);
+    }, 800);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleStoreRedirect = () => {
+    const storeUrl = process.env.NEXT_PUBLIC_EXTERNAL_STORE_URL;
+    
+    if (storeUrl) {
+      window.open(storeUrl, "_blank", "noopener,noreferrer");
+    } else {
+      alert("Store is currently unavailable. Please contact support.");
+    }
+  };
 
   return (
     <>
-      <SEO title={`${props.title || "Store"} - Brave Ecom`} description={props.description || "Our store is hosted externally"} />
-      <div className="min-h-screen bg-slate-950 text-white">
-        <div className="container mx-auto px-4 py-14 max-w-5xl">
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <h1 className="text-3xl md:text-4xl font-bold">{props.title || "Store"}</h1>
-              <p className="text-slate-300 max-w-2xl">
-                {props.description ||
-                  "We do not host an internal store inside this app. Click the flashing button below to continue to the official external store (Shopify/WordPress) with PhonePe integration."}
-              </p>
-            </div>
-
-            <Card className="bg-slate-900/50 border-white/10">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-cyan-300" />
-                  Continue to External Store
+      <SEO title={`${title} - Brave Ecom`} />
+      
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white py-20 px-4">
+        <div className="max-w-4xl mx-auto space-y-12">
+          {/* Main Store Redirect Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-xl">
+              <CardHeader className="text-center">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center">
+                  <ShoppingBag className="w-10 h-10 text-white" />
+                </div>
+                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+                  {title}
                 </CardTitle>
+                <CardDescription className="text-slate-400 text-lg">
+                  {description}
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-slate-300">
-                  This will open the official store in a new tab. Payments and checkout happen there.
+
+              <CardContent className="text-center space-y-6">
+                <p className="text-slate-300 max-w-2xl mx-auto">
+                  We've partnered with leading e-commerce platforms to bring you the best shopping experience. 
+                  Click below to visit our official store with secure payments and fast delivery.
                 </p>
 
-                <a href={hasUrl ? primary.url : undefined} target="_blank" rel="noreferrer">
+                <motion.div
+                  animate={{ 
+                    scale: isFlashing ? 1.05 : 1,
+                    boxShadow: isFlashing 
+                      ? "0 0 40px rgba(34, 211, 238, 0.6)" 
+                      : "0 0 20px rgba(34, 211, 238, 0.3)"
+                  }}
+                  transition={{ duration: 0.4 }}
+                >
                   <Button
-                    disabled={!hasUrl}
-                    className="w-full h-14 text-base font-semibold bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 animate-pulse ring-2 ring-cyan-500/40"
+                    size="lg"
+                    onClick={handleStoreRedirect}
+                    className="h-14 px-12 text-lg font-semibold bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white shadow-2xl"
                   >
                     <ExternalLink className="w-5 h-5 mr-2" />
-                    {hasUrl ? primary.label : "Set NEXT_PUBLIC_EXTERNAL_STORE_URL to enable"}
+                    Visit Our Store
                   </Button>
-                </a>
+                </motion.div>
 
-                <div className="text-xs text-slate-400">
-                  For production, set <span className="font-mono">NEXT_PUBLIC_EXTERNAL_STORE_URL</span> in your environment.
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-slate-900/30 border-white/10">
-              <CardHeader>
-                <CardTitle>Our Sponsors</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                  {SPONSORS.map((s) => (
-                    <div
-                      key={s.name}
-                      className="rounded-lg border border-white/10 bg-slate-950/40 px-3 py-3 text-center"
-                    >
-                      <div className="text-sm font-semibold text-slate-100">{s.name}</div>
-                      {s.note ? <div className="text-xs text-slate-400 mt-1">{s.note}</div> : null}
-                    </div>
-                  ))}
-                </div>
-                <p className="text-xs text-slate-400 mt-4">
-                  Sponsor names can be updated in <span className="font-mono">src/lib/externalStore.ts</span>.
+                <p className="text-xs text-slate-500">
+                  Opens in a new tab • Secure checkout with PhonePe integration
                 </p>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
+
+          {/* Sponsors Showcase */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <Card className="bg-slate-800/30 border-slate-700 backdrop-blur-xl">
+              <CardHeader className="text-center">
+                <CardTitle className="text-xl font-semibold text-slate-200">
+                  Our Global Partners
+                </CardTitle>
+                <CardDescription className="text-slate-400">
+                  Trusted by world-leading brands
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                  {SPONSORS.map((sponsor, idx) => (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.4, delay: idx * 0.1 }}
+                      className="p-4 rounded-lg bg-slate-900/50 border border-slate-700/50 text-center hover:bg-slate-800/50 transition-colors"
+                    >
+                      <p className="text-sm font-semibold text-slate-300">{sponsor.name}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
       </div>
     </>
