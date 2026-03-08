@@ -15,6 +15,7 @@ export interface RankInfo {
 export interface InvestorRank {
   userId: string;
   currentRank: string;
+  currentRankTarget: number;
   qualifyingBusinessVolume3m: number;
   lifetimeTeamBusiness: number;
   previousRank: string | null;
@@ -53,6 +54,7 @@ export const rankProgressionService = {
 
   async recalculateAndGetRank(userAuthId: string): Promise<{
     currentRank: string;
+    currentRankTarget: number;
     qualifyingVolume: number;
     nextRank: string | null;
     nextRankTarget: number | null;
@@ -66,14 +68,24 @@ export const rankProgressionService = {
     if (error) throw error;
 
     const row = Array.isArray(data) ? data[0] : data;
-    const currentRank = String(row?.current_rank || row?.currentRank || "BASE").toUpperCase();
-    const qualifyingVolume = toNumber(row?.qualifying_volume ?? row?.qualifyingVolume ?? 0);
+
+    const currentRank = String(row?.current_rank || "BASE").toUpperCase();
+    const currentRankTarget = toNumber(row?.current_rank_target ?? 0);
+    const qualifyingVolume = toNumber(row?.qualifying_volume ?? 0);
     const nextRank = row?.next_rank ? String(row.next_rank).toUpperCase() : null;
     const nextRankTarget = row?.next_rank_target != null ? toNumber(row.next_rank_target) : null;
-    const progressToNext = toNumber(row?.progress_to_next ?? 0);
+    const progressToNext = toNumber(row?.progress_to_next ?? row?.progress_to_next ?? 0);
     const previousRank = row?.previous_rank ? String(row.previous_rank).toUpperCase() : null;
 
-    return { currentRank, qualifyingVolume, nextRank, nextRankTarget, progressToNext, previousRank };
+    return {
+      currentRank,
+      currentRankTarget,
+      qualifyingVolume,
+      nextRank,
+      nextRankTarget,
+      progressToNext,
+      previousRank,
+    };
   },
 
   async getInvestorRank(userId: string): Promise<InvestorRank> {
@@ -88,6 +100,7 @@ export const rankProgressionService = {
     return {
       userId,
       currentRank: recalc.currentRank,
+      currentRankTarget: recalc.currentRankTarget,
       qualifyingBusinessVolume3m: recalc.qualifyingVolume,
       lifetimeTeamBusiness: toNumber(ubv?.total_team_business ?? 0),
       previousRank: recalc.previousRank,

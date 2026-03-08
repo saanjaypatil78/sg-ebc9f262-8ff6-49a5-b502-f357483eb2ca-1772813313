@@ -13,9 +13,14 @@ export const EXTERNAL_STORE_LINKS: ExternalStoreLink[] = [
 ];
 
 export const SPONSORS: Array<{ name: string; note?: string }> = [
-  { name: "Global Sponsor 1" },
-  { name: "Global Sponsor 2" },
-  { name: "Global Sponsor 3" },
-  { name: "Global Sponsor 4" },
-  { name: "Global Sponsor 5" },
+  { name: "Apple" },
+  { name: "Google" },
+  { name: "Microsoft" },
+  { name: "Amazon" },
+  { name: "Samsung" },
+  { name: "Nike" },
+  { name: "Coca-Cola" },
+  { name: "Toyota" },
+  { name: "Unilever" },
+  { name: "IBM" },
 ];

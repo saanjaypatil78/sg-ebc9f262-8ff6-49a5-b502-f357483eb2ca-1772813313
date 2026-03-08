@@ -52,6 +52,8 @@ export function RankProgressCard({ userId, variant = "full" }: RankProgressCardP
     );
   }
 
+  const hasNext = Boolean(rankInfo.nextRank && rankInfo.nextRankTarget != null);
+
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
       <Card className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border-slate-700 p-6 overflow-hidden relative">
@@ -63,44 +65,57 @@ export function RankProgressCard({ userId, variant = "full" }: RankProgressCardP
               <Award className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">Rank Dashboard</h3>
+              <h3 className="text-lg font-bold text-white">Individual Rank Dashboard</h3>
               <div className="flex items-center gap-2 mt-1">
                 <Badge className={`${rankBadge.color} text-white`}>{rankBadge.label}</Badge>
-                {rankInfo.previousRank && rankInfo.previousRank !== rankInfo.currentRank && (
+                {rankInfo.previousRank && rankInfo.previousRank !== rankInfo.currentRank ? (
                   <span className="text-xs text-slate-400">from {rankInfo.previousRank}</span>
-                )}
+                ) : null}
               </div>
             </div>
           </div>
 
-          {variant === "full" && (
+          {variant === "full" ? (
             <div className="text-right">
               <div className="text-xs text-slate-400">Lifetime Team Business</div>
               <div className="text-sm font-semibold text-slate-200">
                 {rankProgressionService.formatCurrency(rankInfo.lifetimeTeamBusiness)}
               </div>
             </div>
-          )}
+          ) : null}
         </div>
 
         <div className="relative space-y-4">
           <div className="p-4 rounded-lg border border-white/10 bg-slate-900/30">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <Timer className="w-4 h-4 text-cyan-400" />
-                <span className="text-sm font-semibold text-slate-200">Last 3 consecutive months</span>
+                <span className="text-sm font-semibold text-slate-200">Last 3 consecutive months (team)</span>
               </div>
               <div className="text-sm font-bold text-white">
                 {rankProgressionService.formatCurrency(rankInfo.qualifyingBusinessVolume3m)}
               </div>
             </div>
-            <p className="text-xs text-slate-400 mt-2">
-              Rank is evaluated on your team’s confirmed business volume in the last 3 consecutive months.
-              If it drops below your current rank target, you will downgrade automatically.
+
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+              <span>Current target: {rankProgressionService.formatCurrency(rankInfo.currentRankTarget)}</span>
+              {hasNext ? (
+                <span>
+                  Next ({rankInfo.nextRank}):{" "}
+                  {rankInfo.nextRankTarget != null ? rankProgressionService.formatCurrency(rankInfo.nextRankTarget) : "—"}
+                </span>
+              ) : (
+                <span>Next: Max</span>
+              )}
+            </div>
+
+            <p className="text-xs text-slate-400 mt-3 leading-relaxed">
+              Upgrade happens only when your 3-month team business meets the next rank target. If it falls below your
+              current target, you downgrade to the highest rank whose target is met.
             </p>
           </div>
 
-          {rankInfo.nextRank ? (
+          {hasNext ? (
             <div className="p-4 rounded-lg border border-white/10 bg-slate-900/20">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
