@@ -3,6 +3,9 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { RankProgressCard } from "@/components/RankProgressCard";
 import { CommissionReports } from "@/components/CommissionReports";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 export default function InvestorDashboardPage() {
   const { user } = useAuth();
@@ -21,6 +24,16 @@ export default function InvestorDashboardPage() {
 
           {/* Rank Progress Card */}
           {user && <RankProgressCard userId={user.id} />}
+
+          {user && (
+            <div className="flex items-center justify-end">
+              <Link href="/dashboard/investor/rank">
+                <Button variant="outline" className="border-slate-700 bg-slate-800/40 hover:bg-slate-800">
+                  Open Rank Dashboard <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          )}
 
           {/* Commission & Wealth Distribution */}
           {user && (

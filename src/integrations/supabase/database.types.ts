@@ -2701,6 +2701,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accrue_referral_commissions_for_investment: {
+        Args: { p_investment_id: string }
+        Returns: number
+      }
       auto_upgrade_rank: { Args: { investor_user_id: string }; Returns: string }
       calculate_6_level_commission: {
         Args: {
@@ -2732,6 +2736,10 @@ export type Database = {
       }
       check_passive_timer_expiry: { Args: never; Returns: undefined }
       cleanup_expired_sessions: { Args: never; Returns: undefined }
+      compute_team_business_volume: {
+        Args: { p_months?: number; p_user_auth_id: string }
+        Returns: number
+      }
       deduct_product_stock: {
         Args: { p_product_id: string; p_quantity: number }
         Returns: boolean
@@ -2821,6 +2829,18 @@ export type Database = {
           p_source_investment_id?: string
         }
         Returns: number
+      }
+      recalculate_user_rank: {
+        Args: { p_user_auth_id: string }
+        Returns: {
+          current_rank: string
+          next_rank: string
+          next_rank_target: number
+          previous_rank: string
+          progress_to_next: number
+          qualifying_volume: number
+          user_id: string
+        }[]
       }
       record_login_attempt: {
         Args: {

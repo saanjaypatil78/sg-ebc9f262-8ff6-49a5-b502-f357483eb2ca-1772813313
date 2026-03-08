@@ -1,33 +1,45 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { TrendingUp, Award, Target, Zap } from "lucide-react";
+import { Award, Target, Timer, TrendingUp } from "lucide-react";
 import { rankProgressionService, InvestorRank } from "@/services/rankProgressionService";
 
 interface RankProgressCardProps {
   userId: string;
+  variant?: "compact" | "full";
 }
 
-export function RankProgressCard({ userId }: RankProgressCardProps) {
+export function RankProgressCard({ userId, variant = "full" }: RankProgressCardProps) {
   const [rankInfo, setRankInfo] = useState<InvestorRank | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadRankInfo();
+    let cancelled = false;
+
+    const load = async () => {
+      setLoading(true);
+      try {
+        const data = await rankProgressionService.getInvestorRank(userId);
+        if (!cancelled) setRankInfo(data);
+      } catch (error) {
+        console.error("Failed to load rank info:", error);
+        if (!cancelled) setRankInfo(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, [userId]);
 
-  const loadRankInfo = async () => {
-    try {
-      const data = await rankProgressionService.getInvestorRank(userId);
-      setRankInfo(data);
-    } catch (error) {
-      console.error("Failed to load rank info:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const rankBadge = useMemo(() => {
+    return rankProgressionService.getRankBadge(rankInfo?.currentRank || "BASE");
+  }, [rankInfo?.currentRank]);
 
   if (loading || !rankInfo) {
     return (
@@ -40,91 +52,85 @@ export function RankProgressCard({ userId }: RankProgressCardProps) {
     );
   }
 
-  const rankBadge = rankProgressionService.getRankBadge(rankInfo.currentRank);
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
       <Card className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border-slate-700 p-6 overflow-hidden relative">
-        {/* Background Decoration */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-500/10 to-cyan-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-500/10 to-cyan-500/10 rounded-full blur-3xl" />
 
-        {/* Header */}
-        <div className="relative flex items-center justify-between mb-6">
+        <div className="relative flex items-start justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
             <div className={`p-3 rounded-xl bg-gradient-to-br ${rankBadge.gradient}`}>
               <Award className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">Current Rank</h3>
-              <Badge className={`${rankBadge.color} text-white mt-1`}>
-                {rankBadge.label}
-              </Badge>
+              <h3 className="text-lg font-bold text-white">Rank Dashboard</h3>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge className={`${rankBadge.color} text-white`}>{rankBadge.label}</Badge>
+                {rankInfo.previousRank && rankInfo.previousRank !== rankInfo.currentRank && (
+                  <span className="text-xs text-slate-400">from {rankInfo.previousRank}</span>
+                )}
+              </div>
             </div>
           </div>
-          {rankInfo.previousRank && (
+
+          {variant === "full" && (
             <div className="text-right">
-              <div className="text-xs text-slate-400">Upgraded from</div>
-              <div className="text-sm font-semibold text-slate-300">
-                {rankInfo.previousRank}
+              <div className="text-xs text-slate-400">Lifetime Team Business</div>
+              <div className="text-sm font-semibold text-slate-200">
+                {rankProgressionService.formatCurrency(rankInfo.lifetimeTeamBusiness)}
               </div>
             </div>
           )}
         </div>
 
-        {/* Business Volume */}
-        <div className="relative mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-cyan-400" />
-              <span className="text-sm text-slate-300">Total Business Volume</span>
-            </div>
-            <span className="text-lg font-bold text-white">
-              {rankProgressionService.formatCurrency(rankInfo.totalBusinessVolume)}
-            </span>
-          </div>
-        </div>
-
-        {/* Progress to Next Rank */}
-        {rankInfo.nextRank && (
-          <div className="relative">
-            <div className="flex items-center justify-between mb-2">
+        <div className="relative space-y-4">
+          <div className="p-4 rounded-lg border border-white/10 bg-slate-900/30">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Target className="w-4 h-4 text-orange-400" />
-                <span className="text-sm text-slate-300">
-                  Progress to {rankInfo.nextRank}
+                <Timer className="w-4 h-4 text-cyan-400" />
+                <span className="text-sm font-semibold text-slate-200">Last 3 consecutive months</span>
+              </div>
+              <div className="text-sm font-bold text-white">
+                {rankProgressionService.formatCurrency(rankInfo.qualifyingBusinessVolume3m)}
+              </div>
+            </div>
+            <p className="text-xs text-slate-400 mt-2">
+              Rank is evaluated on your team’s confirmed business volume in the last 3 consecutive months.
+              If it drops below your current rank target, you will downgrade automatically.
+            </p>
+          </div>
+
+          {rankInfo.nextRank ? (
+            <div className="p-4 rounded-lg border border-white/10 bg-slate-900/20">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-orange-400" />
+                  <span className="text-sm text-slate-300">Progress to {rankInfo.nextRank}</span>
+                </div>
+                <span className="text-sm font-semibold text-slate-200">{rankInfo.progressToNext.toFixed(2)}%</span>
+              </div>
+
+              <Progress value={rankInfo.progressToNext} className="h-3 mb-2" />
+
+              <div className="flex items-center justify-between text-xs text-slate-400">
+                <span>Now: {rankProgressionService.formatCurrency(rankInfo.qualifyingBusinessVolume3m)}</span>
+                <span>
+                  Target:{" "}
+                  {rankInfo.nextRankTarget != null
+                    ? rankProgressionService.formatCurrency(rankInfo.nextRankTarget)
+                    : "Max"}
                 </span>
               </div>
-              <span className="text-sm font-semibold text-slate-300">
-                {rankInfo.progressToNext.toFixed(1)}%
-              </span>
             </div>
-            <Progress value={rankInfo.progressToNext} className="h-3 mb-2" />
-            <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>
-                Current: {rankProgressionService.formatCurrency(rankInfo.totalBusinessVolume)}
-              </span>
-              <span>
-                Target: {rankInfo.nextRankTarget ? rankProgressionService.formatCurrency(rankInfo.nextRankTarget) : "Max"}
-              </span>
+          ) : (
+            <div className="mt-2 p-4 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-purple-300" />
+                <span className="text-sm font-semibold text-purple-200">Maximum Rank Achieved</span>
+              </div>
             </div>
-          </div>
-        )}
-
-        {/* Achievement Message */}
-        {rankInfo.currentRank === "AMBASSADOR" && (
-          <div className="mt-4 p-3 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-purple-400" />
-              <span className="text-sm font-semibold text-purple-300">
-                🎉 Maximum Rank Achieved!
-              </span>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </Card>
     </motion.div>
   );
