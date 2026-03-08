@@ -33,6 +33,17 @@ export interface CommissionLedgerRowWithNames extends CommissionLedgerRow {
   referralName: string | null;
 }
 
+export type CommissionType = CommissionLedgerRow["commissionType"];
+
+export interface NetworkCommissionLeaderboardRow {
+  userId: string;
+  fullName: string;
+  netCommission: number;
+  grossCommission: number;
+  adminCharge: number;
+  itemsCount: number;
+}
+
 export interface CommissionSummary {
   pendingNet: number;
   approvedNet: number;
@@ -107,8 +118,11 @@ export const commissionLedgerService = {
   async getMyCommissionFeed(params?: {
     status?: CommissionStatus | "all";
     level?: number | "all";
+    type?: CommissionType | "all";
     fromDate?: string;
     toDate?: string;
+    minNet?: number;
+    maxNet?: number;
     limit?: number;
   }): Promise<CommissionLedgerRowWithNames[]> {
     const userId = await getAuthUserId();
@@ -127,8 +141,11 @@ export const commissionLedgerService = {
 
     if (params?.status && params.status !== "all") query = query.eq("status", params.status);
     if (params?.level && params.level !== "all") query = query.eq("commission_level", params.level);
+    if (params?.type && params.type !== "all") query = query.eq("commission_type", params.type);
     if (params?.fromDate) query = query.gte("created_at", params.fromDate);
     if (params?.toDate) query = query.lte("created_at", params.toDate);
+    if (typeof params?.minNet === "number") query = query.gte("net_commission", params.minNet);
+    if (typeof params?.maxNet === "number") query = query.lte("net_commission", params.maxNet);
 
     const { data, error } = await query;
     if (error) return [];
@@ -192,8 +209,11 @@ export const commissionLedgerService = {
 
   async adminListCommissions(params?: {
     status?: CommissionStatus | "all";
+    type?: CommissionType | "all";
     fromDate?: string;
     toDate?: string;
+    minNet?: number;
+    maxNet?: number;
     limit?: number;
   }): Promise<CommissionLedgerRowWithNames[]> {
     const limit = Math.min(Math.max(params?.limit ?? 200, 1), 2000);
@@ -207,14 +227,49 @@ export const commissionLedgerService = {
       .limit(limit);
 
     if (params?.status && params.status !== "all") query = query.eq("status", params.status);
+    if (params?.type && params.type !== "all") query = query.eq("commission_type", params.type);
     if (params?.fromDate) query = query.gte("created_at", params.fromDate);
     if (params?.toDate) query = query.lte("created_at", params.toDate);
+    if (typeof params?.minNet === "number") query = query.gte("net_commission", params.minNet);
+    if (typeof params?.maxNet === "number") query = query.lte("net_commission", params.maxNet);
 
     const { data, error } = await query;
     if (error) return [];
 
     const rows = (Array.isArray(data) ? data : []).map(mapLedgerRow);
     return hydrateReferralNames(rows);
+  },
+
+  async adminMarkApproved(params: { ids: string[]; processedAtIso?: string }): Promise<boolean> {
+    const ids = params.ids.filter(Boolean);
+    if (!ids.length) return false;
+
+    const processedAt = params.processedAtIso ?? new Date().toISOString();
+
+    const { error } = await supabase
+      .from("commission_accumulation_ledger")
+      .update({
+        status: "approved",
+        processed_at: processedAt,
+      })
+      .in("id", ids)
+      .eq("status", "pending");
+
+    return !error;
+  },
+
+  async adminUpdateComputedFields(params: { id: string; adminCharge: number; netCommission: number }): Promise<boolean> {
+    if (!params.id) return false;
+
+    const { error } = await supabase
+      .from("commission_accumulation_ledger")
+      .update({
+        admin_charge: params.adminCharge,
+        net_commission: params.netCommission,
+      })
+      .eq("id", params.id);
+
+    return !error;
   },
 
   async adminMarkPaid(params: { ids: string[]; payoutBatchId: string; processedAtIso?: string }): Promise<boolean> {
@@ -233,5 +288,27 @@ export const commissionLedgerService = {
       .in("id", ids);
 
     return !error;
+  },
+
+  async getVisibleNetworkLeaderboard(params?: { days?: number; includeCancelled?: boolean }): Promise<NetworkCommissionLeaderboardRow[]> {
+    const days = Math.min(Math.max(params?.days ?? 30, 1), 365);
+    const includeCancelled = Boolean(params?.includeCancelled);
+
+    const { data, error } = await supabase.rpc("get_visible_network_commission_leaderboard_v1", {
+      p_days: days,
+      p_include_cancelled: includeCancelled,
+    });
+
+    if (error) return [];
+
+    const rows = Array.isArray(data) ? data : [];
+    return rows.map((r: any) => ({
+      userId: String(r.user_id),
+      fullName: r.full_name ? String(r.full_name) : "Member",
+      netCommission: toNumber(r.net_commission),
+      grossCommission: toNumber(r.gross_commission),
+      adminCharge: toNumber(r.admin_charge),
+      itemsCount: toNumber(r.items_count),
+    }));
   },
 };

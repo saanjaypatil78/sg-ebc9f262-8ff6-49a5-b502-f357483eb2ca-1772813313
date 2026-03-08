@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, RefreshCw } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Download, RefreshCw, CheckCircle2, Wrench } from "lucide-react";
 
 const ADMIN_CHARGE_RATE = 0.1;
 
@@ -71,16 +72,38 @@ function randomBatchId(): string {
   return `batch_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
 
+function parseMoneyInput(v: string): number | undefined {
+  const cleaned = String(v || "").trim();
+  if (!cleaned) return undefined;
+  const n = Number(cleaned.replace(/,/g, ""));
+  return Number.isFinite(n) ? n : undefined;
+}
+
 export function AdminCommissionAuditPayouts() {
   const [rows, setRows] = useState<CommissionLedgerRowWithNames[]>([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<CommissionStatus | "all">("pending");
+  const [type, setType] = useState<any>("all");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [minNet, setMinNet] = useState("");
+  const [maxNet, setMaxNet] = useState("");
+  const [onlyMismatches, setOnlyMismatches] = useState(false);
+
   const [selected, setSelected] = useState<Record<string, boolean>>({});
 
   const load = async () => {
     setLoading(true);
     try {
-      const data = await commissionLedgerService.adminListCommissions({ status, limit: 500 });
+      const data = await commissionLedgerService.adminListCommissions({
+        status,
+        type: type === "all" ? "all" : type,
+        fromDate: fromDate || undefined,
+        toDate: toDate || undefined,
+        minNet: parseMoneyInput(minNet),
+        maxNet: parseMoneyInput(maxNet),
+        limit: 800,
+      });
       setRows(data);
       setSelected({});
     } finally {
@@ -99,21 +122,26 @@ export function AdminCommissionAuditPayouts() {
     }));
   }, [rows]);
 
+  const displayRows = useMemo(() => {
+    if (!onlyMismatches) return audited;
+    return audited.filter((a) => !a.audit.ok);
+  }, [audited, onlyMismatches]);
+
   const selectedIds = useMemo(() => {
-    return audited.filter((a) => selected[a.row.id]).map((a) => a.row.id);
-  }, [audited, selected]);
+    return displayRows.filter((a) => selected[a.row.id]).map((a) => a.row.id);
+  }, [displayRows, selected]);
 
   const selectedNet = useMemo(() => {
     return round2(
-      audited
+      displayRows
         .filter((a) => selected[a.row.id])
         .reduce((acc, a) => acc + a.row.netCommission, 0)
     );
-  }, [audited, selected]);
+  }, [displayRows, selected]);
 
   const exportCsv = () => {
     const csv = buildCsv(
-      audited.map(({ row, audit }) => ({
+      displayRows.map(({ row, audit }) => ({
         date: isoDate(row.createdAt),
         status: row.status,
         user_id: row.userId,
@@ -134,6 +162,16 @@ export function AdminCommissionAuditPayouts() {
     downloadText(`commission-audit-${new Date().toISOString().slice(0, 10)}.csv`, csv);
   };
 
+  const markSelectedApproved = async () => {
+    if (!selectedIds.length) return;
+
+    const ok = window.confirm(`Mark ${selectedIds.length} records as APPROVED?`);
+    if (!ok) return;
+
+    const success = await commissionLedgerService.adminMarkApproved({ ids: selectedIds });
+    if (success) await load();
+  };
+
   const markSelectedPaid = async () => {
     if (!selectedIds.length) return;
 
@@ -149,6 +187,32 @@ export function AdminCommissionAuditPayouts() {
     });
 
     if (success) await load();
+  };
+
+  const fixSelectedMismatches = async () => {
+    if (!selectedIds.length) return;
+
+    const targets = displayRows
+      .filter((a) => selected[a.row.id] && !a.audit.ok)
+      .map((a) => ({
+        id: a.row.id,
+        adminCharge: a.audit.expectedAdmin,
+        netCommission: a.audit.expectedNet,
+      }));
+
+    if (!targets.length) {
+      window.alert("No mismatches selected.");
+      return;
+    }
+
+    const ok = window.confirm(`Fix computed fields for ${targets.length} mismatched rows?`);
+    if (!ok) return;
+
+    for (const t of targets) {
+      await commissionLedgerService.adminUpdateComputedFields(t);
+    }
+
+    await load();
   };
 
   return (
@@ -188,6 +252,28 @@ export function AdminCommissionAuditPayouts() {
               Export audit CSV
             </Button>
 
+            <Button variant="outline" className="border-slate-800" onClick={() => setOnlyMismatches((v) => !v)}>
+              {onlyMismatches ? "Show all" : "Mismatches only"}
+            </Button>
+
+            <Button
+              className="bg-cyan-600 hover:bg-cyan-700"
+              onClick={markSelectedApproved}
+              disabled={!selectedIds.length}
+            >
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+              Approve selected
+            </Button>
+
+            <Button
+              className="bg-amber-600 hover:bg-amber-700"
+              onClick={fixSelectedMismatches}
+              disabled={!selectedIds.length}
+            >
+              <Wrench className="mr-2 h-4 w-4" />
+              Fix mismatches
+            </Button>
+
             <Button
               className="bg-emerald-600 hover:bg-emerald-700"
               onClick={markSelectedPaid}
@@ -198,9 +284,53 @@ export function AdminCommissionAuditPayouts() {
           </div>
         </div>
 
+        <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-5">
+          <div className="md:col-span-1">
+            <Input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="border-slate-800 bg-slate-950/40"
+              placeholder="From"
+            />
+          </div>
+          <div className="md:col-span-1">
+            <Input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="border-slate-800 bg-slate-950/40"
+              placeholder="To"
+            />
+          </div>
+          <div className="md:col-span-1">
+            <Input
+              inputMode="numeric"
+              value={minNet}
+              onChange={(e) => setMinNet(e.target.value)}
+              className="border-slate-800 bg-slate-950/40"
+              placeholder="Min net"
+            />
+          </div>
+          <div className="md:col-span-1">
+            <Input
+              inputMode="numeric"
+              value={maxNet}
+              onChange={(e) => setMaxNet(e.target.value)}
+              className="border-slate-800 bg-slate-950/40"
+              placeholder="Max net"
+            />
+          </div>
+          <div className="md:col-span-1">
+            <Button className="w-full bg-slate-800 hover:bg-slate-700" onClick={load}>
+              Apply filters
+            </Button>
+          </div>
+        </div>
+
         <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
           <Badge className="bg-slate-500/15 text-slate-200 border border-slate-500/30">
-            Rows: {audited.length}
+            Rows: {displayRows.length}
           </Badge>
           <Badge className="bg-cyan-500/15 text-cyan-200 border border-cyan-500/30">
             Selected: {selectedIds.length}
@@ -229,7 +359,7 @@ export function AdminCommissionAuditPayouts() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {audited.map(({ row, audit }) => (
+              {displayRows.map(({ row, audit }) => (
                 <TableRow key={row.id}>
                   <TableCell>
                     <Checkbox
@@ -258,7 +388,7 @@ export function AdminCommissionAuditPayouts() {
                   <TableCell className="text-right font-semibold text-emerald-200">{formatINR(row.netCommission)}</TableCell>
                 </TableRow>
               ))}
-              {!audited.length && (
+              {!displayRows.length && (
                 <TableRow>
                   <TableCell colSpan={10} className="text-center text-slate-400 py-10">
                     No commission records available (or you may not have Admin access).

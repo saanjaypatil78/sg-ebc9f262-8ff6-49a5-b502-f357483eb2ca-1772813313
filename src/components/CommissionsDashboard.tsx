@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import { commissionLedgerService, CommissionLedgerRowWithNames, CommissionStatus, CommissionSummary } from "@/services/commissionLedgerService";
-import { investorNetworkService, InvestorNetworkMember } from "@/services/investorNetworkService";
+import { commissionLedgerService, type CommissionLedgerRowWithNames, type CommissionStatus, type CommissionType, type CommissionSummary } from "@/services/commissionLedgerService";
+import { investorNetworkService, type InvestorNetworkMember } from "@/services/investorNetworkService";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Download } from "lucide-react";
+import { Download, Filter, BarChart3, Users } from "lucide-react";
+import { CommissionFiltersBar, type CommissionFilters } from "@/components/commissions/CommissionFiltersBar";
+import { CommissionCharts } from "@/components/commissions/CommissionCharts";
+import { NetworkLeaderboard } from "@/components/commissions/NetworkLeaderboard";
 
 function formatINR(amount: number): string {
   const safe = Number.isFinite(amount) ? amount : 0;
@@ -52,23 +54,56 @@ function downloadText(filename: string, text: string) {
   URL.revokeObjectURL(url);
 }
 
+function parseMoneyInput(v: string): number | undefined {
+  const cleaned = String(v || "").trim();
+  if (!cleaned) return undefined;
+  const n = Number(cleaned.replace(/,/g, ""));
+  return Number.isFinite(n) ? n : undefined;
+}
+
+const DEFAULT_FILTERS: CommissionFilters = {
+  status: "all",
+  level: "all",
+  type: "all",
+  fromDate: "",
+  toDate: "",
+  minNet: "",
+  maxNet: "",
+};
+
 export function CommissionsDashboard() {
   const [summary, setSummary] = useState<CommissionSummary | null>(null);
   const [feed, setFeed] = useState<CommissionLedgerRowWithNames[]>([]);
   const [network, setNetwork] = useState<InvestorNetworkMember[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [tab, setTab] = useState<"earnings" | "charts" | "network">("earnings");
+  const [filtersOpen, setFiltersOpen] = useState(true);
+
   const [status, setStatus] = useState<CommissionStatus | "all">("all");
   const [level, setLevel] = useState<number | "all">("all");
+  const [type, setType] = useState<CommissionType | "all">("all");
+
+  const [filters, setFilters] = useState<CommissionFilters>(DEFAULT_FILTERS);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
     let alive = true;
     (async () => {
+      setLoading(true);
       try {
         const [s, f, n] = await Promise.all([
           commissionLedgerService.getMyCommissionSummary(),
-          commissionLedgerService.getMyCommissionFeed({ status, level, limit: 200 }),
+          commissionLedgerService.getMyCommissionFeed({
+            status,
+            level,
+            type,
+            fromDate: filters.fromDate || undefined,
+            toDate: filters.toDate || undefined,
+            minNet: parseMoneyInput(filters.minNet),
+            maxNet: parseMoneyInput(filters.maxNet),
+            limit: 500,
+          }),
           investorNetworkService.getNetworkMembers().catch(() => []),
         ]);
         if (!alive) return;
@@ -82,19 +117,19 @@ export function CommissionsDashboard() {
     return () => {
       alive = false;
     };
-  }, [status, level]);
+  }, [status, level, type, filters.fromDate, filters.toDate, filters.minNet, filters.maxNet]);
 
   const filteredFeed = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return feed;
     return feed.filter((r) => {
       const name = (r.referralName || "").toLowerCase();
-      const type = String(r.commissionType || "").toLowerCase();
-      return name.includes(q) || type.includes(q) || String(r.commissionLevel || "").includes(q);
+      const t = String(r.commissionType || "").toLowerCase();
+      return name.includes(q) || t.includes(q) || String(r.commissionLevel || "").includes(q);
     });
   }, [feed, search]);
 
-  const topNetwork = useMemo(() => {
+  const topNetworkByPayout = useMemo(() => {
     const rows = [...network];
     rows.sort((a, b) => Number(b.total_payout) - Number(a.total_payout));
     return rows.slice(0, 10);
@@ -155,10 +190,67 @@ export function CommissionsDashboard() {
         </Card>
       </div>
 
-      <Tabs defaultValue="earnings">
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant={filtersOpen ? "default" : "outline"}
+          className={filtersOpen ? "bg-slate-800 hover:bg-slate-700" : "border-slate-800"}
+          onClick={() => setFiltersOpen((v) => !v)}
+        >
+          <Filter className="mr-2 h-4 w-4" />
+          Add filters to commissions
+        </Button>
+
+        <Button
+          variant={tab === "charts" ? "default" : "outline"}
+          className={tab === "charts" ? "bg-slate-800 hover:bg-slate-700" : "border-slate-800"}
+          onClick={() => setTab("charts")}
+        >
+          <BarChart3 className="mr-2 h-4 w-4" />
+          Visualize commission data
+        </Button>
+
+        <Button
+          variant={tab === "network" ? "default" : "outline"}
+          className={tab === "network" ? "bg-slate-800 hover:bg-slate-700" : "border-slate-800"}
+          onClick={() => setTab("network")}
+        >
+          <Users className="mr-2 h-4 w-4" />
+          Enhance comparison features
+        </Button>
+
+        <div className="flex-1" />
+
+        <Button variant="outline" className="border-slate-800" onClick={exportMyCsv}>
+          <Download className="mr-2 h-4 w-4" />
+          Export CSV
+        </Button>
+      </div>
+
+      {filtersOpen && (
+        <CommissionFiltersBar
+          value={filters}
+          onChange={setFilters}
+          onReset={() => {
+            setFilters(DEFAULT_FILTERS);
+            setStatus("all");
+            setLevel("all");
+            setType("all");
+            setSearch("");
+          }}
+        />
+      )}
+
+      <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
         <TabsList className="bg-slate-900/60 border border-slate-800">
-          <TabsTrigger value="earnings">Earnings</TabsTrigger>
-          <TabsTrigger value="network">Network comparison</TabsTrigger>
+          <TabsTrigger value="earnings" onClick={() => setTab("earnings")}>
+            Earnings
+          </TabsTrigger>
+          <TabsTrigger value="charts" onClick={() => setTab("charts")}>
+            Charts
+          </TabsTrigger>
+          <TabsTrigger value="network" onClick={() => setTab("network")}>
+            Network comparison
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="earnings" className="mt-4 space-y-4">
@@ -166,41 +258,6 @@ export function CommissionsDashboard() {
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="flex flex-col gap-3 md:flex-row md:items-center">
                 <div className="w-full md:w-56">
-                  <Select value={status} onValueChange={(v) => setStatus(v as any)}>
-                    <SelectTrigger className="border-slate-800 bg-slate-950/40">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All statuses</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="approved">Approved</SelectItem>
-                      <SelectItem value="paid">Paid</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="w-full md:w-44">
-                  <Select
-                    value={String(level)}
-                    onValueChange={(v) => setLevel(v === "all" ? "all" : Number(v))}
-                  >
-                    <SelectTrigger className="border-slate-800 bg-slate-950/40">
-                      <SelectValue placeholder="Level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All levels</SelectItem>
-                      <SelectItem value="1">Level 1</SelectItem>
-                      <SelectItem value="2">Level 2</SelectItem>
-                      <SelectItem value="3">Level 3</SelectItem>
-                      <SelectItem value="4">Level 4</SelectItem>
-                      <SelectItem value="5">Level 5</SelectItem>
-                      <SelectItem value="6">Level 6</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="w-full md:w-72">
                   <Input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -208,12 +265,28 @@ export function CommissionsDashboard() {
                     className="border-slate-800 bg-slate-950/40"
                   />
                 </div>
+
+                <div className="flex flex-wrap gap-2 text-xs">
+                  <Badge className="bg-slate-500/15 text-slate-200 border border-slate-500/30">
+                    Rows: {filteredFeed.length}
+                  </Badge>
+                  <Badge className="bg-cyan-500/15 text-cyan-200 border border-cyan-500/30">
+                    Filter: {status}/{String(level)}/{type}
+                  </Badge>
+                </div>
               </div>
 
-              <Button variant="outline" className="border-slate-800" onClick={exportMyCsv}>
-                <Download className="mr-2 h-4 w-4" />
-                Export CSV
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" className="border-slate-800" onClick={() => setStatus("all")}>
+                  Status: All
+                </Button>
+                <Button variant="outline" className="border-slate-800" onClick={() => setLevel("all")}>
+                  Level: All
+                </Button>
+                <Button variant="outline" className="border-slate-800" onClick={() => setType("all")}>
+                  Type: All
+                </Button>
+              </div>
             </div>
           </Card>
 
@@ -270,11 +343,17 @@ export function CommissionsDashboard() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="charts" className="mt-4 space-y-4">
+          <CommissionCharts rows={filteredFeed} />
+        </TabsContent>
+
         <TabsContent value="network" className="mt-4 space-y-4">
+          <NetworkLeaderboard />
+
           <Card className="border-slate-800 bg-slate-900/60 p-5">
-            <div className="text-sm font-semibold text-slate-100">Top network earnings (visible to you)</div>
+            <div className="text-sm font-semibold text-slate-100">Top network by total payout (proxy)</div>
             <div className="text-xs text-slate-400">
-              This compares performance using the network visibility rules. It shows total payouts as a proxy for earnings.
+              This uses your existing network visibility. If commission ledger visibility is restricted, this remains a reliable comparison proxy.
             </div>
           </Card>
 
@@ -290,7 +369,7 @@ export function CommissionsDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {topNetwork.map((m) => (
+                  {topNetworkByPayout.map((m) => (
                     <TableRow key={m.id}>
                       <TableCell className="text-slate-200">{m.full_name}</TableCell>
                       <TableCell className="text-slate-400">{m.investor_level}</TableCell>
@@ -298,7 +377,7 @@ export function CommissionsDashboard() {
                       <TableCell className="text-right font-semibold text-cyan-200">{formatINR(Number(m.total_payout) || 0)}</TableCell>
                     </TableRow>
                   ))}
-                  {!topNetwork.length && (
+                  {!topNetworkByPayout.length && (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center text-slate-400 py-10">
                         No network data available yet.

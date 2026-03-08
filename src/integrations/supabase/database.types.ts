@@ -2813,6 +2813,17 @@ export type Database = {
           total_investment: number
         }[]
       }
+      get_visible_network_commission_leaderboard_v1: {
+        Args: { p_days?: number; p_include_cancelled?: boolean }
+        Returns: {
+          admin_charge: number
+          full_name: string
+          gross_commission: number
+          items_count: number
+          net_commission: number
+          user_id: string
+        }[]
+      }
       process_due_payouts: {
         Args: never
         Returns: {
