@@ -30,6 +30,53 @@ function toNumber(input: unknown): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+function upper(input: unknown, fallback: string): string {
+  const s = String(input ?? "").trim();
+  return (s ? s : fallback).toUpperCase();
+}
+
+function clampPercent(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, Math.min(100, value));
+}
+
+function computeRankFromVolume(ranks: RankInfo[], qualifyingVolume: number) {
+  const sorted = [...ranks].sort((a, b) => a.businessTarget - b.businessTarget);
+  const volume = toNumber(qualifyingVolume);
+
+  let current = sorted[0] || {
+    rank: "BASE",
+    businessTarget: 0,
+    royaltyAddon: 0,
+    level1Rate: 0.2,
+    level2Rate: 0.1,
+    level3Rate: 0.07,
+    level4Rate: 0.05,
+    level5Rate: 0.02,
+    level6Rate: 0.01,
+  };
+
+  for (const r of sorted) {
+    if (volume >= r.businessTarget) current = r;
+    else break;
+  }
+
+  const currentIdx = sorted.findIndex((r) => r.rank === current.rank);
+  const next = currentIdx >= 0 ? sorted[currentIdx + 1] : null;
+
+  const nextTarget = next ? next.businessTarget : null;
+  const progressToNext =
+    nextTarget && nextTarget > 0 ? clampPercent((volume / nextTarget) * 100) : 100;
+
+  return {
+    effectiveRank: upper(current.rank, "BASE"),
+    currentTarget: toNumber(current.businessTarget),
+    nextRank: next ? upper(next.rank, "") : null,
+    nextTarget,
+    progressToNext,
+  };
+}
+
 export const rankProgressionService = {
   async getAllRanks(): Promise<RankInfo[]> {
     const { data, error } = await supabase
@@ -40,26 +87,22 @@ export const rankProgressionService = {
     if (error) throw error;
 
     return (data || []).map((rank) => ({
-      rank: String(rank.rank).toUpperCase(),
-      businessTarget: toNumber(rank.business_target),
-      royaltyAddon: toNumber(rank.royalty_addon),
-      level1Rate: toNumber(rank.level_1_rate),
-      level2Rate: toNumber(rank.level_2_rate),
-      level3Rate: toNumber(rank.level_3_rate),
-      level4Rate: toNumber(rank.level_4_rate),
-      level5Rate: toNumber(rank.level_5_rate),
-      level6Rate: toNumber(rank.level_6_rate),
+      rank: upper((rank as any).rank, "BASE"),
+      businessTarget: toNumber((rank as any).business_target),
+      royaltyAddon: toNumber((rank as any).royalty_addon),
+      level1Rate: toNumber((rank as any).level_1_rate),
+      level2Rate: toNumber((rank as any).level_2_rate),
+      level3Rate: toNumber((rank as any).level_3_rate),
+      level4Rate: toNumber((rank as any).level_4_rate),
+      level5Rate: toNumber((rank as any).level_5_rate),
+      level6Rate: toNumber((rank as any).level_6_rate),
     }));
   },
 
   async recalculateAndGetRank(userAuthId: string): Promise<{
-    currentRank: string;
-    currentRankTarget: number;
     qualifyingVolume: number;
-    nextRank: string | null;
-    nextRankTarget: number | null;
-    progressToNext: number;
     previousRank: string | null;
+    rawCurrentRank: string;
   }> {
     const { data, error } = await supabase.rpc("recalculate_user_rank", {
       p_user_auth_id: userAuthId,
@@ -69,57 +112,77 @@ export const rankProgressionService = {
 
     const row = Array.isArray(data) ? data[0] : data;
 
-    const currentRank = String(row?.current_rank || "BASE").toUpperCase();
-    const currentRankTarget = toNumber(row?.current_rank_target ?? 0);
-    const qualifyingVolume = toNumber(row?.qualifying_volume ?? 0);
-    const nextRank = row?.next_rank ? String(row.next_rank).toUpperCase() : null;
-    const nextRankTarget = row?.next_rank_target != null ? toNumber(row.next_rank_target) : null;
-    const progressToNext = toNumber(row?.progress_to_next ?? row?.progress_to_next ?? 0);
-    const previousRank = row?.previous_rank ? String(row.previous_rank).toUpperCase() : null;
+    const qualifyingVolume = toNumber(
+      (row as any)?.qualifying_volume ??
+        (row as any)?.qualifying_business_volume_3m ??
+        (row as any)?.business_volume_3m ??
+        0
+    );
+
+    const previousRank = (row as any)?.previous_rank ? upper((row as any).previous_rank, "") : null;
+    const rawCurrentRank = upper(
+      (row as any)?.current_rank ?? (row as any)?.rank ?? (row as any)?.currentRank,
+      "BASE"
+    );
 
     return {
-      currentRank,
-      currentRankTarget,
       qualifyingVolume,
-      nextRank,
-      nextRankTarget,
-      progressToNext,
       previousRank,
+      rawCurrentRank,
     };
   },
 
   async getInvestorRank(userId: string): Promise<InvestorRank> {
-    const recalc = await this.recalculateAndGetRank(userId);
+    const [ranks, recalc] = await Promise.all([this.getAllRanks(), this.recalculateAndGetRank(userId)]);
 
     const { data: ubv } = await supabase
       .from("user_business_volume")
-      .select("total_team_business, last_rank_evaluation")
+      .select("total_team_business, last_rank_evaluation, current_rank")
       .eq("user_id", userId)
       .maybeSingle();
 
+    const computed = computeRankFromVolume(ranks, recalc.qualifyingVolume);
+
+    const storedRank = ubv?.current_rank ? upper(ubv.current_rank, "BASE") : recalc.rawCurrentRank;
+    const effectiveRank = computed.effectiveRank;
+
     return {
       userId,
-      currentRank: recalc.currentRank,
-      currentRankTarget: recalc.currentRankTarget,
-      qualifyingBusinessVolume3m: recalc.qualifyingVolume,
+      currentRank: effectiveRank,
+      currentRankTarget: computed.currentTarget,
+      qualifyingBusinessVolume3m: toNumber(recalc.qualifyingVolume),
       lifetimeTeamBusiness: toNumber(ubv?.total_team_business ?? 0),
-      previousRank: recalc.previousRank,
-      nextRank: recalc.nextRank,
-      nextRankTarget: recalc.nextRankTarget,
-      progressToNext: recalc.progressToNext,
-      lastEvaluatedAt: ubv?.last_rank_evaluation ?? null,
+      previousRank: recalc.previousRank && recalc.previousRank !== storedRank ? recalc.previousRank : null,
+      nextRank: computed.nextRank,
+      nextRankTarget: computed.nextTarget != null ? toNumber(computed.nextTarget) : null,
+      progressToNext: computed.progressToNext,
+      lastEvaluatedAt: (ubv as any)?.last_rank_evaluation ?? null,
     };
   },
 
   async checkAndUpgradeRank(userAuthId: string): Promise<boolean> {
-    const recalc = await this.recalculateAndGetRank(userAuthId);
-    const prev = (recalc.previousRank || "").toUpperCase();
-    const curr = (recalc.currentRank || "").toUpperCase();
-    return Boolean(prev && curr && prev !== curr);
+    const before = await supabase
+      .from("user_business_volume")
+      .select("current_rank")
+      .eq("user_id", userAuthId)
+      .maybeSingle();
+
+    await this.recalculateAndGetRank(userAuthId);
+
+    const after = await supabase
+      .from("user_business_volume")
+      .select("current_rank")
+      .eq("user_id", userAuthId)
+      .maybeSingle();
+
+    const beforeRank = before.data?.current_rank ? upper(before.data.current_rank, "BASE") : "BASE";
+    const afterRank = after.data?.current_rank ? upper(after.data.current_rank, "BASE") : "BASE";
+
+    return beforeRank !== afterRank;
   },
 
   getRankBadge(rank: string): { color: string; label: string; gradient: string } {
-    const key = String(rank || "BASE").toUpperCase();
+    const key = upper(rank, "BASE");
     const badges: Record<string, { color: string; label: string; gradient: string }> = {
       BASE: { color: "bg-gray-500", label: "BASE", gradient: "from-gray-500 to-gray-600" },
       BRONZE: { color: "bg-orange-600", label: "BRONZE", gradient: "from-orange-600 to-orange-700" },
