@@ -15,6 +15,7 @@ import { MobileMenu } from "@/components/MobileMenu";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { CommissionSnapshotBar } from "@/components/CommissionSnapshotBar";
 
 export type DashboardRole = "investor" | "vendor" | "admin" | "bdm" | "client" | "franchise_partner";
 
@@ -62,10 +63,12 @@ export function DashboardLayout({ children, showCharts = false, role = "investor
         ];
     }
 
+    const commissionsHref = role === "admin" ? "/dashboard/admin/commissions" : "/dashboard/investor/commissions";
+
     // Combine base navigation with universal security/settings links
     return [
       ...baseNav,
-      { name: "Commissions", href: "/dashboard/investor/commissions", icon: DollarSign },
+      { name: "Commissions", href: commissionsHref, icon: DollarSign },
       { name: "Active Sessions", href: "/dashboard/security/active-sessions", icon: Key },
       { name: "Login History", href: "/dashboard/security/login-history", icon: History },
       { name: "Trusted Devices", href: "/dashboard/security/trusted-devices", icon: Shield },
