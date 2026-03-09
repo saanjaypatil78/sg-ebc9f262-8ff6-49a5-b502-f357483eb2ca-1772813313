@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type CommissionStatus = "pending" | "approved" | "paid" | "cancelled";
+export type CommissionStatus = "ACCRUED" | "APPROVED" | "PAID" | "REJECTED";
 
 export interface CommissionLedgerRow {
   id: string;
@@ -59,9 +59,9 @@ function toNumber(input: unknown): number {
 }
 
 function safeStatus(input: unknown): CommissionStatus {
-  const s = String(input || "").toLowerCase();
-  if (s === "pending" || s === "approved" || s === "paid" || s === "cancelled") return s;
-  return "pending";
+  const s = String(input || "").toUpperCase();
+  if (s === "ACCRUED" || s === "APPROVED" || s === "PAID" || s === "REJECTED") return s;
+  return "ACCRUED";
 }
 
 function mapLedgerRow(row: any): CommissionLedgerRow {
@@ -172,17 +172,17 @@ export const commissionLedgerService = {
     const last30 = now - 30 * 24 * 60 * 60 * 1000;
 
     const netByStatus: Record<CommissionStatus, number[]> = {
-      pending: [],
-      approved: [],
-      paid: [],
-      cancelled: [],
+      ACCRUED: [],
+      APPROVED: [],
+      PAID: [],
+      REJECTED: [],
     };
 
     const countByStatus: Record<CommissionStatus, number> = {
-      pending: 0,
-      approved: 0,
-      paid: 0,
-      cancelled: 0,
+      ACCRUED: 0,
+      APPROVED: 0,
+      PAID: 0,
+      REJECTED: 0,
     };
 
     const last30Values: number[] = [];
@@ -198,10 +198,10 @@ export const commissionLedgerService = {
     });
 
     return {
-      pendingNet: sum(netByStatus.pending),
-      approvedNet: sum(netByStatus.approved),
-      paidNet: sum(netByStatus.paid),
-      cancelledNet: sum(netByStatus.cancelled),
+      pendingNet: sum(netByStatus.ACCRUED),
+      approvedNet: sum(netByStatus.APPROVED),
+      paidNet: sum(netByStatus.PAID),
+      cancelledNet: sum(netByStatus.REJECTED),
       last30DaysNet: sum(last30Values),
       countByStatus,
     };
@@ -249,11 +249,11 @@ export const commissionLedgerService = {
     const { error } = await supabase
       .from("commission_accumulation_ledger")
       .update({
-        status: "approved",
+        status: "APPROVED",
         processed_at: processedAt,
       })
       .in("id", ids)
-      .eq("status", "pending");
+      .eq("status", "ACCRUED");
 
     return !error;
   },
@@ -281,7 +281,7 @@ export const commissionLedgerService = {
     const { error } = await supabase
       .from("commission_accumulation_ledger")
       .update({
-        status: "paid",
+        status: "PAID",
         payout_batch_id: params.payoutBatchId,
         processed_at: processedAt,
       })

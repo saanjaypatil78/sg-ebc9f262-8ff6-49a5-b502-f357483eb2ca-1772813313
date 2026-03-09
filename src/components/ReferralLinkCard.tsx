@@ -35,14 +35,14 @@ export function ReferralLinkCard({ userId }: ReferralLinkCardProps) {
 
     const load = async () => {
       try {
-        const { data: profileRow } = await supabase
-          .from("user_profiles")
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
           .select("referral_code")
-          .eq("user_id", userId)
+          .eq("id", userId)
           .maybeSingle();
 
         if (!cancelled) {
-          const code = String(profileRow?.referral_code || "").trim();
+          const code = String(profileData?.referral_code || "").trim();
           setReferralCode(code || userId);
         }
       } catch {

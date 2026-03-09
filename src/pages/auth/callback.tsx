@@ -34,7 +34,7 @@ export default function AuthCallback() {
           // Redirect based on role and onboarding status
           if (!profile.onboarding_completed) {
             router.push('/auth/onboarding');
-          } else if (profile.kyc_status !== 'approved') {
+          } else if (profile.kyc_status !== "VERIFIED") {
             router.push('/dashboard/verification');
           } else {
             // Redirect to appropriate dashboard based on role
@@ -48,7 +48,8 @@ export default function AuthCallback() {
               bdm: '/dashboard/bdm',
             };
 
-            router.push(dashboardMap[profile.role] || '/dashboard');
+            const key = String(profile.role || "").toLowerCase();
+            router.push(dashboardMap[key] || '/dashboard');
           }
         } else {
           router.push('/auth/login');

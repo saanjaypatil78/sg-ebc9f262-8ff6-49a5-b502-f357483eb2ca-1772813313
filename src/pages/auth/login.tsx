@@ -39,7 +39,11 @@ export default function LoginPage() {
       const result = await authService.login({ email, password });
 
       if (!result.success) {
-        throw new Error(result.error || "Login failed");
+        const msg =
+          ("message" in result && typeof result.message === "string" && result.message) ||
+          ("error" in result && typeof (result as any).error === "string" && (result as any).error) ||
+          "Login failed";
+        throw new Error(msg);
       }
 
       // Success toast

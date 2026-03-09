@@ -39,6 +39,7 @@ export const deviceFingerprintService = {
 
     const { error } = await supabase.from("trusted_devices").insert({
       user_id: userId,
+      device_id: fingerprint.deviceId,
       device_fingerprint: fingerprint.deviceId,
       device_name: deviceName,
       browser_name: fingerprint.browser,

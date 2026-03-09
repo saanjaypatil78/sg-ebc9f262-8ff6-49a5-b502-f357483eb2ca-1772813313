@@ -164,7 +164,7 @@ export default function OnboardingPage() {
           investment_amount: formData.investmentAmount,
           franchise_location: formData.franchiseLocation,
           onboarding_completed: true,
-          kyc_status: 'pending',
+          kyc_status: "PENDING",
         })
         .eq('id', session.user.id);
 

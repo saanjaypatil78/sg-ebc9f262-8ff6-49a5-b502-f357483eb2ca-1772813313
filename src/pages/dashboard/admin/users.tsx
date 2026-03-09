@@ -95,7 +95,7 @@ export default function AdminUsersPage() {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ kyc_status: "approved" })
+        .update({ kyc_status: "VERIFIED" })
         .eq("id", userId);
 
       if (error) throw error;
@@ -109,7 +109,7 @@ export default function AdminUsersPage() {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ kyc_status: "rejected" })
+        .update({ kyc_status: "REJECTED" })
         .eq("id", userId);
 
       if (error) throw error;
@@ -120,21 +120,22 @@ export default function AdminUsersPage() {
   };
 
   const getStatusBadge = (status: string) => {
+    const key = String(status || "").toUpperCase();
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-      pending: "outline",
-      approved: "default",
-      rejected: "destructive",
+      PENDING: "outline",
+      VERIFIED: "default",
+      REJECTED: "destructive",
     };
 
     const colors: Record<string, string> = {
-      pending: "text-yellow-400 border-yellow-400/30 bg-yellow-400/10",
-      approved: "text-green-400 border-green-400/30 bg-green-400/10",
-      rejected: "text-red-400 border-red-400/30 bg-red-400/10",
+      PENDING: "text-yellow-400 border-yellow-400/30 bg-yellow-400/10",
+      VERIFIED: "text-green-400 border-green-400/30 bg-green-400/10",
+      REJECTED: "text-red-400 border-red-400/30 bg-red-400/10",
     };
 
     return (
-      <Badge variant={variants[status] || "outline"} className={colors[status]}>
-        {status}
+      <Badge variant={variants[key] || "outline"} className={colors[key]}>
+        {key}
       </Badge>
     );
   };
@@ -226,21 +227,21 @@ export default function AdminUsersPage() {
               },
               {
                 label: "Pending KYC",
-                value: users.filter(u => u.kyc_status === "pending").length,
+                value: users.filter(u => u.kyc_status === "PENDING").length,
                 icon: Shield,
                 gradient: "from-yellow-500/20 to-orange-500/20",
                 iconColor: "text-yellow-400"
               },
               {
                 label: "Approved",
-                value: users.filter(u => u.kyc_status === "approved").length,
+                value: users.filter(u => u.kyc_status === "VERIFIED").length,
                 icon: CheckCircle2,
                 gradient: "from-green-500/20 to-emerald-500/20",
                 iconColor: "text-green-400"
               },
               {
                 label: "Rejected",
-                value: users.filter(u => u.kyc_status === "rejected").length,
+                value: users.filter(u => u.kyc_status === "REJECTED").length,
                 icon: XCircle,
                 gradient: "from-red-500/20 to-pink-500/20",
                 iconColor: "text-red-400"
@@ -344,7 +345,7 @@ export default function AdminUsersPage() {
                                 >
                                   <Eye className="w-4 h-4" />
                                 </Button>
-                                {user.kyc_status === "pending" && (
+                                {user.kyc_status === "PENDING" && (
                                   <>
                                     <Button
                                       size="sm"

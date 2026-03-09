@@ -120,7 +120,10 @@ export default function RegisterPage() {
 
       toast({
         title: "Registration Failed",
-        description: result.error || "Please check your details and try again",
+        description:
+          ("message" in result && typeof result.message === "string" && result.message) ||
+          ("error" in result && typeof (result as any).error === "string" && (result as any).error) ||
+          "Please check your details and try again",
         variant: "destructive",
       });
     } catch (error: any) {
