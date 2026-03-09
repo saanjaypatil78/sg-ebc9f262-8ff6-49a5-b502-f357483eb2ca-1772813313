@@ -23,8 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     // 1. Process Platform Auto-Syncs (Check who needs syncing)
-    const { data: integrations } = await supabase
-      .from('platform_integrations')
+    const { data: integrations } = await (supabase.from("platform_integrations") as any)
       .select('id, platform_name')
       .eq('sync_enabled', true)
       .lte('next_sync_at', new Date().toISOString());

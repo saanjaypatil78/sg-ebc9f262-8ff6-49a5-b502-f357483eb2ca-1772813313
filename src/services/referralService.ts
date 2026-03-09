@@ -42,6 +42,11 @@ function isUuid(input: string): boolean {
   );
 }
 
+function toNumber(input: unknown): number {
+  const n = typeof input === "number" ? input : Number(input);
+  return Number.isFinite(n) ? n : 0;
+}
+
 async function resolveReferrerUserId(code: string): Promise<string | null> {
   const cleaned = String(code || "").trim();
   if (!cleaned) return null;
@@ -76,7 +81,7 @@ export const referralService = {
       fullName: member.full_name,
       email: member.email,
       level: member.level,
-      investmentTotal: parseFloat(member.investment_total || 0),
+      investmentTotal: toNumber(member.investment_total),
       directReferrals: member.direct_referrals || 0,
       joinedAt: member.joined_at,
     }));
@@ -104,10 +109,10 @@ export const referralService = {
       level4Count: stats.level_4_count,
       level5Count: stats.level_5_count,
       level6Count: stats.level_6_count,
-      totalNetworkInvestment: parseFloat(stats.total_network_investment || 0),
-      totalCommissionsEarned: parseFloat(stats.total_commissions_earned || 0),
+      totalNetworkInvestment: toNumber(stats.total_network_investment),
+      totalCommissionsEarned: toNumber(stats.total_commissions_earned),
       rank: stats.rank,
-      rankProgress: parseFloat(stats.rank_progress || 0),
+      rankProgress: toNumber(stats.rank_progress),
     };
   },
 
@@ -149,9 +154,9 @@ export const referralService = {
       id: record.id,
       fromUserName: nameById[record.referral_user_id] || "Unknown",
       commissionLevel: record.commission_level,
-      investmentAmount: parseFloat(record.source_amount || 0),
-      commissionAmount: parseFloat(record.gross_commission || 0),
-      netCommission: parseFloat(record.net_commission || 0),
+      investmentAmount: toNumber(record.source_amount),
+      commissionAmount: toNumber(record.gross_commission),
+      netCommission: toNumber(record.net_commission),
       status: record.status,
       createdAt: record.created_at,
     }));

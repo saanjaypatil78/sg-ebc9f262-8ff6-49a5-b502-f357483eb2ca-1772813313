@@ -18,8 +18,7 @@ export const sessionManagementService = {
    * Get active sessions for user
    */
   async getActiveSessions(userId: string): Promise<any[]> {
-    const { data } = await supabase
-      .from("active_sessions")
+    const { data } = await (supabase.from("active_sessions") as any)
       .select("*")
       .eq("user_id", userId)
       .eq("is_active", true)
@@ -31,19 +30,17 @@ export const sessionManagementService = {
   /**
    * Terminate specific session
    */
-  async terminateSession(sessionId: string): Promise<void> {
-    await supabase
-      .from("active_sessions")
+  async terminateSession(sessionToken: string): Promise<void> {
+    await (supabase.from("active_sessions") as any)
       .update({ is_active: false })
-      .eq("id", sessionId);
+      .eq("session_token", sessionToken);
   },
 
   /**
    * Terminate all sessions except current
    */
   async terminateOtherSessions(userId: string, currentSessionToken: string): Promise<void> {
-    await supabase
-      .from("active_sessions")
+    await (supabase.from("active_sessions") as any)
       .update({ is_active: false })
       .eq("user_id", userId)
       .neq("session_token", currentSessionToken);
@@ -53,8 +50,7 @@ export const sessionManagementService = {
    * Update session activity
    */
   async updateActivity(sessionToken: string): Promise<void> {
-    await supabase
-      .from("active_sessions")
+    await (supabase.from("active_sessions") as any)
       .update({ last_activity: new Date().toISOString() })
       .eq("session_token", sessionToken)
       .eq("is_active", true);
@@ -64,8 +60,7 @@ export const sessionManagementService = {
    * Validate session
    */
   async validateSession(sessionToken: string): Promise<boolean> {
-    const { data } = await supabase
-      .from("active_sessions")
+    const { data } = await (supabase.from("active_sessions") as any)
       .select("expires_at, is_active")
       .eq("session_token", sessionToken)
       .single();
@@ -85,8 +80,7 @@ export const sessionManagementService = {
    * Clean expired sessions (run periodically)
    */
   async cleanExpiredSessions(): Promise<void> {
-    await supabase
-      .from("active_sessions")
+    await (supabase.from("active_sessions") as any)
       .update({ is_active: false })
       .lt("expires_at", new Date().toISOString());
   },

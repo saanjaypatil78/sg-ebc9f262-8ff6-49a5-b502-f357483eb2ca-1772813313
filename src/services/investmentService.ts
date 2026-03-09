@@ -16,7 +16,7 @@ export interface InvestmentAgreement {
   notarizationDate?: string;
   advocateName?: string;
   advocateLicense?: string;
-  agreementStatus: 'ACTIVE' | 'COMPLETED' | 'TERMINATED';
+  agreementStatus: "ACTIVE" | "COMPLETED" | "TERMINATED";
   earlyTerminationAllowed: boolean;
   earlyTerminationPenalty: number;
 }
@@ -34,16 +34,14 @@ export const investmentService = {
     const candidate = String(inputId || "").trim();
     if (!candidate) return null;
 
-    const { data: byUserId, error: byUserIdError } = await supabase
-      .from("user_profiles")
+    const { data: byUserId, error: byUserIdError } = await (supabase.from("user_profiles") as any)
       .select("id")
       .eq("user_id", candidate)
       .maybeSingle();
 
     if (!byUserIdError && byUserId?.id) return byUserId.id;
 
-    const { data: byProfileId, error: byProfileIdError } = await supabase
-      .from("user_profiles")
+    const { data: byProfileId, error: byProfileIdError } = await (supabase.from("user_profiles") as any)
       .select("id")
       .eq("id", candidate)
       .maybeSingle();
@@ -61,10 +59,11 @@ export const investmentService = {
       const profileId = await this.resolveUserProfileId(userId);
       if (!profileId) throw new Error("User profile not found");
 
-      const { error } = await supabase.from("investments").insert({
+      const { error } = await (supabase.from("investments") as any).insert({
         user_id: profileId,
-        amount: amount,
-        payment_status: "pending",
+        amount,
+        investment_amount: amount,
+        payment_status: "PENDING",
       });
 
       if (error) throw error;
@@ -131,10 +130,9 @@ export const investmentService = {
    */
   async getAgreement(investmentId: string): Promise<InvestmentAgreement | null> {
     try {
-      const { data, error } = await supabase
-        .from('investment_agreements')
+      const { data, error } = await (supabase.from("investment_agreements") as any)
         .select('*')
-        .eq('investment_id', investmentId)
+        .eq("investment_id", investmentId)
         .single();
 
       if (error) throw error;
@@ -156,7 +154,7 @@ export const investmentService = {
         notarizationDate: data.notarization_date,
         advocateName: data.advocate_name,
         advocateLicense: data.advocate_license,
-        agreementStatus: data.agreement_status,
+        agreementStatus: (String(data.agreement_status || "ACTIVE").toUpperCase() as InvestmentAgreement["agreementStatus"]),
         earlyTerminationAllowed: data.early_termination_allowed,
         earlyTerminationPenalty: data.early_termination_penalty,
       };

@@ -36,15 +36,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const status = code === 'PAYMENT_SUCCESS' ? 'success' : 'failed';
 
     // 3. Update Transaction in DB
-    const { data: transaction, error: updateError } = await supabase
-      .from('phonepe_transactions')
+    const { data: transaction, error: updateError } = await (supabase.from("phonepe_transactions") as any)
       .update({
         phonepe_transaction_id: transactionId,
         status: status,
         callback_data: decodedData,
         completed_at: new Date().toISOString()
-      } as any) // Explicit cast to bypass "excessively deep" type error
-      .eq('transaction_id', response) // Use transaction_id from the base64 response
+      })
+      .eq("transaction_id", response) // Use transaction_id from the base64 response
       .select()
       .single();
 
