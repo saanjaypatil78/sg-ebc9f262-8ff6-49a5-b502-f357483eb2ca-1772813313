@@ -17,14 +17,16 @@ export default function InvestorNetwork() {
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Get current user
-    const user = authService.getCurrentUser();
-    if (!user) {
-      router.push("/auth/login");
-      return;
-    }
-    setUserId(user.id);
-    loadData(user.id);
+    const run = async () => {
+      const user = await authService.getCurrentUser();
+      if (!user) {
+        router.push("/auth/login");
+        return;
+      }
+      setUserId(user.id);
+      await loadData(user.id);
+    };
+    void run();
   }, [router]);
 
   const loadData = async (uid: string) => {

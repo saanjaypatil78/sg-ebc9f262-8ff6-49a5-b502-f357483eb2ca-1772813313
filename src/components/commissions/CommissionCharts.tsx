@@ -12,10 +12,10 @@ function formatINR(amount: number): string {
 }
 
 function statusLabel(s: CommissionStatus): string {
-  if (s === "pending") return "Pending";
-  if (s === "approved") return "Approved";
-  if (s === "paid") return "Paid";
-  return "Cancelled";
+  if (s === "ACCRUED") return "Accrued";
+  if (s === "APPROVED") return "Approved";
+  if (s === "PAID") return "Paid";
+  return "Rejected";
 }
 
 export function CommissionCharts(props: { rows: CommissionLedgerRowWithNames[] }) {
@@ -32,20 +32,15 @@ export function CommissionCharts(props: { rows: CommissionLedgerRowWithNames[] }
   const monthValues = months.map((m) => ({ month: m, net: monthMap[m] || 0 }));
   const maxNet = Math.max(...monthValues.map((m) => m.net), 1);
 
-  const statusNet: Record<CommissionStatus, number> = {
-    pending: 0,
-    approved: 0,
-    paid: 0,
-    cancelled: 0,
-  };
+  const counts: Record<CommissionStatus, number> = { ACCRUED: 0, APPROVED: 0, PAID: 0, REJECTED: 0 };
 
   rows.forEach((r) => {
-    statusNet[r.status] += toNumber(r.netCommission);
+    counts[r.status] += toNumber(r.netCommission);
   });
 
-  const statusItems = (Object.keys(statusNet) as CommissionStatus[]).map((s) => ({
+  const statusItems = (Object.keys(counts) as CommissionStatus[]).map((s) => ({
     status: s,
-    net: statusNet[s],
+    net: counts[s],
   }));
 
   const totalStatusNet = Math.max(statusItems.reduce((a, b) => a + b.net, 0), 1);
@@ -97,11 +92,11 @@ export function CommissionCharts(props: { rows: CommissionLedgerRowWithNames[] }
           {statusItems.map((s) => {
             const pct = Math.round((s.net / totalStatusNet) * 100);
             const bar =
-              s.status === "paid"
+              s.status === "PAID"
                 ? "from-emerald-500/70 to-emerald-500/20"
-                : s.status === "approved"
+                : s.status === "APPROVED"
                   ? "from-cyan-500/70 to-cyan-500/20"
-                  : s.status === "pending"
+                  : s.status === "ACCRUED"
                     ? "from-amber-500/70 to-amber-500/20"
                     : "from-slate-500/70 to-slate-500/20";
 

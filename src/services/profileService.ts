@@ -17,7 +17,7 @@ export interface UserProfile {
   bank_name: string | null;
   account_number: string | null;
   ifsc_code: string | null;
-  kyc_status: string;
+  kyc_status: "REJECTED" | "PENDING" | "VERIFIED";
   onboarding_completed: boolean;
   investment_amount: number | null;
   franchise_location: string | null;
@@ -45,7 +45,7 @@ export const profileService = {
 
     const { data, error } = await supabase
       .from("profiles")
-      .update(updates)
+      .update(updates as any)
       .eq("id", user.id)
       .select()
       .single();

@@ -41,10 +41,10 @@ export default function SecurityDashboard() {
   const loadSecurityData = async () => {
     try {
       // Load stats
-      const { data: users } = await supabase.from('users').select('*');
-      const { data: sessions } = await supabase.from('active_sessions').select('*');
-      const { data: devices } = await supabase.from('trusted_devices').select('*');
-      const { data: failedLogins } = await supabase
+      const { data: users } = await (supabase.from("users") as any).select("*");
+      const { data: sessions } = await (supabase.from("active_sessions") as any).select("*");
+      const { data: devices } = await (supabase.from("trusted_devices") as any).select("*");
+      const { data: failedLogins } = await (supabase.from("login_history") as any)
         .from('login_history')
         .select('*')
         .eq('success', false)
@@ -52,7 +52,7 @@ export default function SecurityDashboard() {
 
       setStats({
         totalUsers: users?.length || 0,
-        activeUsers: users?.filter(u => u.status === 'ACTIVE').length || 0,
+        activeUsers: users?.filter((u: any) => u.status === "GREEN").length || 0,
         activeSessions: sessions?.length || 0,
         failedLogins24h: failedLogins?.length || 0,
         users2FAEnabled: users?.filter(u => u.two_factor_enabled).length || 0,

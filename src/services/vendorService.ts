@@ -136,7 +136,7 @@ export const vendorService = {
     if (ordersError) throw ordersError;
 
     const totalOrders = orders?.length || 0;
-    const deliveredOrders = orders?.filter(o => o.status === "delivered").length || 0;
+    const deliveredOrders = orders?.filter((o) => o.status === "DELIVERED").length || 0;
     
     // Get on-time deliveries (simplified)
     const onTimeRate = totalOrders > 0 ? (deliveredOrders / totalOrders) * 100 : 0;
@@ -146,7 +146,7 @@ export const vendorService = {
       .from("returns")
       .select("id")
       .eq("vendor_id", vendorId)
-      .eq("status", "approved");
+      .eq("status", "APPROVED");
 
     if (returnsError) throw returnsError;
 

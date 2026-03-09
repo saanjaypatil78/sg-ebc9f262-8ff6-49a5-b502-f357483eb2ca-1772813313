@@ -4,27 +4,43 @@ type EmailVerificationTokenRow = {
   id: string;
   user_id: string;
   email: string;
-  token: string;
+  token_hash: string;
   expires_at: string;
   verified_at: string | null;
 };
 
-function randomToken(length = 32): string {
+function randomToken(length = 48): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const bytes = new Uint8Array(length);
+  if (globalThis.crypto?.getRandomValues) {
+    globalThis.crypto.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < length; i++) bytes[i] = Math.floor(Math.random() * 256);
+  }
   let out = "";
-  for (let i = 0; i < length; i++) out += chars[Math.floor(Math.random() * chars.length)];
+  for (let i = 0; i < length; i++) out += chars[bytes[i] % chars.length];
   return out;
+}
+
+async function sha256Hex(input: string): Promise<string> {
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) throw new Error("Crypto.subtle unavailable");
+  const buf = await subtle.digest("SHA-256", new TextEncoder().encode(input));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 export const emailVerificationService = {
   async createToken(userId: string, email: string): Promise<{ token: string; expiresAt: string }> {
-    const token = randomToken(48);
+    const token = randomToken(64);
+    const tokenHash = await sha256Hex(token);
     const expiresAt = new Date(Date.now() + 1000 * 60 * 30).toISOString(); // 30 min
 
-    const { error } = await supabase.from("email_verification_tokens").insert({
+    const { error } = await (supabase.from("email_verification_tokens") as any).insert({
       user_id: userId,
       email,
-      token,
+      token_hash: tokenHash,
       expires_at: expiresAt,
     });
 
@@ -34,10 +50,11 @@ export const emailVerificationService = {
   },
 
   async verifyToken(token: string): Promise<{ ok: boolean; userId?: string; email?: string; error?: string }> {
-    const { data, error } = await supabase
-      .from("email_verification_tokens")
-      .select("id, user_id, email, token, expires_at, verified_at")
-      .eq("token", token)
+    const tokenHash = await sha256Hex(token);
+
+    const { data, error } = await (supabase.from("email_verification_tokens") as any)
+      .select("id, user_id, email, token_hash, expires_at, verified_at")
+      .eq("token_hash", tokenHash)
       .maybeSingle();
 
     if (error) return { ok: false, error: error.message || "Token lookup failed" };
@@ -50,15 +67,13 @@ export const emailVerificationService = {
 
     const now = new Date().toISOString();
 
-    const { error: updateError } = await supabase
-      .from("email_verification_tokens")
+    const { error: updateError } = await (supabase.from("email_verification_tokens") as any)
       .update({ verified_at: now })
       .eq("id", row.id);
 
     if (updateError) return { ok: false, error: updateError.message || "Failed to verify token" };
 
-    await supabase
-      .from("users")
+    await (supabase.from("profiles") as any)
       .update({ email_verified: true, email_verified_at: now })
       .eq("id", row.user_id);
 

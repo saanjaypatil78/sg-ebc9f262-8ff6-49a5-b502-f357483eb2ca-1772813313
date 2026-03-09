@@ -24,10 +24,10 @@ function isoDate(iso: string): string {
 }
 
 function statusBadge(status: CommissionStatus): { cls: string; label: string } {
-  if (status === "paid") return { cls: "bg-emerald-500/15 text-emerald-200 border border-emerald-500/30", label: "Paid" };
-  if (status === "approved") return { cls: "bg-cyan-500/15 text-cyan-200 border border-cyan-500/30", label: "Approved" };
-  if (status === "cancelled") return { cls: "bg-slate-500/15 text-slate-200 border border-slate-500/30", label: "Cancelled" };
-  return { cls: "bg-amber-500/15 text-amber-200 border border-amber-500/30", label: "Pending" };
+  if (status === "PAID") return { cls: "bg-emerald-500/15 text-emerald-200 border border-emerald-500/30", label: "Paid" };
+  if (status === "APPROVED") return { cls: "bg-cyan-500/15 text-cyan-200 border border-cyan-500/30", label: "Approved" };
+  if (status === "REJECTED") return { cls: "bg-red-500/15 text-red-200 border border-red-500/30", label: "Rejected" };
+  return { cls: "bg-amber-500/15 text-amber-200 border border-amber-500/30", label: "Accrued" };
 }
 
 function buildCsv(rows: Array<Record<string, unknown>>): string {
@@ -171,17 +171,17 @@ export function CommissionsDashboard() {
         <Card className="border-slate-800 bg-slate-900/60 p-5">
           <div className="text-xs text-slate-400">Pending</div>
           <div className="mt-2 text-2xl font-bold text-amber-200">{formatINR(summary?.pendingNet ?? 0)}</div>
-          <div className="mt-1 text-xs text-slate-500">{summary?.countByStatus.pending ?? 0} items</div>
+          <div className="mt-1 text-xs text-slate-500">{summary?.countByStatus.ACCRUED ?? 0} items</div>
         </Card>
         <Card className="border-slate-800 bg-slate-900/60 p-5">
           <div className="text-xs text-slate-400">Approved</div>
           <div className="mt-2 text-2xl font-bold text-cyan-200">{formatINR(summary?.approvedNet ?? 0)}</div>
-          <div className="mt-1 text-xs text-slate-500">{summary?.countByStatus.approved ?? 0} items</div>
+          <div className="mt-1 text-xs text-slate-500">{summary?.countByStatus.APPROVED ?? 0} items</div>
         </Card>
         <Card className="border-slate-800 bg-slate-900/60 p-5">
           <div className="text-xs text-slate-400">Paid</div>
           <div className="mt-2 text-2xl font-bold text-emerald-200">{formatINR(summary?.paidNet ?? 0)}</div>
-          <div className="mt-1 text-xs text-slate-500">{summary?.countByStatus.paid ?? 0} items</div>
+          <div className="mt-1 text-xs text-slate-500">{summary?.countByStatus.PAID ?? 0} items</div>
         </Card>
         <Card className="border-slate-800 bg-slate-900/60 p-5">
           <div className="text-xs text-slate-400">Last 30 days</div>

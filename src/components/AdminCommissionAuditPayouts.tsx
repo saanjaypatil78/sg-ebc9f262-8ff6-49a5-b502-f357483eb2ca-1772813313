@@ -82,7 +82,7 @@ function parseMoneyInput(v: string): number | undefined {
 export function AdminCommissionAuditPayouts() {
   const [rows, setRows] = useState<CommissionLedgerRowWithNames[]>([]);
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState<CommissionStatus | "all">("pending");
+  const [status, setStatus] = useState<CommissionStatus | "all">("ACCRUED");
   const [type, setType] = useState<any>("all");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -234,10 +234,10 @@ export function AdminCommissionAuditPayouts() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All statuses</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="paid">Paid</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                  <SelectItem value="ACCRUED">Pending</SelectItem>
+                  <SelectItem value="APPROVED">Approved</SelectItem>
+                  <SelectItem value="PAID">Paid</SelectItem>
+                  <SelectItem value="REJECTED">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
             </div>

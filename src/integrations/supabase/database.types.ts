@@ -455,6 +455,7 @@ export type Database = {
           id: string
           investment_amount: number
           investment_date: string
+          payment_status: string | null
           plan_code: string | null
           roi_rate: number
           status: Database["public"]["Enums"]["investment_status"]
@@ -468,6 +469,7 @@ export type Database = {
           id?: string
           investment_amount: number
           investment_date?: string
+          payment_status?: string | null
           plan_code?: string | null
           roi_rate?: number
           status?: Database["public"]["Enums"]["investment_status"]
@@ -481,6 +483,7 @@ export type Database = {
           id?: string
           investment_amount?: number
           investment_date?: string
+          payment_status?: string | null
           plan_code?: string | null
           roi_rate?: number
           status?: Database["public"]["Enums"]["investment_status"]
@@ -1006,9 +1009,14 @@ export type Database = {
       }
       profiles: {
         Row: {
+          aadhaar_number: string | null
+          account_number: string | null
+          address: string | null
           avatar_url: string | null
+          bank_name: string | null
           bank_verified: boolean
           bank_verified_at: string | null
+          city: string | null
           contact_verified: boolean
           contact_verified_at: string | null
           created_at: string | null
@@ -1016,15 +1024,20 @@ export type Database = {
           email_verified: boolean
           email_verified_at: string | null
           first_name: string | null
+          franchise_location: string | null
           full_name: string | null
           id: string
+          ifsc_code: string | null
+          investment_amount: number | null
           is_active: boolean
           join_date: string | null
           kyc_status: Database["public"]["Enums"]["kyc_status"]
           last_name: string | null
           middle_name: string | null
           onboarding_completed: boolean
+          pan_number: string | null
           phone: string | null
+          pincode: string | null
           rbac_level: number
           referral_code: string | null
           referred_by: string | null
@@ -1036,9 +1049,14 @@ export type Database = {
           wallet_balance: number
         }
         Insert: {
+          aadhaar_number?: string | null
+          account_number?: string | null
+          address?: string | null
           avatar_url?: string | null
+          bank_name?: string | null
           bank_verified?: boolean
           bank_verified_at?: string | null
+          city?: string | null
           contact_verified?: boolean
           contact_verified_at?: string | null
           created_at?: string | null
@@ -1046,15 +1064,20 @@ export type Database = {
           email_verified?: boolean
           email_verified_at?: string | null
           first_name?: string | null
+          franchise_location?: string | null
           full_name?: string | null
           id: string
+          ifsc_code?: string | null
+          investment_amount?: number | null
           is_active?: boolean
           join_date?: string | null
           kyc_status?: Database["public"]["Enums"]["kyc_status"]
           last_name?: string | null
           middle_name?: string | null
           onboarding_completed?: boolean
+          pan_number?: string | null
           phone?: string | null
+          pincode?: string | null
           rbac_level?: number
           referral_code?: string | null
           referred_by?: string | null
@@ -1066,9 +1089,14 @@ export type Database = {
           wallet_balance?: number
         }
         Update: {
+          aadhaar_number?: string | null
+          account_number?: string | null
+          address?: string | null
           avatar_url?: string | null
+          bank_name?: string | null
           bank_verified?: boolean
           bank_verified_at?: string | null
+          city?: string | null
           contact_verified?: boolean
           contact_verified_at?: string | null
           created_at?: string | null
@@ -1076,15 +1104,20 @@ export type Database = {
           email_verified?: boolean
           email_verified_at?: string | null
           first_name?: string | null
+          franchise_location?: string | null
           full_name?: string | null
           id?: string
+          ifsc_code?: string | null
+          investment_amount?: number | null
           is_active?: boolean
           join_date?: string | null
           kyc_status?: Database["public"]["Enums"]["kyc_status"]
           last_name?: string | null
           middle_name?: string | null
           onboarding_completed?: boolean
+          pan_number?: string | null
           phone?: string | null
+          pincode?: string | null
           rbac_level?: number
           referral_code?: string | null
           referred_by?: string | null
@@ -1691,21 +1724,46 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      auto_upgrade_rank: { Args: { user_id: string }; Returns: Json }
-      get_network_stats: { Args: { root_user_id: string }; Returns: Json }
-      get_network_tree: {
-        Args: { root_user_id: string }
+      auto_upgrade_rank: {
+        Args: { investor_user_id: string }
+        Returns: boolean
+      }
+      get_network_stats: {
+        Args: { p_user_id: string }
         Returns: {
-          depth: number
-          referral_code: string
-          sponsor_id: string
+          level_1_count: number
+          level_2_count: number
+          level_3_count: number
+          level_4_count: number
+          level_5_count: number
+          level_6_count: number
+          rank: string
+          rank_progress: number
+          total_commissions_earned: number
+          total_network_investment: number
+          total_network_size: number
+        }[]
+      }
+      get_network_tree: {
+        Args: { p_max_level?: number; p_user_id: string }
+        Returns: {
+          direct_referrals: number
+          email: string
+          full_name: string
+          investment_total: number
+          joined_at: string
+          level: number
           user_id: string
         }[]
       }
       get_visible_network_commission_leaderboard_v1: {
-        Args: { root_user_id: string }
+        Args: { p_days: number; p_include_cancelled?: boolean }
         Returns: {
-          total_net_commission: number
+          admin_charge: number
+          full_name: string
+          gross_commission: number
+          items_count: number
+          net_commission: number
           user_id: string
         }[]
       }
@@ -1713,12 +1771,28 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
       process_daily_payouts: { Args: never; Returns: Json }
-      recalculate_user_rank: { Args: { user_id: string }; Returns: Json }
-      record_sync_result: { Args: { result: Json }; Returns: Json }
-      resolve_referrer_user_id_v1: {
-        Args: { ref_code: string }
-        Returns: string
+      recalculate_user_rank: {
+        Args: { p_user_auth_id: string }
+        Returns: {
+          current_rank: string
+          previous_rank: string
+          qualifying_volume: number
+        }[]
       }
+      record_sync_result: {
+        Args: {
+          p_error_message: string
+          p_integration_id: string
+          p_products_created: number
+          p_products_failed: number
+          p_products_fetched: number
+          p_products_updated: number
+          p_status: string
+          p_sync_type: string
+        }
+        Returns: Json
+      }
+      resolve_referrer_user_id_v1: { Args: { p_code: string }; Returns: string }
     }
     Enums: {
       commission_status: "ACCRUED" | "APPROVED" | "PAID" | "REJECTED"
